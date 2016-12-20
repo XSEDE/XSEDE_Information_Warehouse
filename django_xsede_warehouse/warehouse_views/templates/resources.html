@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}XSEDE Resource List{% endblock %}
+{% block content %}
+  <a href="/wh1/warehouse-views/v1/resources/">All Resources</a>&nbsp;<a href="/wh1/warehouse-views/v1/resources-active/">Active Resources</a>
+  <table width="98%" border=0 cellspacing=0 cellpadding=0>
+    <tr height="50">
+      <td width="22%" align="left"></td>
+      <td width="52%" align="center" valign="center"><h1>XSEDE Resource List</h1></td>
+      <td width="22%" align="right" valign="top"><td>
+    </tr>
+  </table>
+  <table style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
+  <tr><th>ResourceID</th><th>ResourceName</th><th>Current Status</th><th>SiteID</th><th>Active</th><th>RDR ID</th></tr>
+  {% for resource in resource_list %}
+    <tr>
+    <td>{{ resource.info_resourceid }}</td>
+    <td>{{ resource.resource_descriptive_name }}</td>
+    <td>{{ resource.current_statuses }}</td>
+    <td>{{ resource.info_siteid }}</td>
+    <td>{{ resource.Active }}</td>
+    <td><a href="/wh1/rdr-db/v1/rdr-xup/ID/{{ resource.rdr_resource_id }}">{{ resource.rdr_resource_id }}</a></td>
+    </tr>
+  {% endfor %}
+{% endblock %}

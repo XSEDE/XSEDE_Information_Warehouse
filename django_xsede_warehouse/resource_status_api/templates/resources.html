@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}XSEDE Resource List{% endblock %}
+{% block content %}
+  <table width="98%" border=0 cellspacing=0 cellpadding=0>
+    <tr height="50">
+      <td width="22%" align="left"></td>
+      <td width="52%" align="center" valign="center"><h1>XSEDE Resource Status</h1></td>
+      <td width="22%" align="right" valign="top"><td>
+    </tr>
+  </table>
+  {% for resource in resource_list %}
+    <ul style="list-style-type:none">Resource ID: {{ resource.ResourceID }}
+	<li>SiteID: {{ resource.SiteID }}</li>
+	<li>DisplayName: {{ resource.DisplayName }}</li>
+	<li>RDR_Declared_Status:
+	    <ul style"list-style-type:none">
+		<li>Summary: {{ resource.RDR_Declared_Status.Summary }}</li>
+		<li>References_URLs: {{ resource.RDR_Declared_Status.References_URLs }}</li>
+		<li style="background-color:{{ resource.RDR_Declared_Status.Label }}">Label: {{ resource.RDR_Declared_Status.Label }}</li>
+	    </ul>
+    </ul>
+  {% endfor %}
+{% endblock %}

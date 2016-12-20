@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}XSEDE RDR XUPv2 List{% endblock %}
+{% block content %}
+  <table width="98%" border=0 cellspacing=0 cellpadding=0>
+    <tr height="50">
+      <td width="22%" align="left"></td>
+      <td width="52%" align="center" valign="center"><h1>XSEDE RDR XUPv2</h1></td>
+      <td width="22%" align="right" valign="top"><td>
+    </tr>
+  </table>
+  {% for resource in resource_list %}
+    <ul style="list-style-type:none">Info Resource ID: {{ resource.info_resourceid }}
+	<li>Info SiteID: {{ resource.info_siteid }}</li>
+	<li>RDR ResourceID: {{ resource.rdr_resource_id }}</li>
+	<li>RDR Type: {{ resource.rdr_type }}</li>
+	<li>Resource Descriptive Name: {{ resource.resource_descriptive_name }}</li>
+	<li>Resource Description: {{ resource.resource_description }}</li>
+	<li>Resource Status:</li>
+	    <ul style="list-style-type:none">
+		<li>Coming Soon Begin Date: {{ resource.resource_status.coming_soon_begin_date }}</li>
+		<li>Coming Soon End Date: {{ resource.resource_status.coming_soon_end_date }}</li>
+		<li>PreProduction Begin Date: {{ resource.resource_status.pre_production_begin_date }}</li>
+		<li>PreProduction End Date: {{ resource.resource_status.pre_production_end_date }}</li>
+		<li>PostProduction Begin Date: {{ resource.resource_status.post_production_begin_date }}</li>
+		<li>PostProduction End Date: {{ resource.resource_status.post_production_end_date }}</li>
+		<li>Retired End Date: {{ resource.resource_status.retired_end_date }}</li>
+		<li>Production Begin Date: {{ resource.resource_status.production_begin_date }}</li>
+		<li>Production End Date: {{ resource.resource_status.production_end_date }}</li>
+		<li>Retired Begin Date: {{ resource.resource_status.retired_begin_date }}</li>
+		<li>Retired End Date: {{ resource.resource_status.retired_end_date }}</li>
+		<li>Decommissioned Begin Date: {{ resource.resource_status.decommissioned_begin_date }}</li>
+		<li>Decommissioned End Date: {{ resource.resource_status.decommissioned_end_date }}</li>
+		<li>Friendly Begin Date: {{ resource.resource_status.friendly_begin_date }}</li>
+		<li>Friendly End Date: {{ resource.resource_status.friendly_end_date }}</li>
+	    </ul>
+	<li>Current Statuses: {{ resource.current_statuses }}</li>
+	<li>Parent Resource: {{ resource.parent_resource }}</li>
+	<li>Recommended Use: {{ resource.recommended_use }}</li>
+	<li>Access Description: {{ resource.access_description }}</li>
+	<li>Other Attributes:</li>
+	    <ul style="list-style-type:none">
+		<li>Organizations: </li>
+	    	    <ul style="list-style-type:none">
+		        <li>Organization Name: {{ resource.other_attributes.organizations.organization_name }}</li>
+		        <li>Organization Abbreviation: {{ resource.other_attributes.organizations.organization_abbreviation }}</li>
+		        <li>Organization Code: {{ resource.other_attributes.organizations.organization_code }}</li>
+                    </ul>
+		<li>Provider Level: {{ resource.other_attributes.provider_level }}</li>
+		<li>Project Affiliation: {{ resource.other_attributes.project_affiliation }}</li>
+            </ul>
+	<li>Updated At: {{ resource.updated_at }}</li>
+    </ul>
+  {% endfor %}
+{% endblock %}

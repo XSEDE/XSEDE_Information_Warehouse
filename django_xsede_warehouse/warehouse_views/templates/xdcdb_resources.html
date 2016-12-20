@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}XDCDB Active Resource List{% endblock %}
+{% block content %}
+  <table width="98%" border=0 cellspacing=0 cellpadding=0>
+    <tr height="50">
+      <td width="22%" align="left"></td>
+      <td width="52%" align="center" valign="center"><h1>XDCDB Active Resource List</h1></td>
+      <td width="22%" align="right" valign="top"><td>
+    </tr>
+  </table>
+  <table style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
+  <tr><th>ResourceID</th><th>XDCDB ResourceName</th><th>AmieName</th><th>PopsName</th><th>SiteID</th></tr>
+  {% for resource in xdcdb_list %}
+    <tr>
+    <td>{{ resource.ResourceID }}</td>
+    <td>{{ resource.TgcdbResourceName }}</td>
+    <td>{{ resource.AmieName }}</td>
+    <td>{{ resource.PopsName }}</td>
+    <td>{{ resource.SiteID }}</td>
+    </tr>
+  {% endfor %}
+{% endblock %}

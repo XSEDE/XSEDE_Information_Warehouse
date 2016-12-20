@@ -1,0 +1,8 @@
+# 2016-07-15 Upgrading to Django 1.9 + latest dependences
+- For enhanced PostgreSQL JSON support
+- Upgraded to:
+  Django 1.9.7
+  django-jsonfield 1.0.0
+  django-rest-swagger 0.3.8 (not 2.0.1)
+  djangorestframework 3.4.0
+  # all other packages remained the some
