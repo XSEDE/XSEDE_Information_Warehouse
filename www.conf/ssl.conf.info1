@@ -7,6 +7,10 @@
 #
 Listen 443
 
+#   To address RC4 weakness
+#   Per: https://blog.qualys.com/ssllabs/2013/03/19/rc4-in-tls-is-broken-now-what
+#SSLCompression off
+
 ##
 ##  SSL Global Context
 ##
@@ -42,9 +46,9 @@ SSLMutex  "file:logs/ssl_mutex"
 ## WSGI
 ##
 <IfModule mod_wsgi.c>
-    WSGIPythonHome /soft/python-2.7.10-2
+    WSGIPythonHome /soft/python-2.7.13-1
     WSGISocketPrefix run/wsgi
-#   WSGIPythonPath /soft/python-2.7.10-2/lib
+#   WSGIPythonPath /soft/python-2.7.13-1/lib
 </IfModule>
 
 ##
@@ -52,7 +56,13 @@ SSLMutex  "file:logs/ssl_mutex"
 ##
 
 <VirtualHost _default_:443>
-DocumentRoot "/soft/warehouse-1.0/trunk/www"
+    DocumentRoot "/soft/info.xsede.org"
+    <Directory "/soft/info.xsede.org">
+        Order deny,allow
+        Allow from all
+    </Directory>
+    Alias /robots.txt "/soft/info.xsede.org/static/robots.txt"
+    Alias /favicon.ico "/soft/info.xsede.org/static/favicon.ico"
 
 #   SSL Engine Switch:
 #   Enable/Disable SSL for this virtual host.
@@ -61,12 +71,12 @@ SSLEngine on
 #   SSL Protocol support:
 #   List the protocol versions which clients are allowed to
 #   connect with. Disable SSLv2 by default (cf. RFC 6176).
-SSLProtocol all -SSLv2
+SSLProtocol all -SSLv2 -SSLv3
 
 #   SSL Cipher Suite:
 #   List the ciphers that the client is permitted to negotiate.
 #   See the mod_ssl documentation for a complete list.
-SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5
+SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5:!RC4
 
 #   Server Certificate:
 #   Point SSLCertificateFile at a PEM encoded certificate.  If
@@ -96,6 +106,7 @@ SSLCertificateKeyFile "/etc/grid-security/info.dyn.xsede.org.hostkey.pem"
 #   when the CA certificates are directly appended to the server
 #   certificate for convenience.
 #SSLCertificateChainFile "/opt/local/apache2/conf/server-ca.crt"
+SSLCertificateChainFile "/etc/grid-security/incommon_rsa_chain.pem"
 
 #   Certificate Authority (CA):
 #   Set the CA certificate verification path where to find CA
@@ -209,52 +220,55 @@ BrowserMatch "MSIE [2-5]" \
 CustomLog "logs/ssl_request_log" \
           "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
 
-    WSGIDaemonProcess info.xsede.org processes=2 threads=8 python-path=/soft/warehouse-1.0/trunk/django_glue2
+    SSLProxyEngine on
+    RedirectMatch ^/$ /info/
+    ProxyPass /info https://software.xsede.org/info
+    ProxyPassReverse /info https://software.xsede.org/info
+    ProxyPass /files https://software.xsede.org/files
+    ProxyPassReverse /files https://software.xsede.org/files
+
+    WSGIDaemonProcess info.xsede.org processes=2 threads=8 python-path=/soft/warehouse-1.0/PROD/django_xsede_warehouse connect-timeout=30
     WSGIProcessGroup info.xsede.org
     WSGIApplicationGroup warehouse_django
     WSGIPassAuthorization On
 
-    <Directory "/soft/warehouse-1.0/trunk/www">
-        Order deny,allow
-        Allow from all
-    </Directory>
-    Alias /robots.txt /soft/warehouse-1.0/trunk/www/static/robots.txt
-    Alias /favicon.ico /soft/warehouse-1.0/trunk/www/static/favicon.ico
-
-    <Directory "/soft/warehouse-1.0/trunk/www/images">
-        Order deny,allow
-        Allow from all
-    </Directory>
-
-    WSGIScriptAlias /wh1 /soft/warehouse-1.0/trunk/django_glue2/xsede_glue2/wsgi.py
-    <Directory "/soft/warehouse-1.0/trunk/django_glue2/xsede_glue2">
+    WSGIScriptAlias /wh1 /soft/warehouse-1.0/PROD/django_xsede_warehouse/xsede_warehouse/wsgi.py
+    <Directory "/soft/warehouse-1.0/PROD/django_xsede_warehouse/xsede_warehouse">
         <Files wsgi.py>
             Order allow,deny
             Allow from all
         </Files>
     </Directory>
 
-    <Directory "/soft/warehouse-1.0/trunk/django_glue2">
+    <Directory "/soft/warehouse-1.0/PROD/django_xsede_warehouse">
         Order deny,allow
         Allow from all
     </Directory>
 
-    Alias /static/admin/ /soft/python-2.7.10-2/lib/python2.7/site-packages/django/contrib/admin/static/admin/
-    <Directory "/soft/python-2.7.10-2/lib/python2.7/site-packages/django/contrib/admin/static/admin">
+    Alias /static/admin/ /soft/python-2.7.13-1/lib/python2.7/site-packages/django/contrib/admin/static/admin/
+    <Directory "/soft/python-2.7.13-1/lib/python2.7/site-packages/django/contrib/admin/static/admin">
         Order deny,allow
         Allow from all
     </Directory>
-    <Directory "/soft/python-2.7.10-2/lib/python2.7/site-packages/django/contrib/admin/">
-        Order deny,allow
-        Allow from all
-    </Directory>
-
-    Alias /static/rest_framework_swagger/ /soft/python-2.7.10-2/lib/python2.7/site-packages/rest_framework_swagger/static/rest_framework_swagger/
-    <Directory "/soft/python-2.7.10-2/lib/python2.7/site-packages/rest_framework_swagger/static/rest_framework_swagger/">
+    <Directory "/soft/python-2.7.13-1/lib/python2.7/site-packages/django/contrib/admin/">
         Order deny,allow
         Allow from all
     </Directory>
 
-    Alias /static/ /soft/warehouse-1.0/trunk/www/static/
-    Alias /images/ /soft/warehouse-1.0/trunk/www/images/
+    Alias /static/rest_framework_swagger/ /soft/python-2.7.13-1/lib/python2.7/site-packages/rest_framework_swagger/static/rest_framework_swagger/
+    <Directory "/soft/python-2.7.13-1/lib/python2.7/site-packages/rest_framework_swagger/static/rest_framework_swagger/">
+        Order deny,allow
+        Allow from all
+    </Directory>
+
+    <Directory "/soft/warehouse-1.0/PROD/www/images">
+        Order deny,allow
+        Allow from all
+    </Directory>
+    <Directory "/soft/warehouse-1.0/PROD/www">
+        Order deny,allow
+        Allow from all
+    </Directory>
+    Alias /static/ /soft/warehouse-1.0/PROD/www/static/
+    Alias /images/ /soft/warehouse-1.0/PROD/www/images/
 </VirtualHost>                                  
