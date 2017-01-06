@@ -6,7 +6,7 @@ import pdb
 
 # The abstract GLUE2 model
 class AbstractGlue2Model(models.Model):
-    ID = models.CharField(primary_key=True, max_length=120)
+    ID = models.CharField(primary_key=True, max_length=200)
     ResourceID = models.CharField(db_index=True, max_length=40)
     # Under consideration to join with RDR information (2016-07-15, JP)
 #    ResourceID = models.ForeignKey(RDRResource, to_field='info_resourceid', db_constraint=False,
