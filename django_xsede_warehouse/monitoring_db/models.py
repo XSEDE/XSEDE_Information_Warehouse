@@ -8,6 +8,6 @@ import jsonfield
 class TestResult(AbstractGlue2Model):
     Source = models.CharField(max_length=16)
     Result = models.CharField(max_length=16)
-    ErrorMessage = models.CharField(max_length=512, null=True)
+    ErrorMessage = models.CharField(max_length=4096, null=True)
     IsSoftware = models.BooleanField(default=False)
     IsService = models.BooleanField(default=False)
