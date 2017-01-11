@@ -82,7 +82,7 @@ class Glue2NewDocument():
             except KeyError:
                 errormessage = None
 
-            print('ID=%s, ResourceID=%s, Name="%s"' % (self.new[me][ID]['ID'], self.resourceid, self.new[me][ID]['Name']))
+            logg2.info('ID=%s, ResourceID=%s, Name="%s"' % (self.new[me][ID]['ID'], self.resourceid, self.new[me][ID]['Name']))
 
             try:
                 nagios_m, created = TestResult.objects.get_or_create(ID=self.new[me][ID]['ID'],
@@ -150,7 +150,7 @@ class Glue2NewDocument():
             if 'rep:report' not in data\
                 or 'XSEDE_IS' not in data\
                 or any(x not in data['rep:report'] for x in ('gmt', 'name', 'hostname')):
-                print ('Inca JSON response is missing a \'rep:report\' element')
+                logg2.error('Inca JSON response is missing a \'rep:report\' element')
             else:
                 source = 'inca'
                 report = data['rep:report']
@@ -165,7 +165,7 @@ class Glue2NewDocument():
                     errormessage = result['errorMessage']
                 except KeyError:
                     errormessage = None
-                print ('ID=%s, ResourceID=%s, Name="%s"' % (resource_info['ID'], self.resourceid, resource_info['Name']))
+                logg2.info('ID=%s, ResourceID=%s, Name="%s"' % (resource_info['ID'], self.resourceid, resource_info['Name']))
 
                 try:
                     inca_m, created = TestResult.objects.get_or_create(ID=resource_info['ID'],
@@ -211,7 +211,7 @@ class Glue2NewDocument():
                 except KeyError:
                     errormessage = None
 
-                print ('ID=%s, ResourceID=%s, Name="%s"' % (data['ID'], self.resourceid, data['Name']))
+                logg2.info('ID=%s, ResourceID=%s, Name="%s"' % (data['ID'], self.resourceid, data['Name']))
 
                 try:
                     nagios_m, created = TestResult.objects.get_or_create(ID=data['ID'],
