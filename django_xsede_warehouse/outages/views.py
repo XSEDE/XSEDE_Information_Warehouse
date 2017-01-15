@@ -72,3 +72,17 @@ class Outages_Future(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = Outages_Serializer(objects, many=True)
         return Response(serializer.data)
+
+class Outages_StatusRelevant(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    def get(self, request, format=None, **kwargs):
+        now = timezone.now()
+        # Relevant means active in the last week into the future
+        relevant_start = now - timezone.timedelta(days=7)
+        if 'ResourceID' in self.kwargs:
+            try:
+                objects = Outages.objects.filter(ResourceID__exact=self.kwargs['ResourceID'], OutageEnd__gte=relevant_start)
+            except Outages.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            serializer = Outages_Serializer(objects, many=True)
+        return Response(serializer.data)

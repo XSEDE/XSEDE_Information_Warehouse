@@ -22,6 +22,8 @@ urlpatterns = [
     url(r'^outages/Future/$',
         Outages_Future.as_view(),
         name='outages-future'),
-
+    url(r'^outages/StatusRelevant/ResourceID/(?P<ResourceID>[^/]+)/$',
+        Outages_StatusRelevant.as_view(),
+        name='outages-statusrelevant'),
 #    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
