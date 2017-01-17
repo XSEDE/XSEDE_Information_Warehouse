@@ -72,6 +72,7 @@ INSTALLED_APPS = (
     'speedpage',
     'outages',
     'projectresources',
+    'processing_status',
 )
 
 MIDDLEWARE_CLASSES = (

@@ -31,6 +31,7 @@ urlpatterns = [
     url('^monitoring-provider-api/v1/', include('monitoring_provider.urls')),
     url('^monitoring-views-api/v1/', include('monitoring_views_api.urls')),
     url('^outages/v1/', include('outages.urls')),
+    url('^processing-status/', include('processing_status.urls')),
     url('^projectresources/v1/', include('projectresources.urls')),
     url('^rdr-db/', include('rdr_db.urls')),
     url('^resource-status-api/v1/', include('resource_status_api.urls')),

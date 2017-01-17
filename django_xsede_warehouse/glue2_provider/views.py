@@ -14,7 +14,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.response import Response
 from glue2_db.models import EntityHistory
 from glue2_provider.process import Glue2NewDocument
-
+from processing_status.process import ProcessingActivity
 from xsede_warehouse.exceptions import ProcessingException
 
 import logging
@@ -40,6 +40,10 @@ class Glue2ProcessDoc(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
         
         receivedts = timezone.now()
+
+        pa_id = '{}:{}'.format(doctype, resourceid)
+        pa = ProcessingActivity('glue2_provider.views.Glue2ProcessDoc', pa_id, doctype, resourceid)
+
         try:
             model = EntityHistory(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=receivedts, EntityJSON=request.data)
             model.save()
@@ -48,17 +52,21 @@ class Glue2ProcessDoc(APIView):
         except (ValidationError) as e:
             logg2.error('Exception on GLUE2 EntityHistory DocType=%s, ResourceID=%s: %s' % \
                         (model.DocumentType, model.ResourceID, e.error_list))
+            pa.FinishActivity('EntityHistory ValidationError', e.error_list)
             return Response('EntityHistory create exception(%s)' % e, \
                             status=status.HTTP_400_BAD_REQUEST)
         except (DataError, IntegrityError) as e:
             logg2.error('Exception on GLUE2 EntityHistory (DocType=%s, ResourceID=%s): %s' % \
                         (model.DocumentType, model.ResourceID, e.error_list))
+            pa.FinishActivity('EntityHistory DataError|IntegrityError', e.error_list)
             return Response('EntityHistory create exception(%s)' % e, \
                             status=status.HTTP_400_BAD_REQUEST)
     
         g2doc = Glue2NewDocument(doctype, resourceid, receivedts, 'EntityHistory.ID=%s' % model.ID)
         try:
             response = g2doc.process(request.data)
+            pa.FinishActivity('0', 'EntityHistory.ID={}'.format(model.ID))
             return Response(response, status=status.HTTP_201_CREATED)
         except ProcessingException, e:
+            pa.FinishActivity('Glue2 ProcessingException', 'status={}; response={}'.format(e.status, e.response))
             return Response(e.response, status=e.status)
