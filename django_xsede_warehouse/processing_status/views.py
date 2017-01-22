@@ -10,7 +10,11 @@ from processing_status.serializers import *
 # Create your views here.
 class ProcessingRecord_DbList(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    def get(self, request, format=None):
+    def get(self, request):
+	returnformat = request.query_params.get('format', 'json')
         objects = ProcessingRecord.objects.all()
-        serializer = ProcessingRecord_DbSerializer(objects, many=True)
-        return Response(serializer.data)
+        if returnformat != 'html':
+           serializer = ProcessingRecord_DbSerializer(objects, many=True)
+           return Response(serializer.data)
+  	else:
+           return render(request, 'list.html', {'record_list': objects})
