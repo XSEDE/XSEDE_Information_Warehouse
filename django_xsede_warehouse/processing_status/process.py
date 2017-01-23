@@ -18,14 +18,16 @@ class UTC(tzinfo):
 utc = UTC()
 
 class ProcessingActivity():
-    def __init__(self, App, ID, Topic, About):
-        self.App = App
+    def __init__(self, Application, Function, ID, Topic, About):
+        self.Application = Application
+        self.Function = Function
         self.ID = ID
         model = ProcessingRecord(ID=ID,
                                 Topic=Topic,
                                 About=About,
                                 ProcessingNode=socket.gethostname(),
-                                ProcessingApp=self.App,
+                                ProcessingApplication=self.Application,
+                                ProcessingFunction=self.Function,
                                 ProcessingStart=datetime.now(utc)
                                  )
         model.save()

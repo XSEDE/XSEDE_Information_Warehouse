@@ -28,7 +28,8 @@ class Resource_Status_Detail(APIView):
             except RDRResource.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
         else:
-            objects = RDR_Active_Sub_Resources()
+            pdb.set_trace()
+            objects = RDR_Active_Sub_Resources(level='xup')
         serializer = Resource_Status_Serializer(objects, context={'request': request}, many=True)
         if returnformat != 'html':
             #Thought I was having a problem when not specifying a format at all

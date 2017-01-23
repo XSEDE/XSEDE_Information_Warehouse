@@ -28,21 +28,22 @@ class Glue2ProcessDoc(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def post(self, request, doctype, resourceid, format=None):
 #       pdb.set_trace()
+        receivedts = timezone.now()
+        pa_id = '{}:{}'.format(doctype, resourceid)
+        pa = ProcessingActivity('glue2_provider.views', 'Glue2ProcessDoc', pa_id, doctype, resourceid)
+
         if doctype not in ['glue2.applications', 'glue2.compute', 'glue2.computing_activities']:
             logg2.info('Ignoring DocType (DocType=%s, ResourceID=%s)' % \
                        (doctype, resourceid))
+            pa.FinishActivity('ignored', 'Ignoring DocType=' + doctype)
             return Response('Ignoring DocType(%s)' % doctype, \
                             status=status.HTTP_400_BAD_REQUEST)
         if 'ID' in request.data and request.data['ID'].startswith('urn:glue2:ComputingActivity:'):
             logg2.debug('Ignoring DocType (DocType=%s, ResourceID=%s) actually glue2.computing_activity' % \
                        (doctype, resourceid))
+            pa.FinishActivity('ignored', 'Ignoring DocType=' + doctype)
             return Response('Ignoring DocType(%s) actually glue2.computing_activity' % doctype, \
                             status=status.HTTP_400_BAD_REQUEST)
-        
-        receivedts = timezone.now()
-
-        pa_id = '{}:{}'.format(doctype, resourceid)
-        pa = ProcessingActivity('glue2_provider.views.Glue2ProcessDoc', pa_id, doctype, resourceid)
 
         try:
             model = EntityHistory(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=receivedts, EntityJSON=request.data)
