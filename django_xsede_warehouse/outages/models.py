@@ -14,6 +14,7 @@ class Outages(models.Model):
     OutageStart = models.DateTimeField(null=True)
     OutageEnd = models.DateTimeField(null=True)
     SiteID = models.CharField(db_index=True, max_length=40)
+    OutageType = models.CharField(max_length=16)
     class Meta:
         db_name = 'xcsr'
     def __unicode__(self):
