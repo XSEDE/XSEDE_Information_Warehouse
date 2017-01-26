@@ -28,8 +28,7 @@ class Resource_Status_Detail(APIView):
             except RDRResource.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
         else:
-            pdb.set_trace()
-            objects = RDR_Active_Sub_Resources(level='xup')
+            objects = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='SUB', result='OBJECTS')
         serializer = Resource_Status_Serializer(objects, context={'request': request}, many=True)
         if returnformat != 'html':
             #Thought I was having a problem when not specifying a format at all
@@ -43,19 +42,16 @@ class Resource_Status_Detail(APIView):
         else:
             return render(request, 'resources.html', {'resource_list': serializer.data})
 
-#class Resource_Status_Detail(APIView):
-#    permission_classes = (IsAuthenticatedOrReadOnly,)
-#    def get(self, request, format=None, **kwargs):
-#        if 'id' in self.kwargs:
-#            try:
-#                object = ApplicationHandle.objects.get(pk=uri_to_iri(self.kwargs['id'])) # uri_to_iri translates %xx
-#            except ApplicationHandle.DoesNotExist:
-#                return Response(status=status.HTTP_404_NOT_FOUND)
-#            serializer = ApplicationHandle_Serializer(object)
-#        elif 'resourceid' in self.kwargs:
-#            objects = ApplicationHandle.objects.filter(ResourceID__exact=self.kwargs['resourceid'])
-#            serializer = ApplicationHandle_Serializer(objects, many=True)
-#        elif 'appname' in self.kwargs:
-#            objects = ApplicationHandle.objects.filter(ApplicationEnvironment__AppName__exact=uri_to_iri(self.kwargs['appname']))
-#            serializer = ApplicationHandle_Serializer(objects, many=True)
-#        return Response(serializer.data)
+class Resource_Ops_Status_Detail(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    def get(self, request, format=None, **kwargs):
+        if 'resourceid' in self.kwargs:
+            try:
+                objects = RDRResource.objects.filter(info_resourceid__exact=uri_to_iri(self.kwargs['resourceid'])).filter(rdr_type__in=['compute','storage'])
+            except RDRResource.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            objects = RDR_Active_Resources(affiliation='XSEDE', allocated=False, type='SUB', result='OBJECTS')
+        serializer = Resource_Ops_Status_Serializer(objects, context={'request': request}, many=True)
+        return Response(serializer.data)
+

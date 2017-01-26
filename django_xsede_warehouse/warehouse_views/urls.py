@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^v1/resources-active/$',
         Resource_List_Active.as_view(),
         name='resource-list'),
-     url(r'^v1/resources-xdcdb-active/$',
+    url(r'^v1/resources-xdcdb-active/$',
         Resource_List_XDCDB_Active.as_view(),
         name='resource-list'),
               
@@ -27,10 +27,6 @@ urlpatterns = [
     url(r'^v1/software/AppName/(?P<appname>[^/]+)/$',
         Software_Full.as_view(),
         name='software-detail'),
-# Exclude for now since we would need to join with RDRResource to look this up
-#    url(r'^v1/software/SiteID/(?P<siteid>[^/]+)/$',
-#        Software_Full.as_view(),
-#        name='software-detail'),
                
     url(r'^v1/software-xup/$',
         Software_XUP_v1_List.as_view(),

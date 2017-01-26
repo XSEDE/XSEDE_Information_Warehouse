@@ -10,12 +10,13 @@
   </table>
   <p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
   <table style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
-  <tr><th>Topic</th><th>About</th><th>Application</th><th>Code</th><th>Message</th><th>Processed at</th><th>Age</th><th>ID</th></tr>
+  <tr><th>Topic</th><th>About</th><th>Application</th><th>Function</th><th>Code</th><th>Message</th><th>Processed at</th><th>Age</th><th>ID</th></tr>
   {% for record in record_list|dictsortreversed:"ProcessingStart" %}
     <tr>
     <td>{{ record.Topic }}</td>
     <td>{{ record.About }}</td>
-    <td>{{ record.ProcessingApp }}</td>
+    <td>{{ record.ProcessingApplication }}</td>
+    <td>{{ record.ProcessingFunction }}</td>
     <td align="center">{{ record.ProcessingCode }}</td>
     <td align="center"><b><div title="{{ record.ProcessingMessage }}">See</div></b></td>
     <td>{{ record.ProcessingEnd|date:'Y/m/d H:i e' }}</td>

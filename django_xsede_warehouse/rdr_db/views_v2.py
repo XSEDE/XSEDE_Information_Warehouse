@@ -18,7 +18,7 @@ class RDRResource_XUP_v2_List(APIView):
     renderer_classes = (JSONRenderer,XMLRenderer,TemplateHTMLRenderer,)
     def get(self, request, format=None):
         returnformat = request.query_params.get('format', 'json')
-        all_resources = RDR_Active_All_Resources()
+        all_resources = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='ALL', result='OBJECTS')
         serializer = RDRResource_Serializer(all_resources, many=True)
         #return Response(serializer.data)
         if returnformat != 'html':

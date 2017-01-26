@@ -40,5 +40,5 @@ urlpatterns = [
     url('^xdcdb/v1/', include('xdcdb.urls')),
     url('^xdinfo/v1/', include('xdinfo.urls')),
     url('^warehouse-views/', include('warehouse_views.urls')),
-    url('^api-docs/', include('rest_framework_swagger.urls'), name='swagger'),
+    url('^api-docs/', include('rest_framework_swagger.urls'), name='swagger')
 ]

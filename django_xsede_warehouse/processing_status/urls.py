@@ -7,4 +7,10 @@ urlpatterns = [
     url(r'^record/$',
         ProcessingRecord_DbList.as_view(),
         name='processingrecord-dblist'),
+    url(r'^record/resourceid/(?P<resourceid>[^/]+)/$',
+       ProcessingRecord_DbList.as_view(),
+       name='processingrecord-dblist'),
+    url(r'^record/id/(?P<id>[^/]+)/$',
+       ProcessingRecord_Detail.as_view(),
+       name='processingrecord-detail'),
 ]

@@ -23,13 +23,21 @@ urlpatterns = [
 #    url(r'^monitoring/TestID/(?P<testid>[^/]+)/$',
 #        Monitoring_Detail.as_view(),
 #        name='monitoring-detail'),
-
+    # These are XSEDE allocated resource status for the XUP
     url(r'^status/$',
         Resource_Status_Detail.as_view(),
         name='resource-status-detail'),
     url(r'^status/resourceid/(?P<resourceid>[^/]+)/$',
         Resource_Status_Detail.as_view(),
         name='resource-status-detail'),
+   # These are all XSEDE federate resource operational status for the XCSR
+    url(r'^ops-status/$',
+       Resource_Ops_Status_Detail.as_view(),
+       name='resource-status-detail'),
+    url(r'^ops-status/resourceid/(?P<resourceid>[^/]+)/$',
+       Resource_Ops_Status_Detail.as_view(),
+       name='resource-status-detail'),
+
 #    url(r'^status/active/$',
 #        Resource_Status_Detail.as_view(),
 #        name='resource-status-detail'),
