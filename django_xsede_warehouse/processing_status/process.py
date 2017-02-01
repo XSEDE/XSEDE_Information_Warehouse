@@ -38,3 +38,17 @@ class ProcessingActivity():
         self.model.ProcessingCode=Code
         self.model.ProcessingMessage=Message
         self.model.save()
+
+        if self.model.ProcessingCode != '0':
+            errmodel = ProcessingError(Topic=self.model.Topic,
+                                     About=self.model.About,
+                                     ProcessingNode=self.model.ProcessingNode,
+                                     ProcessingApplication=self.model.ProcessingApplication,
+                                     ProcessingFunction=self.model.ProcessingFunction,
+                                     ErrorTime=self.model.ProcessingEnd,
+                                     ErrorCode=self.model.ProcessingCode,
+                                     ErrorMessage=self.model.ProcessingMessage,
+                                     Reference1=self.model.ID
+                                 )
+            errmodel.save()
+            self.errmodel = errmodel

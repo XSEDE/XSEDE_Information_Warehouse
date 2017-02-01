@@ -8,7 +8,7 @@ class ProcessingRecordAdmin(admin.ModelAdmin):
     list_display_links = ['ID']
 
 class ProcessingErrorAdmin(admin.ModelAdmin):
-    list_display = ('Exchange', 'RoutingKey', 'ErrorTime', 'ID')
+    list_display = ('Topic', 'About', 'ErrorTime', 'ID')
     list_display_links = ['ID']
 
 # Register your models here.

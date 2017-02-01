@@ -85,16 +85,17 @@ class Glue2NewDocument():
             logg2.info('ID=%s, ResourceID=%s, Name="%s"' % (self.new[me][ID]['ID'], self.resourceid, self.new[me][ID]['Name']))
 
             try:
-                nagios_m, created = TestResult.objects.get_or_create(ID=self.new[me][ID]['ID'],
-                                                                 defaults={"ResourceID": self.resourceid,
-                                                                           "Name": self.new[me][ID]['Name'],
-                                                                           "CreationTime": self.new[me][ID]['CreationTime'],
-                                                                             "EntityJSON": self.new[me][ID],
-                                                                             "Source": extension['Source'].lower(),
-                                                                             "Result": extension['Result'].lower(),
-                                                                             "ErrorMessage": errormessage,
-                                                                             "IsSoftware" : issoftware,
-                                                                             "IsService": isservice})
+                nagios_m, created = TestResult.objects.get_or_create(ID=self.new[me][ID]['ID'], defaults={
+                                                                    "ResourceID": self.resourceid,
+                                                                    "Name": self.new[me][ID]['Name'],
+                                                                    "CreationTime": self.new[me][ID]['CreationTime'],
+                                                                    "EntityJSON": self.new[me][ID],
+                                                                    "Source": extension['Source'].lower(),
+                                                                    "Result": extension['Result'].lower(),
+                                                                    "ErrorMessage": errormessage,
+                                                                    "IsSoftware" : issoftware,
+                                                                    "IsService": isservice
+                                                                     })
                 if not created:
                     self.stats['%s.Current' % me] = 1
                     if parse_datetime(self.new[me][ID]['CreationTime']) > nagios_m.CreationTime:
@@ -140,110 +141,6 @@ class Glue2NewDocument():
         self.stats['ProcessingSeconds'] = (end - start).total_seconds()
         logg2.info(StatsSummary(self.stats))
         return(self.stats)
-
-    """
-    def process_1(self, data):
-        start = datetime.utcnow()
-        m = 'TestResult'
-
-        if self.doctype == 'inca':
-            if 'rep:report' not in data\
-                or 'XSEDE_IS' not in data\
-                or any(x not in data['rep:report'] for x in ('gmt', 'name', 'hostname')):
-                logg2.error('Inca JSON response is missing a \'rep:report\' element')
-            else:
-                source = 'inca'
-                report = data['rep:report']
-                resource_info = data['XSEDE_IS']
-                result = report['exitStatus']
-                status = result['completed']
-                if status:
-                    status = 'success'
-                else:
-                    status = 'failure'
-                try:
-                    errormessage = result['errorMessage']
-                except KeyError:
-                    errormessage = None
-                logg2.info('ID=%s, ResourceID=%s, Name="%s"' % (resource_info['ID'], self.resourceid, resource_info['Name']))
-
-                try:
-                    inca_m, created = TestResult.objects.get_or_create(ID=resource_info['ID'],
-                                                                   defaults={"ResourceID": self.resourceid,
-                                                                             "Name": resource_info['Name'],
-                                                                             "CreationTime": report['gmt'],
-                                                                             "EntityJSON": report,
-                                                                             "Source": source,
-                                                                             "Result": status,
-                                                                             "ErrorMessage": errormessage})
-                    if not created:
-                        if parse_datetime(report['gmt']) > inca_m.CreationTime:
-                            TestResult.objects.filter(ID=resource_info['ID']).update(ResourceID=self.resourceid,
-                                                                             Name=resource_info['Name'],
-                                                                             CreationTime=report['gmt'],
-                                                                             EntityJSON=report,
-                                                                             Source=source,
-                                                                             Result=status,
-                                                                             ErrorMessage=errormessage)
-                except (DataError, IntegrityError) as e:
-                    logg2.error('Exception updating %s (ID=%s): %s' % (m, self.resourceid, e.message))
-
-        elif self.doctype == 'nagios':
-                extension = data['Extension']
-                associations = data['Associations']
-                issoftware = False
-                isservice = False
-                errormessager = None
-
-                try:
-                    if associations['SoftwareID']:
-                        issoftware = True
-                except KeyError:
-                    issoftware = False
-                try:
-                    if associations['ServiceID']:
-                        isservice= True
-                except KeyError:
-                    isservice = False
-                try:
-                    if extension['ErrorMessage']:
-                        errormessage = extension['ErrorMessage']
-                except KeyError:
-                    errormessage = None
-
-                logg2.info('ID=%s, ResourceID=%s, Name="%s"' % (data['ID'], self.resourceid, data['Name']))
-
-                try:
-                    nagios_m, created = TestResult.objects.get_or_create(ID=data['ID'],
-                                                                   defaults={"ResourceID": self.resourceid,
-                                                                             "Name": data['Name'],
-                                                                             "CreationTime": data['CreationTime'],
-                                                                             "EntityJSON": data,
-                                                                             "Source": extension['Source'].lower(),
-                                                                             "Result": extension['Result'].lower(),
-                                                                             "ErrorMessage": errormessage,
-                                                                             "IsSoftware" : issoftware,
-                                                                             "IsService": isservice})
-                    if not created:
-                        if parse_datetime(data['CreationTime']) > nagios_m.CreationTime:
-                            TestResult.objects.filter(ID=data['ID']).update(ResourceID=self.resourceid,
-                                                                             Name=data['Name'],
-                                                                             CreationTime=data['CreationTime'],
-                                                                             EntityJSON=data,
-                                                                             Source=extension['Source'].lower(),
-                                                                             Result=extension['Result'].lower(),
-                                                                             ErrorMessage=errormessage,
-                                                                             IsSoftware=issoftware,
-                                                                             IsService=isservice)
-                except (DataError, IntegrityError) as e:
-                    logg2.error('Exception updating %s (ID=%s): %s' % (m, self.resourceid, e.message))
-
-
-        end = datetime.utcnow()
-        self.stats['ProcessingSeconds'] = (end - start).total_seconds()
-        logg2.info(StatsSummary(self.stats))
-        return(self.stats)
-    """
 
 class Glue2Process():
     def process(self, doctype, resourceid, data):

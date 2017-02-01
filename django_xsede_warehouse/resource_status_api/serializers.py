@@ -88,7 +88,7 @@ class Resource_Status_Serializer(serializers.Serializer):
         monurls = set()
         http_request = self.context.get("request")
         for mon in monsearch:
-            if mon.Result == 'Pass':
+            if mon.Result.upper() in ['PASS', 'SUCCESS']:
                 continue
             monfail.add(mon.ID)
             if http_request:
@@ -232,7 +232,7 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
         monurls = set()
         http_request = self.context.get("request")
         for mon in monsearch:
-            if mon.Result == 'Pass':
+            if mon.Result.upper() in ['PASS', 'SUCCESS']:
                 continue
             monfail.add(mon.ID)
             if http_request:

@@ -32,8 +32,8 @@ class ProcessingRecord(models.Model):
 #
 class ProcessingError(models.Model):
     ID = models.AutoField(primary_key=True)
-    Exchange = models.CharField(max_length=255)
-    RoutingKey = models.CharField(db_index=True, max_length=255)
+    Topic = models.CharField(db_index=True, max_length=255)
+    About = models.CharField(db_index=True, max_length=255)
     ProcessingNode = models.CharField(max_length=64)
     ProcessingApplication = models.CharField(db_index=True, max_length=64)
     ProcessingFunction = models.CharField(max_length=64, null=True)
@@ -44,4 +44,4 @@ class ProcessingError(models.Model):
     class Meta:
         db_name = 'xcsr'
     def __unicode__(self):
-        return self.ID
+        return str(self.ID)
