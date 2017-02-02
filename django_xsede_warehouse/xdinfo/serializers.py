@@ -86,9 +86,9 @@ class xdinfo_software_Serializer(serializers.Serializer):
         apphandlesearch = ApplicationHandle.objects.filter(ID=apphandleid)
         if apphandlesearch:
             apphandle = apphandlesearch[0]
-            print "printing apphandle\n"
-            pprint(apphandle)
-            pprint(apphandle.Type)
+#            print "printing apphandle\n"
+#            pprint(apphandle)
+#            pprint(apphandle.Type)
         else:
             return "unknown"
         return apphandle.Type
@@ -114,6 +114,6 @@ class xdinfo_outage_Serializer(serializers.Serializer):
 
 class xdinfo_sites_Serializer(serializers.Serializer):
    
-    #SiteID = serializers.CharField(source='info_siteid')
-    SiteID = serializers.CharField(source='info_resourceid')
-    OrganizationName = serializers.CharField(source='resource_descriptive_name')
+    SiteID = serializers.CharField(source='info_siteid')
+#    SiteID = serializers.CharField(source='info_resourceid')
+#    OrganizationName = serializers.CharField(source='resource_descriptive_name')

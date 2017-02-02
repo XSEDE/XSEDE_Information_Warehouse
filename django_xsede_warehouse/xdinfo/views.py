@@ -22,161 +22,182 @@ import unicodedata
 class xdinfo_Cmd(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
+    def get_version(self):
+        version = '1'
+        return('API version {}'.format(version))
+
     def get(self, request, format=None, **kwargs):
         #print self.kwargs
-        pastflag = False
-        futureflag = False
-        currentflag = False
-        recentflag = False
-        allflag = False
-        headerflag = True
-        arg1 = None
-        infoformat = 'csv'
-        #If we've come in with only one kwarg, it is the infoformat
-        #which means that the command line had no args, so display briefhelp
-        if len(self.kwargs.keys()) == 1:
-            return HttpResponse(self.get_helptext(True), content_type="text/plain")
-        if 'infoformat' in self.kwargs:
-            infoformat = self.kwargs['infoformat']
-        if 'infotype' in self.kwargs:
-          if self.kwargs['infotype'] == "help":
+        infoformat = self.kwargs.get('infoformat', 'csv')
+
+        # Map of valid input types and corresponding canonical types
+        # The rest of this application is driven by the canonical type
+        infotype_map = {
+            'help':         'help',
+            'briefhelp':    'briefhelp',
+            'version':      'version',
+            'gram5':        'gram5',
+            'gram':         'gram5',
+            'gridftp':      'gridftp',
+            'login':        'login',
+            'ssh':          'login',
+            'resources':    'resources',
+            'res':          'resources',
+            'services':     'services',
+            'serv':         'services',
+            'software':     'software',
+            'soft':         'software',
+            'outages':      'outages',
+            'out':          'outages',
+            'sites':        'sites'
+        }
+        # If there is no infotype default to briefhelp
+        infotype = self.kwargs.get('infotype', 'briefhelp').lower()
+        try: # Translate to canonical
+            infotype = infotype_map[infotype]
+        except:
+            return HttpResponse('Unknown option "{}"'.format(infotype), content_type="text/plain")
+
+        if infotype == 'help':
             return HttpResponse(self.get_helptext(False), content_type="text/plain")
-          if self.kwargs['infotype'] == "briefhelp":
+        if infotype == 'briefhelp':
             return HttpResponse(self.get_helptext(True), content_type="text/plain")
-          if self.kwargs['infotype'] == "version":
-            return HttpResponse("API version 1", content_type="text/plain")
-          now = timezone.now()
-          if 'slug' in self.kwargs:
+        if infotype == 'version':
+            return HttpResponse(self.get_version(), content_type="text/plain")
+
+        now = timezone.now()
+        headerflag = True
+        if 'slug' in self.kwargs:
             #print self.kwargs['slug']
             arglist = self.kwargs['slug'].split('/')
-            if 'at' in arglist:
-                arglist.remove('at')
-            if 'on' in arglist:
-                arglist.remove('on')
             #print arglist
-            if 'current' in arglist:
-                currentflag = True
-                arglist.remove('current')
-            if 'recent' in arglist:
-                recentflag = True
-                arglist.remove('recent')
-            if 'past' in arglist:
-                pastflag = True
-                arglist.remove('past')
-            if 'future' in arglist:
-                futureflag = True
-                arglist.remove('future')
+        else:
+            arglist = ()
+        if 'noheader' in arglist:
+            headerflag = False
+            arglist.remove('noheader')
+
+        if infotype == 'outages':
+            allflag = False
+            currentflag = False
+            recentflag = False
+            pastflag = False
+            futureflag = False
             if 'all' in arglist:
                 allflag = True
                 arglist.remove('all')
-            if 'noheader' in arglist:
-                headerflag = False
-                arglist.remove('noheader')
-            if arglist:
-                arg1 = arglist[0]
-          if self.kwargs['infotype'] == "gridftp":
-             if arg1:
-                objects = Endpoint.objects.filter(AbstractService__EntityJSON__Capability__contains=['data.transfer.nonstriped']).filter(ResourceID__icontains=arg1)
+            elif 'current' in arglist:
+                currentflag = True
+                arglist.remove('current')
+            elif 'recent' in arglist:
+                recentflag = True
+                arglist.remove('recent')
+            elif 'past' in arglist:
+                pastflag = True
+                arglist.remove('past')
+            elif 'future' in arglist:
+                futureflag = True
+                arglist.remove('future')
+
+        # Handle the "at" or "on" qualifier
+        aton_index = None
+        aton_string = ''
+        if 'at' in arglist:
+            aton_index = arglist.index('at')
+            arglist.remove('at')
+        elif 'on' in arglist:
+            aton_index = arglist.index('on')
+            arglist.remove('on')
+        if aton_index is not None:
+            if (aton_index + 1) > len(arglist):
+                return HttpResponse('The at/on option is missing a <match_string>', content_type="text/plain")
+            aton_string = arglist.pop(aton_index) # Because we removed at/on, the string should be in the same position
+
+        filter_string = ''
+        if arglist:
+            filter_string = arglist[0]
+
+        if infotype == 'gridftp':
+            if aton_string:
+                objects = Endpoint.objects.filter(AbstractService__EntityJSON__Capability__contains=['data.transfer.nonstriped']).filter(ResourceID__icontains=aton_string)
                 serializernonstriped = xdinfo_gridftpn_Serializer(objects,many=True)
-                objects = Endpoint.objects.filter(AbstractService__EntityJSON__Capability__contains=['data.transfer.striped']).filter(ResourceID__icontains=arg1)
+                objects = Endpoint.objects.filter(AbstractService__EntityJSON__Capability__contains=['data.transfer.striped']).filter(ResourceID__icontains=aton_string)
                 serializerstriped = xdinfo_gridftps_Serializer(objects,many=True)
-             else:
+            else:
                 objects = Endpoint.objects.filter(AbstractService__EntityJSON__Capability__contains=['data.transfer.nonstriped'])
                 serializernonstriped = xdinfo_gridftpn_Serializer(objects,many=True)
                 objects = Endpoint.objects.filter(AbstractService__EntityJSON__Capability__contains=['data.transfer.striped'])
                 serializerstriped = xdinfo_gridftps_Serializer(objects,many=True)
-             serialized_data = serializerstriped.data+serializernonstriped.data
-          else:
-            filter_dict = {}
+            serialized_data = serializerstriped.data+serializernonstriped.data
+        else:
             casedict = {
-                'gram5':{'objects': Endpoint.objects,
-                            'filter_dict': {'Name__exact': 'org.globus.gram'},
-                            'arg1_filter': 'ResourceID__icontains',
-                            'serializer': xdinfo_gram_Serializer},
-                'gram':{'objects': Endpoint.objects,
-                            'filter_dict': {'Name__exact': 'org.globus.gram'},
-                            'arg1_filter': 'ResourceID__icontains',
-                            'serializer': xdinfo_gram_Serializer},
-                'login':{'objects': Endpoint.objects,
+                'gram5':{   'objects':      Endpoint.objects,
+                            'filter_dict':  {'Name__exact': 'org.globus.gram'},
+                            'resid_field':  'ResourceID__icontains',
+                            'match_field':  'URL__icontains',
+                            'serializer':   xdinfo_gram_Serializer},
+                'login':{   'objects':      Endpoint.objects,
                             'filter_dict': {'Name__exact': 'org.globus.openssh'},
-                            'arg1_filter': 'ResourceID__icontains',
-                            'serializer': xdinfo_service_Serializer},
-                'ssh':{'objects': Endpoint.objects,
-                            'filter_dict': {'Name__exact': 'org.globus.openssh'},
-                            'arg1_filter': 'ResourceID__icontains',
-                            'serializer': xdinfo_service_Serializer},
-                'res':{'objects': RDRResource.objects,
+                            'resid_field':  'ResourceID__icontains',
+                            'match_field':  'URL__icontains',
+                            'serializer':   xdinfo_service_Serializer},
+                'resources':{'objects':     RDRResource.objects,
                             'filter_dict': {'current_statuses__exact': 'production'},
-                            'arg1_filter': 'info_resourceid__contains',
-                            'serializer': xdinfo_resource_Serializer},
-                'resources':{'objects': RDRResource.objects,
-                            'filter_dict': {'current_statuses__exact': 'production'},
-                            'arg1_filter': 'info_resourceid__contains',
-                            'serializer': xdinfo_resource_Serializer},
-                'serv':{'objects': Endpoint.objects,
+                            'resid_field':  'info_resourceid__contains',
+                            'match_field':  'resource_descriptive_name__icontains',
+                            'serializer':   xdinfo_resource_Serializer},
+                'services':{'objects':      Endpoint.objects,
                             'filter_dict': {'ServingState__exact': 'production'},
-                            'arg1_filter': 'ResourceID__icontains',
-                            'serializer': xdinfo_services_Serializer},
-                'services':{'objects': Endpoint.objects,
-                            'filter_dict': {'ServingState__exact': 'production'},
-                            'arg1_filter': 'ResourceID__icontains',
-                            'serializer': xdinfo_services_Serializer},
-                'soft':{'objects': ApplicationEnvironment.objects,
+                            'resid_field':  'ResourceID__icontains',
+                            'match_field':  'URL__icontains',
+                            'serializer':   xdinfo_services_Serializer},
+                'software':{'objects':      ApplicationEnvironment.objects,
                             'filter_dict': {},
-                            'arg1_filter': 'ResourceID__icontains',
-                            'serializer': xdinfo_software_Serializer},
-                'software':{'objects': ApplicationEnvironment.objects,
-                            'filter_dict': {},
-                            'arg1_filter': 'ResourceID__icontains',
-                            'serializer': xdinfo_software_Serializer},
-                'out':{'objects': Outages.objects,
+                            'resid_field':  'ResourceID__icontains',
+                            'match_field':  'AppName__icontains',
+                            'serializer':   xdinfo_software_Serializer},
+                'outages':{ 'objects':      Outages.objects,
                             'filter_dict': {'OutageStart__lte': now,
                                             'OutageEnd__gte': now},
-                            'arg1_filter': 'ResourceID__icontains',
-                            'serializer': xdinfo_outage_Serializer},
-                'outages':{'objects': Outages.objects,
-                            'filter_dict': {'OutageStart__lte': now,
-                                            'OutageEnd__gte': now},
-                            'arg1_filter': 'ResourceID__icontains',
-                            'serializer': xdinfo_outage_Serializer},
-                'sites':{'objects': RDRResource.objects,
+                            'resid_field':  'ResourceID__icontains',
+                            'match_field':  'Subject__icontains',
+                            'serializer':   xdinfo_outage_Serializer},
+                'sites':{   'objects':      RDRResource.objects.values('info_siteid').distinct(),
                             'filter_dict': {'rdr_type__in': ['compute','storage']},
-                            'arg1_filter': 'info_resourceid__contains',
-                            'serializer': xdinfo_sites_Serializer},
+                            'resid_field':  'info_siteid__contains',
+                            'match_field':  'resource_descriptive_name__icontains',
+                            'serializer':   xdinfo_sites_Serializer},
             }
 
-            if self.kwargs['infotype'] not in set().union(casedict.keys(),['gridftp','outages','out']):
-                returnstring = "Unknown option %s" %self.kwargs['infotype']
-                return HttpResponse(returnstring, content_type="text/plain")
-
-            filter_dict = casedict[self.kwargs['infotype']]['filter_dict']
-
-            if self.kwargs['infotype'] == 'outages' or self.kwargs['infotype'] =='out':
+            my_filter_dict = casedict[infotype]['filter_dict']
+            if infotype == 'outages':
                 if pastflag:
-                    filter_dict['OutageEnd__lte'] = filter_dict.pop('OutageEnd__gte')
+                    my_filter_dict['OutageEnd__lte'] = my_filter_dict.pop('OutageEnd__gte')
                 if futureflag:
-                    filter_dict['OutageStart__gte'] = filter_dict.pop('OutageStart__lte')
+                    my_filter_dict['OutageStart__gte'] = my_filter_dict.pop('OutageStart__lte')
                 if recentflag:
-                    filter_dict['OutageEnd__range'] = [now - datetime.timedelta(7), now]
-                    filter_dict.pop('OutageEnd__gte')
-                    #filter_dict.pop('OutageStart__Lte')
+                    my_filter_dict['OutageEnd__range'] = [now - datetime.timedelta(7), now]
+                    my_filter_dict.pop('OutageEnd__gte')
                 if allflag:
-                    filter_dict.pop('OutageEnd__gte')
-                    filter_dict.pop('OutageStart__lte')
-            if arg1:
-                filter_dict[casedict[self.kwargs['infotype']]['arg1_filter']]= arg1
-            #print filter_dict
-            objects = casedict[self.kwargs['infotype']]['objects'].filter(**filter_dict)
+                    my_filter_dict.pop('OutageEnd__gte')
+                    my_filter_dict.pop('OutageStart__lte')
+            if aton_string:
+                my_filter_dict[casedict[infotype]['resid_field']] = aton_string
+            if filter_string:
+                my_filter_dict[casedict[infotype]['match_field']] = filter_string
+
+            #print my_filter_dict
+            objects = casedict[infotype]['objects'].filter(**my_filter_dict)
             #print objects
-            serializer = casedict[self.kwargs['infotype']]['serializer'](objects, many=True)
-            #serializer = casedict[self.kwargs['infotype']]['serializer'](objects, many=True,context={'arg1': serializerarg})
+            serializer = casedict[infotype]['serializer'](objects, many=True)
+            #serializer = casedict[infotype]['serializer'](objects, many=True,context={'aton_string': serializerarg})
             serialized_data = serializer.data
 
-          returnstring = ''
-          headerstring = ''
-          width = {}
-          #calculate maximum width of key/value for formatting
-          if infoformat != 'csv':
+        returnstring = ''
+        headerstring = ''
+        width = {}
+        #calculate maximum width of key/value for formatting
+        if infoformat != 'csv':
             for line in serialized_data:
                 #print line
                 for key, value in line.items():
@@ -201,7 +222,7 @@ class xdinfo_Cmd(APIView):
                     headerstring += fmtstring.format(key)
                 returnstring += "\n"
                 headerstring += "\n"
-          else:
+        else:
             for line in serialized_data:
                 #print line
                 headerstring = ''
@@ -219,11 +240,11 @@ class xdinfo_Cmd(APIView):
         else:
             return HttpResponse(headerstring+returnstring, content_type="text/plain")
 
-    def get_helptext(self,brief):
+    def get_helptext(self, brief):
         #brief = False;
-        helpstring = """XSEDE Information Services Discovery Client (API Version 1)
+        helpstring = """XSEDE Information Services Discovery Client ({})
 
-"""
+""".format(self.get_version())
         if (not brief):
             helpstring += """Syntax: xdinfo <information_type> [<match_string>] [options]
 """ 
