@@ -13,4 +13,10 @@ urlpatterns = [
     url(r'^record/id/(?P<id>[^/]+)/$',
        ProcessingRecord_Detail.as_view(),
        name='processingrecord-detail'),
+    url(r'^record/latest/(resourceid|about)/(?P<about>[^/]+)/$',
+       ProcessingRecord_LatestList.as_view(),
+       name='processingrecord-latestlist'),
+    url(r'^record/latest/topic/(?P<topic>[^/]+)/$',
+       ProcessingRecord_LatestList.as_view(),
+       name='processingrecord-latestlist'),
 ]
