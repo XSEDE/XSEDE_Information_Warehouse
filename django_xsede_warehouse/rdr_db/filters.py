@@ -17,7 +17,7 @@ from itertools import chain
 # An Active BASE RESOURCE is
 #      rdr_type='resource'
 #  and xsede_services_only is False (True means this isn't a user facing service)
-#  and other_attributes.provider_level in ['XSEDE Level 1', 'XSEDE Level 2']
+#  and provider_level in ['XSEDE Level 1', 'XSEDE Level 2']
 #  and current_statuses in ACTIVE status set
 #
 # An Active SUB-RESOURCE of the above BASE RESOURCES is ONE of:
@@ -44,10 +44,10 @@ def RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='SUB', result
     if allocated:
         parent_resources = RDRResource.objects.filter(
                                                 Q(rdr_type='resource') &
-                                                Q(other_attributes__project_affiliation=affiliation) &
+                                                Q(project_affiliation=affiliation) &
                                                 Q(other_attributes__xsede_services_only=False) &
-                                                (Q(other_attributes__provider_level='XSEDE Level 1') |
-                                                 Q(other_attributes__provider_level='XSEDE Level 2')) &
+                                                (Q(provider_level='XSEDE Level 1') |
+                                                 Q(provider_level='XSEDE Level 2')) &
                                                 ~Q(info_resourceid='stand-alone.tg.teragrid.org') &
                                                 ~Q(info_resourceid='futuregrid0.futuregrid.xsede.org') &
                                                 ~Q(info_resourceid='Abe-QB-Grid.teragrid.org') &
@@ -61,7 +61,7 @@ def RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='SUB', result
     else:
         parent_resources = RDRResource.objects.filter(
                                                 Q(rdr_type='resource') &
-                                                Q(other_attributes__project_affiliation=affiliation) &
+                                                Q(project_affiliation=affiliation) &
                                                 Q(other_attributes__xsede_services_only=False) &
                                                 ~Q(info_resourceid='stand-alone.tg.teragrid.org') &
                                                 ~Q(info_resourceid='futuregrid0.futuregrid.xsede.org') &

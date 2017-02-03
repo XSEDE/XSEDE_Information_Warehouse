@@ -19,10 +19,10 @@ import pdb
 #def Active_ResourceIDs():
 #    base_resources = RDRResource.objects.filter(
 #                                         Q(rdr_type='resource') &
-#                                         Q(other_attributes__project_affiliation='XSEDE') &
+#                                         Q(project_affiliation='XSEDE') &
 #                                         Q(other_attributes__xsede_services_only=False) &
-#                                         (Q(other_attributes__provider_level='XSEDE Level 1') |
-#                                          Q(other_attributes__provider_level='XSEDE Level 2')) &
+#                                         (Q(provider_level='XSEDE Level 1') |
+#                                          Q(provider_level='XSEDE Level 2')) &
 #                                         ~Q(info_resourceid='stand-alone.tg.teragrid.org') &
 #                                         ~Q(info_resourceid='futuregrid0.futuregrid.xsede.org') &
 #                                         ~Q(info_resourceid='Abe-QB-Grid.teragrid.org') &

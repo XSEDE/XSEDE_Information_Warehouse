@@ -34,9 +34,12 @@
 		<li>Friendly End Date: {{ resource.resource_status.friendly_end_date }}</li>
 	    </ul>
 	<li>Current Statuses: {{ resource.current_statuses }}</li>
+	<li>Latest Status: {{ resource.latest_status }}</li>
 	<li>Parent Resource: {{ resource.parent_resource }}</li>
 	<li>Recommended Use: {{ resource.recommended_use }}</li>
 	<li>Access Description: {{ resource.access_description }}</li>
+	<li>Provider Level: {{ resource.provider_level }}</li>
+	<li>Project Affiliation: {{ resource.project_affiliation }}</li>
 	<li>Other Attributes:</li>
 	    <ul style="list-style-type:none">
 		<li>Organizations: </li>
@@ -45,8 +48,6 @@
 		        <li>Organization Abbreviation: {{ resource.other_attributes.organizations.organization_abbreviation }}</li>
 		        <li>Organization Code: {{ resource.other_attributes.organizations.organization_code }}</li>
                     </ul>
-		<li>Provider Level: {{ resource.other_attributes.provider_level }}</li>
-		<li>Project Affiliation: {{ resource.other_attributes.project_affiliation }}</li>
             </ul>
 	<li>Updated At: {{ resource.updated_at }}</li>
     </ul>

@@ -10,13 +10,14 @@ from rdr_db.models import *
 from rdr_db.filters import *
 from rdr_db.serializers import *
 from itertools import chain
-#import pdb
+import pdb
 
 # Create your views here.
 class RDRResource_XUP_v2_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,XMLRenderer,TemplateHTMLRenderer,)
     def get(self, request, format=None):
+        pdb.set_trace()
         returnformat = request.query_params.get('format', 'json')
         all_resources = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='ALL', result='OBJECTS')
         serializer = RDRResource_Serializer(all_resources, many=True)
@@ -45,10 +46,10 @@ class RDRResource_XUP_v3_List(APIView):
 
         sub_parent_ids = sub_objects.values_list('parent_resource', flat=True)
         
-        base_resources = RDRResource.objects.filter(Q(other_attributes__project_affiliation='XSEDE') &
+        base_resources = RDRResource.objects.filter(Q(project_affiliation='XSEDE') &
                                              Q(rdr_type='resource') &
-                                             (Q(other_attributes__provider_level='XSEDE Level 1') |
-                                              Q(other_attributes__provider_level='XSEDE Level 2')) &
+                                             (Q(provider_level='XSEDE Level 1') |
+                                              Q(provider_level='XSEDE Level 2')) &
                                              (Q(current_statuses__icontains='friendly') |
                                               Q(current_statuses__icontains='coming soon') |
                                               Q(current_statuses__icontains='pre-production') |
