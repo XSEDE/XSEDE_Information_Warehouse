@@ -15,6 +15,8 @@ class Resource_Status_Serializer(serializers.Serializer):
     ResourceID = serializers.CharField(source='info_resourceid')
     SiteID = serializers.CharField(source='info_siteid')
     DisplayName = serializers.CharField(source='resource_descriptive_name')
+    ProjectAffiliation = serializers.CharField(source='project_affiliation')
+    ProviderLevel = serializers.CharField(source='provider_level')
 
     RDR_Label = ''
     RDR_Summary = ''
@@ -31,20 +33,13 @@ class Resource_Status_Serializer(serializers.Serializer):
     Overall_Status = serializers.SerializerMethodField()
 
     def get_RDR_Declared_Status(self, RDRResource):
-# First of: decommissioned, retired, post-production, production, \
-#           pre-production, friendly, coming soon, or <blank>
-        resource_statuses = RDRResource.current_statuses.split(',')
-        for ordered_status in ['decommissioned', 'retired', 'post-production', 'production', 'pre-production', 'friendly', 'coming_soon']:
-            if ordered_status in resource_statuses:
-                if ordered_status == 'production':
-                    self.RDR_Label = 'Green'
-                elif ordered_status in ['post-production', 'pre-production']:
-                    self.RDR_Label = 'Yellow'
-                else:
-                    self.RDR_Label = 'Red'
-                RDR_Status = ordered_status
-                self.RDR_Summary = 'Declared status is "{}"'.format(RDR_Status)
-                break
+        if RDRResource.latest_status in ['production']:
+            self.RDR_Label = 'Green'
+        elif RDRResource.latest_status in ['post-production', 'pre-production']:
+            self.RDR_Label = 'Yellow'
+        else:
+            self.RDR_Label = 'Red'
+        self.RDR_Summary = 'Declared status is "{}"'.format(RDRResource.latest_status)
 
         http_request = self.context.get("request")
         if http_request:
@@ -53,7 +48,9 @@ class Resource_Status_Serializer(serializers.Serializer):
             RDR_URL = ''
 
         return {'Label': self.RDR_Label,
-                'Declared_Status': RDR_Status,
+                'Declared_Status': RDRResource.latest_status,
+                'Declared_Status_Begin': RDRResource.latest_status_begin,
+                'Declared_Status_End': RDRResource.latest_status_end,
                 'Summary': self.RDR_Summary,
                 'References_URLs': RDR_URL}
 
@@ -147,13 +144,17 @@ class Resource_Status_Serializer(serializers.Serializer):
     class Meta:
         model = RDRResource
         fields = ('rdr_resource_id', 'rdr_type', 'info_resourceid', 'info_siteid',
-                  'resource_descriptive_name', 'resource_status', 'current_statuses')
+                  'resource_descriptive_name', 'resource_status', 'current_statuses',
+                  'latest_status', 'latest_status_begin', 'latest_status_end',
+                  'project_affiliation', 'provider_level')
 
 class Resource_Ops_Status_Serializer(serializers.Serializer):
     # Resource identifiers and descriptions
     ResourceID = serializers.CharField(source='info_resourceid')
     SiteID = serializers.CharField(source='info_siteid')
     DisplayName = serializers.CharField(source='resource_descriptive_name')
+    ProjectAffiliation = serializers.CharField(source='project_affiliation')
+    ProviderLevel = serializers.CharField(source='provider_level')
    
     RDR_Label = ''
     RDR_Summary = ''
@@ -174,21 +175,13 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
     Overall_Status = serializers.SerializerMethodField()
 
     def get_RDR_Declared_Status(self, RDRResource):
-# First of: decommissioned, retired, post-production, production, \
-#           pre-production, friendly, coming soon, or <blank>
-        resource_statuses = RDRResource.current_statuses.split(',')
-        RDR_Status = ''
-        for ordered_status in ['decommissioned', 'retired', 'post-production', 'production', 'pre-production', 'friendly', 'coming_soon']:
-            if ordered_status in resource_statuses:
-                if ordered_status == 'production':
-                    self.RDR_Label = 'Green'
-                elif ordered_status in ['post-production', 'pre-production']:
-                    self.RDR_Label = 'Yellow'
-                else:
-                    self.RDR_Label = 'Red'
-                RDR_Status = ordered_status
-                self.RDR_Summary = 'Declared status is "{}"'.format(RDR_Status)
-                break
+        if RDRResource.latest_status in ['production']:
+            self.RDR_Label = 'Green'
+        elif RDRResource.latest_status in ['post-production', 'pre-production']:
+            self.RDR_Label = 'Yellow'
+        else:
+            self.RDR_Label = 'Red'
+        self.RDR_Summary = 'Declared status is "{}"'.format(RDRResource.latest_status)
 
         http_request = self.context.get("request")
         if http_request:
@@ -197,7 +190,9 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
             RDR_URL = ''
 
         return {'Label': self.RDR_Label,
-                'Declared_Status': RDR_Status,
+                'Declared_Status': RDRResource.latest_status,
+                'Declared_Status_Begin': RDRResource.latest_status_begin,
+                'Declared_Status_End': RDRResource.latest_status_end,
                 'Summary': self.RDR_Summary,
                 'References_URLs': RDR_URL}
 
@@ -392,4 +387,6 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
     class Meta:
         model = RDRResource
         fields = ('rdr_resource_id', 'rdr_type', 'info_resourceid', 'info_siteid',
-                  'resource_descriptive_name', 'resource_status', 'current_statuses')
+                  'resource_descriptive_name', 'resource_status', 'current_statuses',
+                  'latest_status', 'latest_status_begin', 'latest_status_end',
+                  'project_affiliation', 'provider_level')
