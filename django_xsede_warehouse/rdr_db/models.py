@@ -12,9 +12,12 @@ class RDRResource(models.Model):
     resource_description = models.CharField(max_length=4000, null=True)
     resource_status = JSONField()
     current_statuses = models.CharField(max_length=64)
+    latest_status = models.CharField(max_length=32)
     parent_resource = models.IntegerField(db_index=True, null=True)
     recommended_use = models.CharField(max_length=4000, null=True)
     access_description = models.CharField(max_length=4000, null=True)
+    project_affiliation = models.CharField(max_length=16, null=True)
+    provider_level = models.CharField(max_length=16, null=True)
     other_attributes = JSONField()
     updated_at = models.DateTimeField(null=True)
     class Meta:
