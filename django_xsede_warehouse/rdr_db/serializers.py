@@ -1,5 +1,6 @@
 from rdr_db.models import *
 from rest_framework import serializers
+import copy
 import pdb
 
 class RDRResource_Serializer(serializers.ModelSerializer):
@@ -15,4 +16,5 @@ class RDRResource_Serializer_Plus(serializers.ModelSerializer):
     
     class Meta:
         model = RDRResource
-        fields = RDRResource._meta.get_all_field_names().append('Active')
+        fields = copy.copy([f.name for f in RDRResource._meta.get_fields(include_parents=False)])
+        fields.append('Active')

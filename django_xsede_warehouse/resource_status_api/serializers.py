@@ -39,9 +39,9 @@ class Resource_Status_Serializer(serializers.Serializer):
             self.RDR_Label = 'Yellow'
         else:
             self.RDR_Label = 'Red'
-        self.RDR_Summary = 'Declared status is "{}"'.format(RDRResource.latest_status)
+        self.RDR_Summary = 'Declared as "{}"'.format(RDRResource.latest_status)
         if RDRResource.latest_status_begin:
-            self.RDR_Summary += ' beginning {}'.format(RDRResource.latest_status_begin)
+            self.RDR_Summary += ' starting {}'.format(RDRResource.latest_status_begin)
         if RDRResource.latest_status_end:
             self.RDR_Summary += ' thru {}'.format(RDRResource.latest_status_end)
 
@@ -74,7 +74,7 @@ class Resource_Status_Serializer(serializers.Serializer):
             self.Outage_Summary = 'Full outage reported'
         elif outsearch:
             self.Outage_Label = 'Yellow'
-            self.Outage_Summary = 'Partial outage(s) repoted (%s)' % len(outsearch)
+            self.Outage_Summary = 'Partial outage repoted (%s)' % len(outsearch)
         else:
             self.Outage_Label = 'Green'
             self.Outage_Summary = ''
@@ -98,7 +98,7 @@ class Resource_Status_Serializer(serializers.Serializer):
             self.Monitor_Label = 'Green'
         elif len(monfail) < len(monsearch):
             self.Monitor_Label = 'Yellow'
-            self.Monitor_Summary = 'Some tests failing (%s of %s)' % (len(monfail), len(monsearch))
+            self.Monitor_Summary = '%s of %s tests failing' % (len(monfail), len(monsearch))
         else:
             self.Monitor_Label = 'Red'
             self.Monitor_Summary = 'All %s tests failing' % len(monfail)
@@ -106,9 +106,6 @@ class Resource_Status_Serializer(serializers.Serializer):
         return {'Label': self.Monitor_Label,
                 'Summary': self.Monitor_Summary,
                 'Reference_URLs': monurls}
-
-#    def get_monitor_fields(self, RDRResource):
-#        return dict([('monitor_resource_id', RDRResource.rdr_resource_id), ])
 
     def get_Overall_Status(self, RDRResource):
     #   Overall Status algorithm
@@ -185,9 +182,9 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
             self.RDR_Label = 'Yellow'
         else:
             self.RDR_Label = 'Red'
-        self.RDR_Summary = 'Declared status is "{}"'.format(RDRResource.latest_status)
+        self.RDR_Summary = 'Declared as "{}"'.format(RDRResource.latest_status)
         if RDRResource.latest_status_begin:
-            self.RDR_Summary += ' beginning {}'.format(RDRResource.latest_status_begin)
+            self.RDR_Summary += ' starting {}'.format(RDRResource.latest_status_begin)
         if RDRResource.latest_status_end:
             self.RDR_Summary += ' thru {}'.format(RDRResource.latest_status_end)
 
@@ -220,7 +217,7 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
             self.Outage_Summary = 'Full outage reported'
         elif outsearch:
             self.Outage_Label = 'Yellow'
-            self.Outage_Summary = 'Partial outage(s) repoted (%s)' % len(outsearch)
+            self.Outage_Summary = 'Partial outage repoted (%s)' % len(outsearch)
         else:
             self.Outage_Label = 'Green'
             self.Outage_Summary = ''
@@ -245,7 +242,7 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
             Monitor_Summary = ''
         elif len(monfail) < len(monsearch):
             self.Monitor_Label = 'Yellow'
-            self.Monitor_Summary = 'Some tests failing (%s of %s)' % (len(monfail), len(monsearch))
+            self.Monitor_Summary = '%s of %s tests failing' % (len(monfail), len(monsearch))
         else:
             self.Monitor_Label = 'Red'
             self.Monitor_Summary = 'All %s tests failing' % len(monfail)
