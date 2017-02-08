@@ -14,9 +14,6 @@ urlpatterns = [
     url(r'^v2/rdr-xup/$',
        RDRResource_XUP_v2_List.as_view(),
        name='rdr-xup-list'),
-#   url(r'^v3/rdr-xup/$',
-#       RDRResource_XUP_v3_List.as_view(),
-#       name='rdr-xup-list'),
 
 #   url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

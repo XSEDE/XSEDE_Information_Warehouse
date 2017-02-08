@@ -109,6 +109,10 @@ TEMPLATES = [
         },
     },
 ]
+#           'loaders': [
+#	'django.template.loaders.app_directories.Loader',
+#	'django.template.loaders.filesystem.Loader',
+#           ],
 
 WSGI_APPLICATION = 'xsede_warehouse.wsgi.application'
 

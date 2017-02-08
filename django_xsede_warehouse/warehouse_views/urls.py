@@ -10,10 +10,10 @@ urlpatterns = [
         name='resource-list'),
     url(r'^v1/resources-active/$',
         Resource_List_Active.as_view(),
-        name='resource-list'),
+        name='resource-list-active'),
     url(r'^v1/resources-xdcdb-active/$',
         Resource_List_XDCDB_Active.as_view(),
-        name='resource-list'),
+        name='resource-list-active-xdcdb'),
               
     url(r'^v1/software/$',
         Software_Full.as_view(),

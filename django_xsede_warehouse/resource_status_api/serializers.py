@@ -40,6 +40,10 @@ class Resource_Status_Serializer(serializers.Serializer):
         else:
             self.RDR_Label = 'Red'
         self.RDR_Summary = 'Declared status is "{}"'.format(RDRResource.latest_status)
+        if RDRResource.latest_status_begin:
+            self.RDR_Summary += ' beginning {}'.format(RDRResource.latest_status_begin)
+        if RDRResource.latest_status_end:
+            self.RDR_Summary += ' thru {}'.format(RDRResource.latest_status_end)
 
         http_request = self.context.get("request")
         if http_request:
@@ -182,6 +186,10 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
         else:
             self.RDR_Label = 'Red'
         self.RDR_Summary = 'Declared status is "{}"'.format(RDRResource.latest_status)
+        if RDRResource.latest_status_begin:
+            self.RDR_Summary += ' beginning {}'.format(RDRResource.latest_status_begin)
+        if RDRResource.latest_status_end:
+            self.RDR_Summary += ' thru {}'.format(RDRResource.latest_status_end)
 
         http_request = self.context.get("request")
         if http_request:

@@ -7,7 +7,6 @@ class TGResource(models.Model):
     ResourceID = models.CharField(primary_key=True,max_length=32)
     #ResourceName = models.CharField(db_index=True, max_length=120)
     SiteID = models.CharField(db_index=True, max_length=40)
-    #ResourceKits = models.CharField(db_index=True, max_length=40)
     OrganizationAbbrev = models.CharField(db_index=True, max_length=40)
     OrganizationName = models.CharField(db_index=True, max_length=120)
     AmieName = models.CharField(db_index=True, max_length=40)

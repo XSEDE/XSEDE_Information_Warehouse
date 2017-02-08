@@ -72,15 +72,18 @@ class Glue2NewDocument():
                 issoftware = False
             try:
                 if associations['ServiceID']:
-                    isservice= True
+                    isservice = True
             except KeyError:
                 isservice = False
 
-            try:
-                if extension['ErrorMessage']:
-                    errormessage = extension['ErrorMessage']
-            except KeyError:
+            maxmsg = TestResult._meta.get_field('ErrorMessage').max_length
+            if 'ErrorMessage' not in extension:
                 errormessage = None
+            elif len(extension['ErrorMessage']) > maxmsg:
+                errormessage = extension['ErrorMessage'][:maxmsg]
+                logg2.error('Truncated ErrorMessage to %s bytes, ID=%s' % (maxmsg, ID))
+            else:
+                errormessage = extension['ErrorMessage']
 
             logg2.info('ID=%s, ResourceID=%s, Name="%s"' % (self.new[me][ID]['ID'], self.resourceid, self.new[me][ID]['Name']))
 

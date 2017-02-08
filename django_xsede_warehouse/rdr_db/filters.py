@@ -104,8 +104,8 @@ def RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='SUB', result
         if type.upper() == 'SUB':
             return(list(child_resource.values_list('info_resourceid', flat=True)))
         else:
-            return(list(chain(parent_resources.values_list('info_resourceid'), \
-                              child_resource.values_list('info_resourceid'))))
+            return(list(chain(parent_resources.values_list('info_resourceid', flat=True), \
+                              child_resource.values_list('info_resourceid', flat=True))))
     else: # Model objects
         if type.upper() == 'SUB':
             return(child_resource)
