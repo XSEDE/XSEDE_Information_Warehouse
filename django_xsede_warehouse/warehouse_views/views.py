@@ -72,13 +72,13 @@ class Resource_Detail(APIView):
                 objects = RDRResource.objects.filter(info_resourceid__exact=uri_to_iri(self.kwargs['resourceid']),rdr_type__exact='resource')
             except RDRResource.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-        if returnformat == 'json':
-            serializer = Generic_Resource_Serializer(objects[0])
-            return Response(serializer.data)
-        else:
+        if returnformat == 'html':
             serializer = Generic_Resource_Serializer(objects[0])
             c = Context({'resource_details': serializer.data})
             return render(request, 'resource_details.html', c)
+        else:
+            serializer = Generic_Resource_Serializer(objects[0])
+            return Response(serializer.data)
 
 class Software_Full(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
