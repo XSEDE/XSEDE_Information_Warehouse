@@ -9,13 +9,13 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-#from rdr_db.models import RDRResource
+from rdr_db.models import RDRResource
 from rdr_db.filters import *
 from glue2_db.models import ApplicationHandle
 from xdcdb.models import *
 from xdcdb.serializers import *
 from rdr_db.serializers import *
-from warehouse_views.serializers import Software_Full_Serializer
+from warehouse_views.serializers import Generic_Resource_Serializer, Software_Full_Serializer
 import pdb
 
 # Create your views here.
@@ -55,11 +55,23 @@ class Resource_List_XDCDB_Active(APIView):
         active_resourceids = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='ALL', result='RESOURCEID')
         objects = TGResource.objects.filter(ResourceID__in=active_resourceids).order_by('ResourceID')
         if returnformat == 'json':
-            serializer = TGResource_Serializer(objects, many=True)
+            serializer = XcdbResource_Serializer(objects, many=True)
             return Response(serializer.data)
         else:
             c = Context({'xdcdb_list': objects})
             return render(request, 'xdcdb_resources.html', c)
+
+class Resource_Detail(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+#    renderer_classes = (JSONRenderer,XMLRenderer,)
+    def get(self, request, format=None, **kwargs):
+        if 'resourceid' in self.kwargs:
+            try:
+                objects = RDRResource.objects.filter(info_resourceid__exact=uri_to_iri(self.kwargs['resourceid']),rdr_type__exact='resource')
+            except RDRResource.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            serializer = Generic_Resource_Serializer(objects[0])
+        return Response(serializer.data)
 
 class Software_Full(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)

@@ -14,6 +14,9 @@ urlpatterns = [
     url(r'^v1/resources-xdcdb-active/$',
         Resource_List_XDCDB_Active.as_view(),
         name='resource-list-active-xdcdb'),
+    url(r'^v1/resource/ResourceID/(?P<resourceid>[^/]+)/$',
+        Resource_Detail.as_view(),
+        name='resource-detail'),
               
     url(r'^v1/software/$',
         Software_Full.as_view(),

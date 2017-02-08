@@ -3,12 +3,12 @@ from glue2_db.models import *
 from glue2_db.serializers import *
 from rest_framework import serializers
 
-class TGResource_Serializer(serializers.ModelSerializer):
+class XcdbResource_Serializer(serializers.ModelSerializer):
     class Meta:
         model = TGResource
         fields = ('__all__')
 
-class TGResourcePublished_Serializer(serializers.Serializer):
+class XcdbResourcePublished_Serializer(serializers.Serializer):
     ResourceID = serializers.CharField()
     ResourceName = serializers.SerializerMethodField('get_resourcename')
     SiteID = serializers.CharField()

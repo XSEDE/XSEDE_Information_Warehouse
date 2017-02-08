@@ -6,14 +6,14 @@ from xdcdb.models import *
 from xdcdb.serializers import *
 
 # Create your views here.
-class TGResource_List(APIView):
+class XcdbResource_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         objects = TGResource.objects.all()
-        serializer = TGResource_Serializer(objects, many=True)
+        serializer = XcdbResource_Serializer(objects, many=True)
         return Response(serializer.data)
 
-class TGResource_Detail(APIView):
+class XcdbResource_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
@@ -21,13 +21,13 @@ class TGResource_Detail(APIView):
                 object = TGResource.objects.get(pk=self.kwargs['id'])
             except Endpoint.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-            serializer = TGResource_Serializer(object)
+            serializer = XcdbResource_Serializer(object)
         elif 'resourceid' in self.kwargs:
             objects = TGResource.objects.filter(info_resourceid__exact=self.kwargs['resourceid'])
-            serializer = TGResource_Serializer(objects, many=True)
+            serializer = XcdbResource_Serializer(objects, many=True)
         return Response(serializer.data)
 
-class TGResourcePublished_Detail(APIView):
+class XcdbResourcePublished_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get (self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
@@ -35,5 +35,5 @@ class TGResourcePublished_Detail(APIView):
                 object=TGResource.objects.get(pk=self.kwargs['id'])
             except TGResource.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-            serializer = TGResourcePublished_Serializer(object)
+            serializer = XcdbResourcePublished_Serializer(object)
         return Response(serializer.data)
