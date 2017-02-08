@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}XSEDE Resource Details{% endblock %}
+{% block content %}
+  <table width="98%" border=0 cellspacing=0 cellpadding=0>
+    <tr height="50">
+      <td width="22%" align="left"></td>
+      <td width="52%" align="center" valign="center"><h1>XSEDE Resource Details</h1></td>
+      <td width="22%" align="right" valign="top"><td>
+    </tr>
+  </table>
+  <table style="margin-left:2px" border=0 cellspacing=10 cellpadding=3>
+  <tr>
+  <td valign="top" style="width:120px"><strong>Resource:</strong></td>
+  <td>{{ resource_details.ResourceID }}</td>
+  <td>{{ resource_details.PopsName }}</td>
+  </tr>
+  <td valign="top"><strong>Site:</strong></td>
+  <td>{{ resource_details.SiteID }}</td>
+  <td>{{ resource_details.OrganizationName }}</td>
+  </tr>
+  </tr>
+  <td valign="top"><strong>SP Level:</strong></td>
+  <td>{{ resource_details.provider_level }}</td>
+  </tr>
+  </tr>
+  <td valign="top"><strong>XCDB Name:</strong></td>
+  <td>{{ resource_details.XcdbName }}</td>
+  </tr>
+  </tr>
+  <td valign="top"><strong>RDR Status:</strong></td>
+  <td>{{ resource_details.latest_status }}</td>
+  <td>From '{{ resource_details.latest_status_begin }}' thru '{{ resource_details.latest_status_end }}'</td>
+  </tr>
+  <td valign="top"><strong>Description:</strong></td>
+  <td></td>
+  <td>{{ resource_details.resource_description }}</td>
+  </tr>
+  </tr>
+  <td valign="top"><strong>RDR ID:</strong></td>
+  <td>{{ resource_details.rdr_resource_id }}</td>
+  </tr>
+  </table>
+{% endblock %}
