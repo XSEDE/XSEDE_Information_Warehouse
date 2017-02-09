@@ -8,9 +8,6 @@ import pdb
 class AbstractGlue2Model(models.Model):
     ID = models.CharField(primary_key=True, max_length=200)
     ResourceID = models.CharField(db_index=True, max_length=40)
-    # Under consideration to join with RDR information (2016-07-15, JP)
-#    ResourceID = models.ForeignKey(RDRResource, to_field='info_resourceid', db_constraint=False,
-#                                   db_index=True)
     Name = models.CharField(max_length=128, null=True)
     CreationTime = models.DateTimeField()
     EntityJSON = JSONField()
@@ -28,7 +25,8 @@ class ApplicationEnvironment(AbstractGlue2Model):
 
 class ApplicationHandle(AbstractGlue2Model):
     ApplicationEnvironment = models.ForeignKey(ApplicationEnvironment,
-                                               related_name='applicationhandles', null=True)
+                                               related_name='applicationhandles',
+                                               null=True)
     Type = models.CharField(max_length=16)
     Value = models.CharField(max_length=64)
 

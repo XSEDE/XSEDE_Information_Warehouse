@@ -163,6 +163,7 @@ class Glue2NewDocument():
             self.cur[me][item.ID] = item
         self.stats['%s.Current' % me] = len(self.cur[me])
         
+        maxval = ApplicationHandle._meta.get_field('Value').max_length
         # Add/update entries
         for ID in self.new[me]:
             if ID in self.cur[me] and parse_datetime(self.new[me][ID]['CreationTime']) <= self.cur[me][ID].CreationTime:
@@ -179,12 +180,17 @@ class Glue2NewDocument():
                 other_json = self.new[me][ID].copy()
                 for k in ['ID', 'Name', 'CreationTime', 'Type', 'Value']:
                     other_json.pop(k, None)
+                if len(self.new[me][ID]['Value']) > maxval:     # Value too long, log ERROR and truncate
+                    logg2.error('Truncating ApplicationHandle.Value (ID=%s)' % self.new[me][ID]['ID'])
+                    hval = self.new[me][ID]['Value'][:maxval]
+                else:
+                    hval = self.new[me][ID]['Value']
                 model = ApplicationHandle(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
                                           Type=self.new[me][ID]['Type'],
-                                          Value=self.new[me][ID]['Value'],
+                                          Value=hval,
                                           ApplicationEnvironment=fk,
                                           EntityJSON=other_json)
                 model.save()
