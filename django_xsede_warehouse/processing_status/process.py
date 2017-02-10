@@ -35,7 +35,12 @@ class ProcessingActivity():
 
     def FinishActivity(self, Code, Message):
         self.model.ProcessingEnd=datetime.now(utc)
-        self.model.ProcessingCode=Code
+        if Code is False:
+            self.model.ProcessingCode='1'
+        elif Code is True:
+            self.model.ProcessingCode='0'
+        else:
+            self.model.ProcessingCode=Code
         self.model.ProcessingMessage=Message
         self.model.save()
 

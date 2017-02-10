@@ -8,7 +8,7 @@ from django.utils.dateparse import parse_datetime
 from monitoring_db.models import *
 from glue2_db.models import *
 
-from rest_framework import status
+from processing_status.process import ProcessingActivity
 from xsede_warehouse.exceptions import ProcessingException
 
 import pdb
@@ -28,7 +28,7 @@ def StatsSummary(stats):
 def StatsHadTestResult(stats):
     return('TestResult.New' in stats)
 
-class Glue2NewDocument():
+class Glue2NewMonitoring():
     def __init__(self, DocType, ResourceID, ReceivedTime, Label):
         self.doctype = DocType
         self.resourceid = ResourceID
@@ -85,7 +85,7 @@ class Glue2NewDocument():
             else:
                 errormessage = extension['ErrorMessage']
 
-            logg2.info('ID=%s, ResourceID=%s, Name="%s"' % (self.new[me][ID]['ID'], self.resourceid, self.new[me][ID]['Name']))
+            logg2.debug('ID=%s, ResourceID=%s, Name=%s' % (self.new[me][ID]['ID'], self.resourceid, self.new[me][ID]['Name']))
 
             try:
                 nagios_m, created = TestResult.objects.get_or_create(ID=self.new[me][ID]['ID'], defaults={
@@ -114,8 +114,7 @@ class Glue2NewDocument():
                 self.new[me][ID]['model'] = nagios_m
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
-                                          status=status.HTTP_400_BAD_REQUEST)
+                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message))
 
 ###############################################################################################
 # Main code to Load New JSON objects and Process each class of objects
@@ -129,7 +128,7 @@ class Glue2NewDocument():
             msg = 'Expecting a JSON dictionary (DocType=%s, ResourceID=%s, ReceivedTime=%s)' % \
                 (self.doctype, self.resourceid, self.receivedtime)
             logg2.error(msg)
-            raise ValidationError(msg)
+            raise ValidationError(message=msg)
         start = datetime.utcnow()
         for key in data:
             if key in self.handlers:
@@ -145,33 +144,65 @@ class Glue2NewDocument():
         logg2.info(StatsSummary(self.stats))
         return(self.stats)
 
-class Glue2Process():
-    def process(self, doctype, resourceid, data):
-        if doctype not in ['glue2.applications', 'glue2.compute', 'glue2.computing_activities','inca','nagios']:
-            logg2.info('Ignoring DocType (DocType=%s, ResourceID=%s)' % \
-                       (doctype, resourceid))
-            return 'Ignoring DocType(%s)' % doctype
+class Glue2ProcessRawMonitoring():
+    def __init__(self, application='n/a', function='n/a'):
+        self.application = application
+        self.function = function
 
+    def process(self, ts, doctype, resourceid, rawdata):
+        # Return an error message, or nothing
+        if doctype not in ['inca','nagios']:
+            msg = 'Ignoring DocType (DocType={}, ResourceID={})'.format(doctype, resourceid)
+            logg2.info(msg)
+            return (False, msg)
+
+        pa_id = '{}:{}'.format(doctype, resourceid)
+        pa = ProcessingActivity(self.application, self.function, pa_id, doctype, resourceid)
+
+        if isinstance(rawdata, dict):
+            jsondata = rawdata
+        else:
+            try:
+                jsondata = json.loads(rawdata)
+            except:
+                msg = 'Failed JSON parse (DocType={}, ResourceID={}, size={})'.format(doctype, resourceid, len(rawdata))
+                logg2.error(msg)
+                pa.FinishActivity('1', msg)
+                return (False, msg)
+        
+        if doctype == 'inca' and 'rep:report' in jsondata:
+            msg = 'Ignored legacy rep:report (DocType={}, ResourceID={})'.format(doctype, resourceid)
+            logg2.info(msg)
+            pa.FinishActivity(False, msg)
+            return (False, msg)
+
+        try:
+            internal_resourceid = jsondata['TestResult']['Associations']['ResourceID']
+        except:
+            msg = 'Missing Associations->ResourceID (DocType={}, ResourceID={})'.format(doctype, resourceid)
+            logg2.error(msg)
+            pa.FinishActivity(False, msg)
+            return (False, msg)
+        
         model = None
-        receivedts = timezone.now()
         try:
-            # data = json.loads(data)
-            model = EntityHistory(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=receivedts, EntityJSON=data)
+            model = EntityHistory(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=ts, EntityJSON=jsondata)
             model.save()
-            logg2.info('New GLUE2 EntityHistory.ID=%s DocType=%s ResourceID=%s' % \
-                       (model.ID, model.DocumentType, model.ResourceID))
+            logg2.info('New GLUE2 EntityHistory.ID={} (DocType={}, ResourceID={})'.format(model.ID, model.DocumentType, model.ResourceID))
         except (ValidationError) as e:
-            logg2.error('Exception on GLUE2 EntityHistory DocType=%s, ResourceID=%s: %s' % \
-                        (model.DocumentType, model.ResourceID, e.error_list))
-            return 'EntityHistory create exception(%s)' % e
+            msg = 'Exception on GLUE2 EntityHistory (DocType={}, ResourceID={}): {}'.format(model.DocumentType, model.ResourceID, e.error_list)
+            pa.FinishActivity(False, msg)
+            return (False, msg)
         except (DataError, IntegrityError) as e:
-            logg2.error('Exception on GLUE2 EntityHistory (DocType=%s, ResourceID=%s): %s' % \
-                        (model.DocumentType, model.ResourceID, e.error_list))
-            return 'EntityHistory create exception(%s)' % e
+            msg = 'Exception on GLUE2 EntityHistory (DocType={}, ResourceID={}): {}'.format(model.DocumentType, model.ResourceID, e.error_list)
+            pa.FinishActivity(False, msg)
+            return (False, msg)
 
-        g2doc = Glue2NewDocument(doctype, resourceid, receivedts, 'EntityHistory.ID=%s' % model.ID)
+        g2doc = Glue2NewMonitoring(doctype, resourceid, ts, 'EntityHistory.ID=%s' % model.ID)
         try:
-            response = g2doc.process(data)
-            return response
-        except ProcessingException as e:
-            return e.response
+            response = g2doc.process(jsondata)
+        except (ValidationError, ProcessingException), e:
+            pa.FinishActivity(False, e.response)
+            return (False, e.response)
+        pa.FinishActivity(True, response)
+        return (True, response)

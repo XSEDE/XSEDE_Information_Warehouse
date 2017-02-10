@@ -7,6 +7,7 @@ from django.utils import timezone
 from glue2_db.models import *
 
 from rest_framework import status
+from processing_status.process import ProcessingActivity
 from xsede_warehouse.exceptions import ProcessingException
 
 import pdb
@@ -598,3 +599,52 @@ class Glue2NewDocument():
         self.stats['ProcessingSeconds'] = (end - start).total_seconds()
         logg2.info(StatsSummary(self.stats))
         return(self.stats)
+
+class Glue2ProcessRawIPF():
+    def __init__(self, application='n/a', function='n/a'):
+        self.application = application
+        self.function = function
+    
+    def process(self, ts, doctype, resourceid, rawdata):
+        # Return an error message, or nothing
+        if doctype not in ['glue2.applications', 'glue2.compute', 'glue2.computing_activities']:
+            msg = 'Ignoring DocType (DocType={}, ResourceID={})'.format(doctype, resourceid)
+            logg2.info(msg)
+            return (False, msg)
+
+        pa_id = '{}:{}'.format(doctype, resourceid)
+        pa = ProcessingActivity(self.application, self.function, pa_id, doctype, resourceid)
+
+        if isinstance(rawdata, dict):
+            jsondata = rawdata
+        else:
+            try:
+                jsondata = json.loads(rawdata)
+            except:
+                msg = 'Failed JSON parse (DocType={}, ResourceID={}, size={})'.format(doctype, resourceid, len(rawdata))
+                logg2.error(msg)
+                pa.FinishActivity('1', msg)
+                return (False, msg)
+        
+        model = None
+        try:
+            model = EntityHistory(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=ts, EntityJSON=jsondata)
+            model.save()
+            logg2.info('New GLUE2 EntityHistory.ID={} (DocType={}, ResourceID={})'.format(model.ID, model.DocumentType, model.ResourceID))
+        except (ValidationError) as e:
+            msg = 'Exception on GLUE2 EntityHistory (DocType={}, ResourceID={}): {}'.format(model.DocumentType, model.ResourceID, e.error_list)
+            pa.FinishActivity(False, msg)
+            return (False, msg)
+        except (DataError, IntegrityError) as e:
+            msg = 'Exception on GLUE2 EntityHistory (DocType={}, ResourceID={}): {}'.format(model.DocumentType, model.ResourceID, e.error_list)
+            pa.FinishActivity(False, msg)
+            return (False, msg)
+
+        g2doc = Glue2NewDocument(doctype, resourceid, ts, 'EntityHistory.ID=%s' % model.ID)
+        try:
+            response = g2doc.process(jsondata)
+        except (ValidationError, ProcessingException), e:
+            pa.FinishActivity(False, e.response)
+            return (False, e.response)
+        pa.FinishActivity(True, response)
+        return (True, response)

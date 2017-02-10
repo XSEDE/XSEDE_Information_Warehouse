@@ -39,11 +39,11 @@ class Resource_Status_Serializer(serializers.Serializer):
             self.RDR_Label = 'Yellow'
         else:
             self.RDR_Label = 'Red'
-        self.RDR_Summary = 'Declared as "{}"'.format(RDRResource.latest_status)
+        self.RDR_Summary = 'In "{}"'.format(RDRResource.latest_status)
         if RDRResource.latest_status_begin:
             self.RDR_Summary += ' starting {}'.format(RDRResource.latest_status_begin)
         if RDRResource.latest_status_end:
-            self.RDR_Summary += ' thru {}'.format(RDRResource.latest_status_end)
+            self.RDR_Summary += ' until {}'.format(RDRResource.latest_status_end)
 
         http_request = self.context.get("request")
         if http_request:
@@ -182,11 +182,11 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
             self.RDR_Label = 'Yellow'
         else:
             self.RDR_Label = 'Red'
-        self.RDR_Summary = 'Declared as "{}"'.format(RDRResource.latest_status)
+        self.RDR_Summary = 'In "{}"'.format(RDRResource.latest_status)
         if RDRResource.latest_status_begin:
             self.RDR_Summary += ' starting {}'.format(RDRResource.latest_status_begin)
         if RDRResource.latest_status_end:
-            self.RDR_Summary += ' thru {}'.format(RDRResource.latest_status_end)
+            self.RDR_Summary += ' until {}'.format(RDRResource.latest_status_end)
 
         http_request = self.context.get("request")
         if http_request:
