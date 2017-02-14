@@ -36,36 +36,45 @@ class Generic_Resource_Serializer(serializers.ModelSerializer):
                   'AmieName','PopsName', 'XcdbName')
 
     def get_OrganizationAbbrev(self, RDRResource):
-        XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
-        if XCDB_object:
-            return XCDB_object.OrganizationAbbrev
-        else:
-            return ''
+        try:
+            XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
+            if XCDB_object:
+                return XCDB_object.OrganizationAbbrev
+        except TGResource.DoesNotExist:
+            pass
+        return None
     def get_OrganizationName(self, RDRResource):
-        XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
-        if XCDB_object:
-            return XCDB_object.OrganizationName
-        else:
-            return ''
+        try:
+            XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
+            if XCDB_object:
+                return XCDB_object.OrganizationName
+        except TGResource.DoesNotExist:
+            pass
+        return None
     def get_AmieName(self, RDRResource):
-        XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
-        if XCDB_object:
-            return XCDB_object.AmieName
-        else:
-            return ''
+        try:
+            XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
+            if XCDB_object:
+                return XCDB_object.AmieName
+        except TGResource.DoesNotExist:
+            pass
+        return None
     def get_PopsName(self, RDRResource):
-        XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
-        if XCDB_object:
-            return XCDB_object.PopsName
-        else:
-            return ''
+        try:
+            XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
+            if XCDB_object:
+                return XCDB_object.PopsName
+        except TGResource.DoesNotExist:
+            pass
+        return None
     def get_XcdbName(self, RDRResource):
-        XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
-        if XCDB_object:
-            return XCDB_object.TgcdbResourceName
-        else:
-            return ''
-
+        try:
+            XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
+            if XCDB_object:
+                return XCDB_object.TgcdbResourceName
+        except TGResource.DoesNotExist:
+            pass
+        return None
 
 class Software_Full_Serializer(serializers.ModelSerializer):
 #    pdb.set_trace()
@@ -82,23 +91,19 @@ class Software_Full_Serializer(serializers.ModelSerializer):
                   'Domain', 'Keywords', 'CreationTime','ID')
 
     def get_siteid(self, ApplicationHandle):
-        RDR_object = RDRResource.objects.filter(rdr_type='resource').filter(info_resourceid=ApplicationHandle.ResourceID)
-        if RDR_object and RDR_object[0] and RDR_object[0].info_siteid:
-            return RDR_object[0].info_siteid
-        else:
-            return ''
+        try:
+            RDR_object = RDRResource.objects.filter(rdr_type='resource').filter(info_resourceid=ApplicationHandle.ResourceID)
+            if RDR_object and RDR_object[0] and RDR_object[0].info_siteid:
+                return RDR_object[0].info_siteid
+        except RDRResource.DoesNotExist:
+            pass
+        return None
 
     def get_handle(self, ApplicationHandle):
         return({'HandleType': ApplicationHandle.Type,
                 'HandleKey': ApplicationHandle.Value
                })
     
-    def get_keywords(self, ApplicationHandle):
-        if self.context['request'].zz:
-            return self.context['request'].zz
-        else:
-            return ''
-
     def get_category(self, ApplicationHandle):
         if 'Extension' in ApplicationHandle.ApplicationEnvironment.EntityJSON.keys() and 'Category' in ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension'].keys():
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['Category']
@@ -106,7 +111,9 @@ class Software_Full_Serializer(serializers.ModelSerializer):
             return []
 
     def get_keywords(self, ApplicationHandle):
-        if 'Extension' in ApplicationHandle.ApplicationEnvironment.EntityJSON.keys() and 'Keywords' in ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension'].keys():
+#        if 'Extension' in ApplicationHandle.ApplicationEnvironment.EntityJSON.keys()
+#           and 'Keywords' in ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension'].keys():
+        try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['Keywords']
-        else:
+        except:
             return []

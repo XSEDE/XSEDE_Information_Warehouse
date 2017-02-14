@@ -150,6 +150,15 @@ class Resource_Status_Serializer(serializers.Serializer):
                   'project_affiliation', 'provider_level')
 
 class Resource_Ops_Status_Serializer(serializers.Serializer):
+    # Proposed REQUIRED/OPTIONAL rules and publishing Warning/Error states
+    # Software (modules) and service publishing using IPF is REQUIRED by all L1, L2, and L3 SPs.
+    # Queue information publishing using IPF IS REQUIRED by allocated L1 & L2 compute resources, OPTIONAL for everyone else.
+    # Job state changes are OPTIONAL by everyone.
+    # Software (module) and service publishing should be published at least DAILY.
+    # We would display a WARNING if they haven't published in over one day, and an ERROR if they haven't published in 3 days.
+    # Queue information should be published at least HOURLY.
+    # We would display a WARNING if they haven't published in over one hour, and an ERROR if they haven't published in 3 hours.
+    
     # Resource identifiers and descriptions
     ResourceID = serializers.CharField(source='info_resourceid')
     SiteID = serializers.CharField(source='info_siteid')
@@ -252,6 +261,8 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
                 'Reference_URLs': monurls}
 
     def get_Publishing_Status(self, RDRResource):
+        pdb.set_trace()
+
         pubsearch = ProcessingRecord.objects.filter(About=RDRResource.info_resourceid)
         puberror = set()
         pubwarning = set()
