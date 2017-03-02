@@ -35,7 +35,7 @@ class Resource_Status_Serializer(serializers.Serializer):
     def get_RDR_Declared_Status(self, RDRResource):
         if RDRResource.latest_status in ['production']:
             self.RDR_Label = 'Green'
-        elif RDRResource.latest_status in ['post-production', 'pre-production']:
+        elif RDRResource.latest_status in ['post-production', 'pre-production', 'friendly']:
             self.RDR_Label = 'Yellow'
         else:
             self.RDR_Label = 'Red'
@@ -109,13 +109,13 @@ class Resource_Status_Serializer(serializers.Serializer):
 
     def get_Overall_Status(self, RDRResource):
     #   Overall Status algorithm
-    #   Red: RDR declared status is not Green(production) or Yellow(pre-production, post-production)
+    #   Red: RDR declared status is not Green(production) or Yellow(pre-production, post-production, friendly)
     #         or Red(FULL) outage declared
     #         or Red(ALL) tests are failing
     #   Yellow: Yellow(PARTIAL) outage declared
     #         or Yellow(SOME) tests are failing
     #   Green: Green everything
-    #         allowing RDR declared Yellow(pre-production, post-production)
+    #         allowing RDR declared Yellow(pre-production, post-production, friendly)
         Summary_Items = []
         Summary_Severity = 0
         if self.RDR_Label not in ['Green', 'Yellow']:
@@ -187,7 +187,7 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
     def get_RDR_Declared_Status(self, RDRResource):
         if RDRResource.latest_status in ['production']:
             self.RDR_Label = 'Green'
-        elif RDRResource.latest_status in ['post-production', 'pre-production']:
+        elif RDRResource.latest_status in ['post-production', 'pre-production', 'friendly']:
             self.RDR_Label = 'Yellow'
         else:
             self.RDR_Label = 'Red'
@@ -261,7 +261,7 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
                 'Reference_URLs': monurls}
 
     def get_Publishing_Status(self, RDRResource):
-        pdb.set_trace()
+#        pdb.set_trace()
 
         pubsearch = ProcessingRecord.objects.filter(About=RDRResource.info_resourceid)
         puberror = set()
@@ -308,14 +308,14 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
 
     def get_Overall_Status(self, RDRResource):
     #   Overall Status algorithm
-    #   Red: RDR declared status is not Green(production) or Yellow(pre-production, post-production)
+    #   Red: RDR declared status is not Green(production) or Yellow(pre-production, post-production, friendly)
     #         or Red(FULL) outage declared
     #         or Red(ALL) tests are failing
     #         or Red(ANY) published information is old or missing)
     #   Yellow: Yellow(PARTIAL) outage declared
     #         or Yellow(SOME) tests are failing
     #   Green: Green everything
-    #         allowing RDR Yellow(pre-production, post-production)
+    #         allowing RDR Yellow(pre-production, post-production, friendly)
     #         allowing Publishing Yellow(stale information)
         Summary_Items = []
         Summary_Severity = 0
@@ -351,9 +351,9 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
                 'Status_at': timezone.now()}
 
     #   Overall Status algorithm (Operations Overall Status factors Publishing)
-    #   Green: rdr declared status is one of (pre-production, production, post-production)
+    #   Green: rdr declared status is one of (pre-production, production, post-production, friendly)
     #           and NO outages, NO test failures, NO publishing issues
-    #   Red: rdr declared status is not one of (pre-production, production, post-production)
+    #   Red: rdr declared status is not one of (pre-production, production, post-production, friendly)
     #           or FULL outage declared, or ALL tests failing
     #   Yellow: otherwise
 #        if self.RDR_Label in ['Green', 'Yellow'] and \
@@ -376,7 +376,7 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
 #                'Status_at': timezone.now()}
 
     #   Overall Status algorithm
-    #   Green: rdr declared status is one of (pre-production, production, post-production)
+    #   Green: rdr declared status is one of (pre-production, production, post-production, friendly)
     #           and NO outages, NO test failures, NO publishing issues
     #   Yellow: some tests pass
     #   Red: no tests pass

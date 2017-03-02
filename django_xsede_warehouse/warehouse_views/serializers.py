@@ -105,15 +105,17 @@ class Software_Full_Serializer(serializers.ModelSerializer):
                })
     
     def get_category(self, ApplicationHandle):
-        if 'Extension' in ApplicationHandle.ApplicationEnvironment.EntityJSON.keys() and 'Category' in ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension'].keys():
+#        if 'Extension' in ApplicationHandle.ApplicationEnvironment.EntityJSON.keys()
+#           and 'Category' in ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension'].keys():
+        try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['Category']
-        else:
+        except:
             return []
 
     def get_keywords(self, ApplicationHandle):
 #        if 'Extension' in ApplicationHandle.ApplicationEnvironment.EntityJSON.keys()
 #           and 'Keywords' in ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension'].keys():
         try:
-            return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['Keywords']
+            return ApplicationHandle.ApplicationEnvironment.EntityJSON['Keywords']
         except:
             return []

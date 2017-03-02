@@ -65,13 +65,18 @@ class Resource_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 #    renderer_classes = (JSONRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
-#        pdb.set_trace()
+#       pdb.set_trace()
         returnformat = request.query_params.get('format', None)
         if 'resourceid' in self.kwargs:
             try:
                 objects = RDRResource.objects.filter(info_resourceid__exact=uri_to_iri(self.kwargs['resourceid']),rdr_type__exact='resource')
             except RDRResource.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
+#        try:
+#            subobjects = RDRResource.objects.filter(~Q(rdr_type='resource'), info_resourceid__exact=uri_to_iri(self.kwargs['resourceid']))
+#        except:
+#            pass
+        
         if returnformat == 'html':
             serializer = Generic_Resource_Serializer(objects[0])
             c = Context({'resource_details': serializer.data})
