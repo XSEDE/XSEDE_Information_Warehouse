@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from django.views.decorators.cache import cache_page
 from xdinfo.views import *
 
 # Define our custom URLs
@@ -13,7 +14,11 @@ urlpatterns = [
     url(r'^(?P<infoformat>[^/]+)/xdinfo/cli/?$',
         xdinfo_Cmd.as_view(),
         name='xdinfo-xtraargs'),
+    url(r'^(?P<infoformat>[^/]+)/xdinfo/cli/(?P<infotype>[^/]software|soft)/?$',
+        cache_page(60 * 15)(xdinfo_Cmd.as_view()),
+        name='xdinfo-cache-xtraargs'),
     url(r'^(?P<infoformat>[^/]+)/xdinfo/cli/(?P<infotype>[^/]+)/?$',
+#        cache_page(60 * 15)(xdinfo_Cmd.as_view()),
         xdinfo_Cmd.as_view(),
         name='xdinfo-xtraargs'),
 #    url(r'^xdinfo/cli/(?P<infotype>[^/]+)/(?P<slug>.+)/$',
