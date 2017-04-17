@@ -6,7 +6,8 @@ import jsonfield
 class Outages(models.Model):
     #id = models.AutoField(primary_key=True, null=False)
     #OutageID,ResourceID,WebURL,Subject,Content,OutageStart,OutageEnd,SiteID
-    OutageID = models.IntegerField(primary_key=True, null=False)
+    ID = models.CharField(primary_key=True, max_length=128, null=False)
+    OutageID = models.IntegerField(null=False)
     ResourceID = models.CharField(max_length=64)
     WebURL = models.CharField(max_length=320)
     Subject = models.CharField(db_index=True, max_length=120)
@@ -15,7 +16,9 @@ class Outages(models.Model):
     OutageEnd = models.DateTimeField(null=True)
     SiteID = models.CharField(db_index=True, max_length=40)
     OutageType = models.CharField(max_length=16)
+
     class Meta:
         db_name = 'xcsr'
     def __unicode__(self):
        return str(self.OutageID)
+
