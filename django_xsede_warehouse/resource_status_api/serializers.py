@@ -47,7 +47,7 @@ class Resource_Status_Serializer(serializers.Serializer):
 
         http_request = self.context.get("request")
         if http_request:
-            RDR_URL = http_request.build_absolute_uri(uri_to_iri(reverse('rdr-xup-detail', args=[RDRResource.rdr_resource_id])))
+            RDR_URL = http_request.build_absolute_uri(uri_to_iri(reverse('rdr-detail', args=[RDRResource.rdr_resource_id])))
         else:
             RDR_URL = ''
 
@@ -199,7 +199,7 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
 
         http_request = self.context.get("request")
         if http_request:
-            RDR_URL = http_request.build_absolute_uri(uri_to_iri(reverse('rdr-xup-detail', args=[RDRResource.rdr_resource_id])))
+            RDR_URL = http_request.build_absolute_uri(uri_to_iri(reverse('rdr-detail', args=[RDRResource.rdr_resource_id])))
         else:
             RDR_URL = ''
 

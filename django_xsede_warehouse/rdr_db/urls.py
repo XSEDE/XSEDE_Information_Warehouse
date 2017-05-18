@@ -7,19 +7,19 @@ from rdr_db.views_v2 import *
 urlpatterns = [
     url(r'^v1/rdr/$',
         RDRResource_Detail.as_view(),
-        name='rdr-detail'),
+        name='rdr-list'),
     url(r'^v1/rdr/ID/(?P<id>[^/]+)/$',
         RDRResource_Detail.as_view(),
         name='rdr-detail'),
     url(r'^v1/rdr/ResourceID/(?P<resourceid>[^/]+)/$',
         RDRResource_Detail.as_view(),
-        name='rdr-detail'),
+        name='rdr-detail-resourceid'),
     url(r'^v1/rdr/SiteID/(?P<siteid>[^/]+)/$',
         RDRResource_Detail.as_view(),
-        name='rdr-detail'),
+        name='rdr-detail-site'),
     url(r'^v1/rdr/RDR_Type/(?P<rdrtype>[^/]+)/$',
         RDRResource_Detail.as_view(),
-        name='rdr-detail'),
+        name='rdr-detail-type'),
 
     url(r'^v2/rdr-xup/$',
         RDRResource_XUP_v2_List.as_view(),
@@ -33,7 +33,7 @@ urlpatterns = [
         name='rdr-xup-detail'),
     url(r'^v1/rdr-xup/ResourceID/(?P<resourceid>[^/]+)/$',
         RDRResource_XUP_Detail.as_view(),
-        name='rdr-xup-detail'),
+        name='rdr-xup-detail-resourceid'),
               
 #   url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
