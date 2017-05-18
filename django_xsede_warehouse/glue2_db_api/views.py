@@ -22,6 +22,9 @@ logg2 = logging.getLogger('xsede.glue2')
 #    serializer_class = ApplicationEnvironment_DbSerializer
 
 class ApplicationEnvironment_DbList(APIView):
+    '''
+        GLUE2 Application Environment entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         objects = ApplicationEnvironment.objects.all()
@@ -35,6 +38,9 @@ class ApplicationEnvironment_DbList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ApplicationEnvironment_DbDetail(APIView):
+    '''
+        GLUE2 Application Environment entity
+    '''
     # Since Name, AppVersion, and ID may contain a forward slash we use uri_to_iri
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, pk, format=None):
@@ -62,6 +68,9 @@ class ApplicationEnvironment_DbDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class ApplicationHandle_DbList(APIView):
+    '''
+        GLUE2 Application Handle entity
+    '''
     # Since Name, Value, and ID may contain a forward slash we use uri_to_iri
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
@@ -77,6 +86,9 @@ class ApplicationHandle_DbList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ApplicationHandle_DbDetail(APIView):
+    '''
+        GLUE2 Application Handle entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, pk, format=None):
         try:
@@ -104,6 +116,9 @@ class ApplicationHandle_DbDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class AbstractService_DbList(APIView):
+    '''
+        GLUE2 Abstract Service entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         objects = AbstractService.objects.all()
@@ -117,6 +132,9 @@ class AbstractService_DbList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AbstractService_DbDetail(APIView):
+    '''
+        GLUE2 Abstract Service entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, pk, format=None):
         try:
@@ -144,6 +162,9 @@ class AbstractService_DbDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class Endpoint_DbList(APIView):
+    '''
+        GLUE2 Endpoint entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         objects = Endpoint.objects.all()
@@ -157,6 +178,9 @@ class Endpoint_DbList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class Endpoint_DbDetail(APIView):
+    '''
+        GLUE2 Endpoint entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, pk, format=None):
         try:
@@ -184,6 +208,9 @@ class Endpoint_DbDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class ComputingManager_DbList(APIView):
+    '''
+        GLUE2 Computing Manager entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         objects = ComputingManager.objects.all()
@@ -197,6 +224,9 @@ class ComputingManager_DbList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ComputingManager_DbDetail(APIView):
+    '''
+        GLUE2 Computing Manager entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, pk, format=None):
         try:
@@ -224,6 +254,9 @@ class ComputingManager_DbDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class ExecutionEnvironment_DbList(APIView):
+    '''
+        GLUE2 Execution Environment entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         objects = ExecutionEnvironment.objects.all()
@@ -237,6 +270,9 @@ class ExecutionEnvironment_DbList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ExecutionEnvironment_DbDetail(APIView):
+    '''
+        GLUE2 Execution Environment entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, pk, format=None):
         try:
@@ -264,6 +300,9 @@ class ExecutionEnvironment_DbDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class Location_DbList(APIView):
+    '''
+        GLUE2 Location entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         objects = Location.objects.all()
@@ -277,6 +316,9 @@ class Location_DbList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class Location_DbDetail(APIView):
+    '''
+        GLUE2 Location entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, pk, format=None):
         try:
@@ -304,6 +346,9 @@ class Location_DbDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class ComputingShare_DbList(APIView):
+    '''
+        GLUE2 Computing Share entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         objects = ComputingShare.objects.all()
@@ -317,6 +362,9 @@ class ComputingShare_DbList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ComputingShare_DbDetail(APIView):
+    '''
+        GLUE2 Computing Share entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, pk, format=None):
         try:
@@ -344,6 +392,9 @@ class ComputingShare_DbDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class ComputingActivity_DbList(APIView):
+    '''
+        GLUE2 Computing Activity entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         objects = ComputingActivity.objects.all()
@@ -357,6 +408,9 @@ class ComputingActivity_DbList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ComputingActivity_DbDetail(APIView):
+    '''
+        GLUE2 Computing Activity entity
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, pk, format=None):
         try:
@@ -384,6 +438,9 @@ class ComputingActivity_DbDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class EntityHistory_DbList(APIView):
+    '''
+        GLUE2 received entity history
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         objects = EntityHistory.objects.all()
@@ -397,6 +454,9 @@ class EntityHistory_DbList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class EntityHistory_DbDetail(APIView):
+    '''
+        GLUE2 received entity history
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, id, format=None):
         try:
