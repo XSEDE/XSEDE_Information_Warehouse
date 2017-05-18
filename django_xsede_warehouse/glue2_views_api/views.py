@@ -18,6 +18,9 @@ class ApplicationEnvironment_List(APIView):
 
 # Software information comes from ApplicationHandle and the related ApplicationEnvironment
 class Software_List(APIView):
+    '''
+        GLUE2 software combining ApplicationEnvironment and AppliactionHandle
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         objects = ApplicationHandle.objects.all()
@@ -25,6 +28,9 @@ class Software_List(APIView):
         return Response(serializer.data)
 
 class Software_Detail(APIView):
+    '''
+        GLUE2 software combining ApplicationEnvironment and AppliactionHandle
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
@@ -43,6 +49,9 @@ class Software_Detail(APIView):
 
 # Service information comes from Endpoint and the parent AbstractService
 class Services_List(APIView):
+    '''
+        GLUE2 services combining AbstractService and Endpoint
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         objects = Endpoint.objects.all()
@@ -50,6 +59,9 @@ class Services_List(APIView):
         return Response(serializer.data)
 
 class Services_Detail(APIView):
+    '''
+        GLUE2 services combining AbstractService and Endpoint
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
