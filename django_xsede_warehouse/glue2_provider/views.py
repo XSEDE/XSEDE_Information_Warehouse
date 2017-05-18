@@ -10,6 +10,9 @@ from glue2_provider.process import Glue2ProcessRawIPF
 import pdb
 
 class Glue2ProcessDoc(APIView):
+    '''
+        Process SP GLUE2 document entities
+    '''
 #    authentication_classes = (SessionAuthentication, BasicAuthentication)
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def post(self, request, doctype, resourceid, format=None):
