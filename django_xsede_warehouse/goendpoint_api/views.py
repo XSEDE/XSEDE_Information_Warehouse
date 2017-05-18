@@ -23,6 +23,9 @@ logg2 = logging.getLogger('xsede.glue2')
 
 #Service information comes from Endpoint and the parent AbstractService
 class goServices_List(APIView):
+    '''
+        Globus Online endpoints derived from GLUE2 Endpoint
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         endpoints = Endpoint.objects.filter(Name__exact='org.globus.gridftp')
@@ -30,6 +33,9 @@ class goServices_List(APIView):
         return Response(serializer.data)
 
 class goServices_Detail(APIView):
+    '''
+        Globus Online endpoints derived from GLUE2 Endpoint
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
