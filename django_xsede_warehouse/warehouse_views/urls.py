@@ -35,8 +35,9 @@ urlpatterns = [
         Software_XUP_v1_List.as_view(),
         name='software-xup-list'),
 
+    # 120 minutes
     url(r'^v1/software-cached/$',
-        cache_page(60 * 15)(Software_Full.as_view()),
+        cache_page(60 * 120)(Software_Full.as_view()),
         name='software-cache-list'),
 
 #    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
