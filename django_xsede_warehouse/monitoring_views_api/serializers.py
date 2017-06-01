@@ -7,4 +7,5 @@ class TestResult_Serializer(serializers.ModelSerializer):
     class Meta:
         model = TestResult
         fields = ('ID', 'ResourceID', 'Name', 'CreationTime',
-                  'Source', 'Result', 'ErrorMessage')
+                  'Source', 'Result', 'ErrorMessage',
+                  'IsSoftware', 'IsService', 'EntityJSON')
