@@ -250,6 +250,15 @@ class Glue2NewDocument():
             self.cur[me][item.ID] = item
         self.stats['%s.Current' % me] = len(self.cur[me])
         
+        # 2017-06-02 by JP: Track the source to only update/delete entries from that source
+        if len(self.new[me]) < 1:
+            newSource = ''                 # Don't know the source, we'll handle it conservatively later
+        else:
+            ID = self.new[me].keys()[0]
+            if self.newAbsServType[ID] == 'ComputingService' and self.new[me][ID]['Type'].startswith('ipf.'):
+                newSource = 'compute'      # From the GLUE2 compute workflow; Type contains 'ipf.{PBS,SLURM,...}'
+            else:
+                newSource = 'services'     # From the GLUE2 services workflow
         # Add/update entries
         for ID in self.new[me]:
             if ID in self.cur[me] and parse_datetime(self.new[me][ID]['CreationTime']) <= self.cur[me][ID].CreationTime:
@@ -317,30 +326,38 @@ class Glue2NewDocument():
                 raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
+        # 2017-06-02 by JP: For now have a Source not affect records from the other Source
         # Delete old entries
-# 2016-01-28 JP: TEMPORARY BECAUSE SERVICES COME IN TWO WAYS ONE SHOULDN'T DELETE OTHER
-#        for ID in self.cur[me]:
-#            if ID in self.new[me]:
-#                continue
-#            try:
-#                Endpoint.objects.filter(ID=ID).delete()
-#                self.stats['%s.Deletes' % me] += 1
-#            except (DataError, IntegrityError) as e:
-#                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
-#                                          status=status.HTTP_400_BAD_REQUEST)
+        for ID in self.cur[me]:
+            if ID in self.new[me]:
+                continue
+            if newSource in ('compute', ''):   # For this source there are no Endpoints and we don't cleanup Endpoints
+               continue
+            try:
+                Endpoint.objects.filter(ID=ID).delete()
+                self.stats['%s.Deletes' % me] += 1
+            except (DataError, IntegrityError) as e:
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                                          status=status.HTTP_400_BAD_REQUEST)
 
+        # 2017-06-02 by JP: For now have a Source not affect records from the other Source
         # Delete old entries
-# 2016-01-28 JP: TEMPORARY BECAUSE SERVICES COME IN TWO WAYS ONE SHOULDN'T DELETE OTHER
-#        me = 'AbstractService'
-#        for ID in self.cur[me]:
-#            if ID in self.new[me]:
-#                continue
-#            try:
-#                AbstractService.objects.filter(ID=ID).delete()
-#                self.stats['%s.Deletes' % me] += 1
-#            except (DataError, IntegrityError) as e:
-#                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
-#                                          status=status.HTTP_400_BAD_REQUEST)
+        me = 'AbstractService'
+        for ID in self.cur[me]:
+            if ID in self.new[me]:
+                continue
+            if self.cur[me][ID].ServiceType == 'ComputingService' and self.cur[me][ID].Type.startswith('ipf.'):
+                curSource = 'compute'
+            else:
+                curSource = 'services'
+            if newSource != curSource:
+                continue        # So that one source doesn't affect the other
+            try:
+                AbstractService.objects.filter(ID=ID).delete()
+                self.stats['%s.Deletes' % me] += 1
+            except (DataError, IntegrityError) as e:
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                                          status=status.HTTP_400_BAD_REQUEST)
 
         ########################################################################
         me = 'ComputingManager'
