@@ -624,13 +624,14 @@ class Glue2ProcessRawIPF():
     
     def process(self, ts, doctype, resourceid, rawdata):
         # Return an error message, or nothing
+        pa_id = '{}:{}'.format(doctype, resourceid)
+        pa = ProcessingActivity(self.application, self.function, pa_id, doctype, resourceid)
+
         if doctype not in ['glue2.applications', 'glue2.compute', 'glue2.computing_activities']:
             msg = 'Ignoring DocType (DocType={}, ResourceID={})'.format(doctype, resourceid)
             logg2.info(msg)
+            pa.FinishActivity('0', msg)
             return (False, msg)
-
-        pa_id = '{}:{}'.format(doctype, resourceid)
-        pa = ProcessingActivity(self.application, self.function, pa_id, doctype, resourceid)
 
         if isinstance(rawdata, dict):
             jsondata = rawdata
