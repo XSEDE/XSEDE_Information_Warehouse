@@ -29,6 +29,7 @@ a_cache_ts = timezone.now()
 class StatsTracker():
     def __init__(self, Label):
         self.Label = Label
+        self.ServiceSource = ''
         self.ProcessingSeconds = 0
         for model in Handled_models:
             self.stats['%s.Updates' % model] = 0
@@ -251,14 +252,12 @@ class Glue2NewDocument():
         self.stats['%s.Current' % me] = len(self.cur[me])
         
         # 2017-06-02 by JP: Track the source to only update/delete entries from that source
-        if len(self.new[me]) < 1:
-            newSource = ''                 # Don't know the source, we'll handle it conservatively later
-        else:
+        if len(self.new[me]) >= 1:
             ID = self.new[me].keys()[0]
             if self.newAbsServType[ID] == 'ComputingService' and self.new[me][ID]['Type'].startswith('ipf.'):
-                newSource = 'compute'      # From the GLUE2 compute workflow; Type contains 'ipf.{PBS,SLURM,...}'
+                self.ServiceSource = 'compute'      # From the GLUE2 compute workflow; Type contains 'ipf.{PBS,SLURM,...}'
             else:
-                newSource = 'services'     # From the GLUE2 services workflow
+                self.ServiceSource = 'services'     # From the GLUE2 services workflow
         # Add/update entries
         for ID in self.new[me]:
             if ID in self.cur[me] and parse_datetime(self.new[me][ID]['CreationTime']) <= self.cur[me][ID].CreationTime:
@@ -331,7 +330,7 @@ class Glue2NewDocument():
         for ID in self.cur[me]:
             if ID in self.new[me]:
                 continue
-            if newSource in ('compute', ''):   # For this source there are no Endpoints and we don't cleanup Endpoints
+            if self.ServiceSource in ('compute', ''):   # For this source there are no Endpoints and we don't cleanup Endpoints
                continue
             try:
                 Endpoint.objects.filter(ID=ID).delete()
@@ -350,7 +349,7 @@ class Glue2NewDocument():
                 curSource = 'compute'
             else:
                 curSource = 'services'
-            if newSource != curSource:
+            if self.ServiceSource != curSource:
                 continue        # So that one source doesn't affect the other
             try:
                 AbstractService.objects.filter(ID=ID).delete()
@@ -509,7 +508,6 @@ class Glue2NewDocument():
     def ProcessComputingActivity(self):
         ########################################################################
         me = 'ComputingActivity'
-#        pdb.set_trace()
         # Load current database entries
         for item in ComputingActivity.objects.filter(ResourceID=self.resourceid):
             self.cur[me][item.ID] = item
@@ -624,10 +622,15 @@ class Glue2ProcessRawIPF():
     
     def process(self, ts, doctype, resourceid, rawdata):
         # Return an error message, or nothing
-        pa_id = '{}:{}'.format(doctype, resourceid)
+        if doctype == 'glue2.computing_activity':   # Skip prefix "jobid.owner" and only use the ResourceID
+            x = resourceid.find('.')                # Up to first 'period' contains jobid
+            y = resourceid.find('.', x+1)           # Up to second 'period' contains owner
+            pa_id = '{}:{}'.format(doctype, resourceid[y+1:])
+        else:
+            pa_id = '{}:{}'.format(doctype, resourceid)
         pa = ProcessingActivity(self.application, self.function, pa_id, doctype, resourceid)
 
-        if doctype not in ['glue2.applications', 'glue2.compute', 'glue2.computing_activities']:
+        if doctype not in ['glue2.applications', 'glue2.compute']:
             msg = 'Ignoring DocType (DocType={}, ResourceID={})'.format(doctype, resourceid)
             logg2.info(msg)
             pa.FinishActivity('0', msg)
@@ -665,4 +668,9 @@ class Glue2ProcessRawIPF():
             pa.FinishActivity(False, e.response)
             return (False, e.response)
         pa.FinishActivity(True, response)
+
+        if doctype == 'glue2.compute' and g2doc.ServiceSource == 'services':
+            pa_id2 = '{}:{}'.format('glue2.services', resourceid)
+            pa2 = ProcessingActivity(self.application, self.function, pa_id2, 'glue2.services', resourceid)
+            pa2.FinishActivity(True, response)
         return (True, response)

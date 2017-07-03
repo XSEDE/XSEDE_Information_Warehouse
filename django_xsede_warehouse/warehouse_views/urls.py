@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from warehouse_views.views import *
 from django.views.decorators.cache import cache_page
 

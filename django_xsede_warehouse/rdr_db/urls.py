@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from rdr_db.views import *
 from rdr_db.views_v2 import *
 

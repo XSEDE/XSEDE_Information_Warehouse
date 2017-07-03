@@ -25,6 +25,6 @@ class RDRResource(models.Model):
     class Meta:
         db_name = 'xcsr'
     def __unicode__(self):
-       return str(self.rdr_resource_id)
+       return unicode(self.rdr_resource_id)
 # Under consideration
 #    parent_resource = models.ForeignKey("self", db_constraint=False, null=True)
