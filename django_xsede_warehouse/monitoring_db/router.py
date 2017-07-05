@@ -28,7 +28,7 @@ class ModelDatabaseRouter(object):
             db_name2 = model2._meta.db_name
         except:
             db_name2 = 'default'
-        return db_name1 is db_name2
+        return db_name1 == db_name2
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         try:
