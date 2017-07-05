@@ -156,10 +156,8 @@ DATABASES = {
     }
 }
 
-DATABASE_ROUTERS = ['glue2_db.router.ModelDatabaseRouter',
-                    'monitoring_db.router.ModelDatabaseRouter',]
-from glue2_db.router import *
-from monitoring_db.router import *
+DATABASE_ROUTERS = ['xsede_warehouse.router.ModelDatabaseRouter',]
+from xsede_warehouse.router import *
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
