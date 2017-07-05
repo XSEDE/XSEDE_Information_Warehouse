@@ -19,7 +19,7 @@ class ModelDatabaseRouter(object):
 #        print 'db_for_write(model=%s) = %s' % (model, db_name)
         return db_name
 
-    def allow_relation(self, model1, model2):
+    def allow_relation(self, model1, model2, **hints):
         try:
             db_name1 = model1._meta.db_name
         except:
@@ -28,7 +28,7 @@ class ModelDatabaseRouter(object):
             db_name2 = model2._meta.db_name
         except:
             db_name2 = 'default'
-        return db_name1 is db_name2
+        return db_name1 == db_name2
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         try:
