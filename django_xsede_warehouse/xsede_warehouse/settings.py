@@ -225,9 +225,6 @@ REST_FRAMEWORK = {
 #       'rest_framework.renderers.HTMLFormRenderer',
     ],
     'PAGINATE_BY': 10,
-    # Fixes rendering RDR fields with encoded characters (symbols TM, Registered)
-    # Probably temporary until we upgade to Python 3, 2017-07-03, JP
-    'UNICODE_JSON': False,
 }
 
 import logging
