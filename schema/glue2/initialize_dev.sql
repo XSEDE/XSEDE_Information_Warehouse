@@ -23,6 +23,7 @@ CREATE ROLE xcsr_owner;
 ALTER ROLE xcsr_owner WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION PASSWORD 'monkeypass';
 ALTER ROLE xcsr_owner SET search_path TO xcsr;
 
+CREATE ROLE warehouse_owner;
 ALTER ROLE warehouse_owner SET search_path TO glue2;
 
 
@@ -46,7 +47,7 @@ ALTER SCHEMA xcsr OWNER TO xcsr_owner;
 --
 -- Loader
 --
-CREATE role warehouse_load nosuperuser login password 'xxx';
+CREATE role warehouse_load nosuperuser login password 'monkeypass';
 GRANT select,insert,update,delete ON ALL TABLES IN SCHEMA glue2 TO warehouse_load;
 ALTER ROLE warehouse_load SET client_encodING = 'UTF8';
 ALTER ROLE warehouse_load SET default_transaction_isolation = 'read committed';

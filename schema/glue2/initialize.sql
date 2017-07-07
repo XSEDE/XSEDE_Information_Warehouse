@@ -23,6 +23,7 @@ CREATE ROLE xcsr_owner;
 ALTER ROLE xcsr_owner WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION PASSWORD 'md54ca2fe9bca416d248039cb5c35b76b54';
 ALTER ROLE xcsr_owner SET search_path TO xcsr;
 
+CREATE ROLE warehouse_owner;
 ALTER ROLE warehouse_owner SET search_path TO glue2;
 
 
