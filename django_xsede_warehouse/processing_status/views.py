@@ -1,9 +1,13 @@
+import csv
+from django.http import HttpResponse
+
 from django.shortcuts import render
 from django.utils.encoding import uri_to_iri
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
+
 
 from processing_status.models import *
 from processing_status.serializers import *
@@ -16,15 +20,26 @@ class ProcessingRecord_DbList(APIView):
         if 'resourceid' in self.kwargs:
             try:
                 objects = ProcessingRecord.objects.filter(About__exact=uri_to_iri(self.kwargs['resourceid']))
+                try:
+                    sort_by = request.GET.get('sort')
+                    sorted_objects = objects = ProcessingRecord.objects.filter(About__exact=uri_to_iri(self.kwargs['resourceid'])).order_by(sort_by)
+                    return render(request, 'list.html', {'record_list': sorted_objects})
+                except:
+                    return render(request, 'list.html', {'record_list': objects})
             except ProcessingRecord.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
+                return Response(status=status.HTTP_404_NOT_FOUND);
         else:
-            objects = ProcessingRecord.objects.all()
-        if returnformat != 'html':
-           serializer = ProcessingRecord_DbSerializer(objects, many=True)
-           return Response(serializer.data)
-  	else:
-           return render(request, 'list.html', {'record_list': objects})
+            try:
+                sort_by = request.GET.get('sort')
+                sorted_objects = ProcessingRecord.objects.all().order_by(sort_by)
+                return render(request, 'list.html', {'record_list': sorted_objects})
+            except:
+                objects = ProcessingRecord.objects.all()
+                if returnformat != 'html':
+                    serializer = ProcessingRecord_DbSerializer(objects, many=True)
+                    return Response(serializer.data)
+                else:
+                    return render(request, 'list.html', {'record_list': objects})
 
 class ProcessingRecord_LatestList(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
