@@ -69,12 +69,10 @@ class ProcessingRecord_Detail(APIView):
         if 'id' in self.kwargs:
             try:
                 object = ProcessingRecord.objects.get(pk=uri_to_iri(self.kwargs['id']))
-                return render(request, 'list2.html', {'record_list': [object]})
             except ProcessingRecord.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
+        if returnformat != 'html':
+            serializer = ProcessingRecord_DbSerializer(object)
+            return Response(serializer.data)
         else:
-            if returnformat != 'html':
-                serializer = ProcessingRecord_DbSerializer(object)
-                return Response(serializer.data)
-            else:
-                return render(request, 'list2.html', {'record_list': [object]})
+            return render(request, 'list2.html', {'record_list': [object]})
