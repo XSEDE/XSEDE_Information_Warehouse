@@ -33,7 +33,7 @@
         <td align="center"><b><div title="{{ record.ProcessingMessage }}">See</div></b></td>
         <td>{{ record.ProcessingEnd|date:'Y/m/d H:i e' }}</td>
         <td align="right">{{ record.ProcessingEnd|timesince }}</td>
-        <td>{{ record.ID }}</td>
+        <td> <a href = "/processing-status/record/id/{{ record.ID }}"> {{ record.ID }} </a> </td>
     </tr>
     {% endfor %}
     {% endblock %}

@@ -61,13 +61,20 @@ class ProcessingRecord_LatestList(APIView):
         else:
             return render(request, 'list.html', {'record_list': [object]})
 
+
 class ProcessingRecord_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None, **kwargs):
+        returnformat = request.query_params.get('format', 'json')
         if 'id' in self.kwargs:
             try:
                 object = ProcessingRecord.objects.get(pk=uri_to_iri(self.kwargs['id']))
+                return render(request, 'list2.html', {'record_list': [object]})
             except ProcessingRecord.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = ProcessingRecord_DbSerializer(object)
-        return Response(serializer.data)
+        else:
+            if returnformat != 'html':
+                serializer = ProcessingRecord_DbSerializer(object)
+                return Response(serializer.data)
+            else:
+                return render(request, 'list2.html', {'record_list': [object]})
