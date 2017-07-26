@@ -1,6 +1,6 @@
 from __future__ import print_function
 import json
-from datetime import datetime, tzinfo
+from datetime import datetime, tzinfo, timedelta
 from django.utils import timezone
 from django.db import DataError, IntegrityError
 from django.core.exceptions import ValidationError
@@ -11,7 +11,6 @@ from glue2_db.models import *
 from processing_status.process import ProcessingActivity
 from xsede_warehouse.exceptions import ProcessingException
 
-import pdb
 import logging
 logg2 = logging.getLogger('xsede.glue2')
 
@@ -27,6 +26,15 @@ def StatsSummary(stats):
 
 def StatsHadTestResult(stats):
     return('TestResult.New' in stats)
+
+class UTC(tzinfo):
+    def utcoffset(self, dt):
+        return timedelta(0)
+    def tzname(self, dt):
+        return 'UTC'
+    def dst(self, dt):
+        return timedelta(0)
+utc = UTC()
 
 class Glue2NewMonitoring():
     def __init__(self, DocType, ResourceID, ReceivedTime, Label):
@@ -206,3 +214,37 @@ class Glue2ProcessRawMonitoring():
             return (False, e.response)
         pa.FinishActivity(True, response)
         return (True, response)
+
+class Glue2DeleteExpiredMonitoring():
+    def __init__(self, interval = 3600):
+        # Default to doing an expiration check once an hour (3600/seconds)
+        self.LastTimestamp = datetime.utcnow()
+        self.ExpireInterval = timedelta(seconds=interval)
+        self.ExpireCount = 0
+
+    def delete(self):
+        if self.LastTimestamp + self.ExpireInterval >= datetime.utcnow():
+            return (True, '')
+        
+        ExpireCountSave = self.ExpireCount
+        for t in TestResult.objects.all():
+            try:
+                validity = timedelta(seconds=int(t.EntityJSON['Validity']))
+            except:
+                continue
+            try:
+                creation = t.CreationTime
+            except:
+                continue
+            now = datetime.now(utc)
+            if creation + validity < now:
+                self.ExpireCount += 1
+                logg2.info('Expiring {} + {} < {}: ID={}'.format(creation, validity, now, t.ID))
+                t.delete()
+
+        self.LastTimestamp = datetime.utcnow()
+        ExpireTotal = self.ExpireCount - ExpireCountSave
+        if ExpireTotal > 0:
+            return(False, 'Expired {}'.format(ExpireTotal))
+        else:
+            return(True, '')
