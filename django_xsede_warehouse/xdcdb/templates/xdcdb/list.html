@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}XSEDE Resource List{% endblock %}
+{% block content %}
+<a href="/warehouse-views/v1/resources/">All Resources</a>&nbsp;
+<a href="/warehouse-views/v1/resources-active/">Active Resources</a>
+
+<h1 align="center">XSEDE Resource List</h1>
+
+<table style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
+    <tr>
+        <th> <a href="?format=html;sort=ResourceID">  ResourceID </a> </th>
+        <th> <a href="?format=html;sort=ResourceCode"> Resource Code </a> </th>
+        <th> <a href="?format=html;sort=OrganizationName">  Organization Name </a> </th>
+        <th> <a href="?format=html;sort=PopsName"> Pops Name </a> </th>
+        <th> Detail </th>
+ 
+    </tr>
+    {% for resource in resource_list %}
+    <tr>
+        <td> {{ resource.ResourceID }}</td>
+        <td>{{ resource.ResourceCode }}</td>
+        <td>{{ resource.OrganizationName }}</td>
+        <td>{{ resource.PopsName }}</td>
+        <td> <a href="/xdcdb/v1/xdcdb/ID/{{ resource.ResourceID }}/?format=html"> View </a></td>
+
+    </tr>
+    {% endfor %}
+    {% endblock %}

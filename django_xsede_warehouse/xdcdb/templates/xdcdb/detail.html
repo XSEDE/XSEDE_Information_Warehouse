@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}XDCDB Detail{% endblock %}
+{% block content %}
+
+<style>
+th, td
+    {
+        padding: 15px;
+    }
+
+th
+    {
+        color: white;
+        background-color: #1E06B4;
+        text-align: left;
+        width: 10px;
+    }
+
+td
+    {
+        color: #69696B;
+    }
+
+table#data
+    {
+        border: 2px solid black;
+        border-collapse: collapse;
+    }
+</style>
+
+<h1 align="center">XCDCB Detail</h1>
+
+<p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+<table id ="data" width="98%" style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
+    
+    {% for resource in resource_list %}
+    <tr>
+        <th> ResourceID </th>
+        <td> {{ resource.ResourceID }} </th>
+    </tr>
+    
+    <tr>
+        <th> Resource Code </th>
+        <td> {{ resource.ResourceCode }} </th>
+    </tr>
+    
+    <tr>
+        <th> Site ID </th>
+        <td> {{ resource.SiteID }} </th>
+    </tr>
+    
+    <tr>
+        <th> Organization Name </th>
+        <td> {{ resource.OrganizationName }} </th>
+    </tr>
+
+    <tr>
+        <th> Organization Abbreviation </th>
+        <td> {{ resource.OrganizationAbbrev }} </th>
+    </tr>
+
+    <tr>
+        <th> Amie Name </th>
+        <td> {{ resource.AmieName }} </th>
+        </tr>
+    
+    <tr>
+        <th> Pops Name </th>
+        <td> {{ resource.PopsName }} </th>
+    </tr>
+    
+    <tr>
+        <th> Timestamp </th>
+        <td> {{ resource.Timestamp|date:'Y/m/d H:i e' }} </th>
+    </tr>
+    
+    {% endfor %}
+    {% endblock %}

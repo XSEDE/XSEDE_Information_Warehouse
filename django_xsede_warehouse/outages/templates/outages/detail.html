@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Outage Detail{% endblock %}
+{% block content %}
+
+<style>
+th, td
+    {
+        padding: 15px;
+    }
+
+th
+    {
+        color: white;
+        background-color: #1E06B4;
+        text-align: left;
+        width: 10px;
+    }
+
+td
+    {
+        color: #69696B;
+    }
+
+table#data
+    {
+        border: 2px solid black;
+        border-collapse: collapse;
+    }
+</style>
+
+<h1 align="center">Outage Detail</h1></td>
+
+<p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+<table id ="data" width="98%" style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
+    
+    {% for record in record_list %}
+    <tr>
+        <th>ResourceID</th>
+        <td>{{ record.ResourceID }}</th>
+    </tr>
+    
+    <tr>
+        <th>SiteID</th>
+        <td>{{ record.SiteID }}</th>
+    </tr>
+
+    <tr>
+        <th>Outage Start</th>
+        <td>{{ record.OutageStart | date:'D Y/m/d H:i e' }}</th>
+    </tr>
+    
+    <tr>
+        <th>Outage End</th>
+        <td>{{ record.OutageEnd | date:'D Y/m/d H:i e' }}</th>
+    </tr>
+    
+    <tr>
+        <th>Subject</th>
+        <td>{{ record.Subject }}</th>
+    </tr>
+    
+    <tr>
+        <th>Outage Type</th>
+        <td>{{ record.OutageType }}</th>
+    </tr>
+    
+    <tr>
+        <th>Content</th>
+        <td>{{ record.Content }}</th>
+    </tr>
+    
+    <tr>
+        <th>Outage ID</th>
+        <td>{{ record.OutageID }}</th>
+    </tr>
+    
+    <tr>
+        <th>Web URL</th>
+        <td><a href="{{ record.WebURL }}">{{ record.WebURL }}</a></th>
+    </tr>
+    
+    {% endfor %}
+    {% endblock %}

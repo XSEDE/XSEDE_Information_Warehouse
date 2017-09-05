@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Monitoring Views Detail{% endblock %}
+{% block content %}
+
+<style>
+th, td
+    {
+        padding: 15px;
+    }
+
+th
+    {
+        color: white;
+        background-color: #1E06B4;
+        text-align: left;
+        width: 10px;
+    }
+
+td
+    {
+        color: #69696B;
+    }
+
+table#data
+    {
+        border: 2px solid black;
+        border-collapse: collapse;
+    }
+</style>
+
+<h1 align="center">Monitoring Views Detail</h1></td>
+
+<p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+<table id ="data" width="98%" style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
+    
+    {% for record in record_list %}
+    <tr>
+        <th>Source</th>
+        <td>{{ record.Source }}</th>
+    </tr>
+    
+    <tr>
+        <th>ResourceID</th>
+        <td>{{ record.ResourceID }}</th>
+    </tr>
+    
+    <tr>
+        <th>Name</th>
+        <td>{{ record.Name }}</th>
+    </tr>
+    
+    <tr>
+        <th>Result</th>
+        <td>{{ record.Result }}</th>
+    </tr>
+    
+    <tr>
+        <th>Error Message</th>
+        <td>{{ record.ErrorMessage }}</th>
+    </tr>
+    
+    <tr>
+        <th>Is Software</th>
+        <td>{{ record.IsSoftware }}</th>
+    </tr>
+    
+    <tr>
+        <th>Is Service</th>
+        <td>{{ record.IsService }}</th>
+    </tr>
+    
+    <tr>
+        <th>Extension</th>
+        <td>{{ record.EntityJSON.Extension }}</th>
+    </tr>
+    
+    <tr>
+        <th>ID</th>
+        <td>{{ record.ID }}</th>
+    </tr>
+    
+    <tr>
+        <th>Creation Time</th>
+        <td>{{ record.CreationTime | date:'Y/m/d H:i:s e' }}</th>
+    </tr>
+    {% endfor %}
+    {% endblock %}
