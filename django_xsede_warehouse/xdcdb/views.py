@@ -8,32 +8,52 @@ from xdcdb.serializers import *
 # Create your views here.
 class XcdbResource_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    def get(self, request, format=None):
-        objects = TGResource.objects.all()
-        serializer = XcdbResource_Serializer(objects, many=True)
-        return Response(serializer.data)
+    def get(self, request, format=None, **kwargs):
+        returnformat = request.query_params.get('format', 'json')
+        try:
+            sort_by = request.GET.get('sort')
+            objects = TGResource.objects.all().order_by(sort_by)
+        except:
+            objects = TGResource.objects.all()
+        if returnformat != 'html':
+            serializer = XcdbResource_Serializer(objects, many=True)
+            return Response(serializer.data)
+        else:
+            return render(request, 'xdcdb/list.html', {'resource_list': objects})
 
 class XcdbResource_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None, **kwargs):
+        returnformat = request.query_params.get('format', 'json')
         if 'id' in self.kwargs:
             try:
                 object = TGResource.objects.get(pk=self.kwargs['id'])
             except Endpoint.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             serializer = XcdbResource_Serializer(object)
+            if returnformat != 'html':
+                return Response(serializer.data)
+            else:
+                return render(request, 'xdcdb/detail.html', {'resource_list': [object]})
         elif 'resourceid' in self.kwargs:
             objects = TGResource.objects.filter(info_resourceid__exact=self.kwargs['resourceid'])
             serializer = XcdbResource_Serializer(objects, many=True)
-        return Response(serializer.data)
+            if returnformat != 'html':
+                return Response(serializer.data)
+            else:
+                return render(request, 'xdcdb/detail.html', {'resource_list': objects})
 
 class XcdbResourcePublished_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get (self, request, format=None, **kwargs):
+        returnformat = request.query_params.get('format', 'json')
         if 'id' in self.kwargs:
             try:
-                object=TGResource.objects.get(pk=self.kwargs['id'])
-            except TGResource.DoesNotExist:
+                object = TGResource.objects.get(pk=self.kwargs['id'])
+            except Endpoint.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             serializer = XcdbResourcePublished_Serializer(object)
-        return Response(serializer.data)
+            if returnformat != 'html':
+                return Response(serializer.data)
+            else:
+                return render(request, 'xdcdb/detail.html', {'resource_list': [object]})

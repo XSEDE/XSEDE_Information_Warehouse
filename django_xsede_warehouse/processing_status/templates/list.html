@@ -13,15 +13,15 @@
 <p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
 <table id ="data" style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
     <tr>
-        <th> <a href="?sort=Topic"> Topic </a> </th>
-        <th> <a href="?sort=About"> About </a></th>
-        <th> <a href="?sort=ProcessingApplication"> Application </a> </th>
-        <th> <a href="?sort=ProcessingFunction"> Function </a> </th>
-        <th> <a href="?sort=ProcessingCode"> Code </a> </th>
-        <th> <a href="?sort=ProcessingMessage"> Message </a> </th>
-        <th> <a href="?sort=ProcessingEnd"> Processed at </a> </th>
-        <th> <a href="?sort=ProcessingEnd"> Age </th>
-        <th> <a href="?sort=ID"> ID </th></tr>
+        <th> <a href="?format=html;sort=Topic"> Topic </a> </th>
+        <th> <a href="?format=html;sort=About"> About </a></th>
+        <th> <a href="?format=html;sort=ProcessingApplication"> Application </a> </th>
+        <th> <a href="?format=html;sort=ProcessingFunction"> Function </a> </th>
+        <th> <a href="?format=html;sort=ProcessingCode"> Code </a> </th>
+        <th> <a href="?format=html;sort=ProcessingMessage"> Message </a> </th>
+        <th> <a href="?format=html;sort=ProcessingEnd"> Processed at </a> </th>
+        <th> <a href="?format=html;sort=ProcessingEnd"> Age </th>
+        <th> <a href="?format=html;sort=ID"> ID </th></tr>
     
     {% for record in record_list %}
     <tr>

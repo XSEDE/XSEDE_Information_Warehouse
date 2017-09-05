@@ -8,6 +8,9 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.response import Response
 from rest_framework import status
 
+from rdr_db.models import RDRResource
+from rdr_db.filters import *
+from resource_status_api.serializers import *
 
 from processing_status.models import *
 from processing_status.serializers import *
@@ -19,27 +22,24 @@ class ProcessingRecord_DbList(APIView):
         returnformat = request.query_params.get('format', 'json')
         if 'resourceid' in self.kwargs:
             try:
-                objects = ProcessingRecord.objects.filter(About__exact=uri_to_iri(self.kwargs['resourceid']))
                 try:
                     sort_by = request.GET.get('sort')
-                    sorted_objects = objects = ProcessingRecord.objects.filter(About__exact=uri_to_iri(self.kwargs['resourceid'])).order_by(sort_by)
-                    return render(request, 'list.html', {'record_list': sorted_objects})
+                    objects = ProcessingRecord.objects.filter(About__exact=uri_to_iri(self.kwargs['resourceid'])).order_by(sort_by)
                 except:
-                    return render(request, 'list.html', {'record_list': objects})
+                    objects = ProcessingRecord.objects.filter(About__exact=uri_to_iri(self.kwargs['resourceid']))
             except ProcessingRecord.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND);
         else:
             try:
                 sort_by = request.GET.get('sort')
-                sorted_objects = ProcessingRecord.objects.all().order_by(sort_by)
-                return render(request, 'list.html', {'record_list': sorted_objects})
+                objects = ProcessingRecord.objects.all().order_by(sort_by)
             except:
                 objects = ProcessingRecord.objects.all()
-                if returnformat != 'html':
-                    serializer = ProcessingRecord_DbSerializer(objects, many=True)
-                    return Response(serializer.data)
-                else:
-                    return render(request, 'list.html', {'record_list': objects})
+        if returnformat != 'html':
+            serializer = ProcessingRecord_DbSerializer(objects, many=True)
+            return Response(serializer.data)
+        else:
+            return render(request, 'processing_status/list.html', {'record_list': objects})
 
 class ProcessingRecord_LatestList(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -59,7 +59,7 @@ class ProcessingRecord_LatestList(APIView):
             serializer = ProcessingRecord_DbSerializer(object)
             return Response(serializer.data)
         else:
-            return render(request, 'list.html', {'record_list': [object]})
+            return render(request, 'processing_status/list.html', {'record_list': [object]})
 
 
 class ProcessingRecord_Detail(APIView):
@@ -75,4 +75,4 @@ class ProcessingRecord_Detail(APIView):
             serializer = ProcessingRecord_DbSerializer(object)
             return Response(serializer.data)
         else:
-            return render(request, 'list2.html', {'record_list': [object]})
+            return render(request, 'processing_status/detail.html', {'record_list': [object]})
