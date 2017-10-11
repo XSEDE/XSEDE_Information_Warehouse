@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}RDR Detail{% endblock %}
+{% block content %}
+
+<style>
+th, td
+    {
+        padding: 15px;
+    }
+
+th
+    {
+        color: white;
+        background-color: #1E06B4;
+        text-align: left;
+        width: 10px;
+    }
+
+td
+    {
+        color: #69696B;
+    }
+
+table#data
+    {
+        border: 2px solid black;
+        border-collapse: collapse;
+    }
+</style>
+
+<h1 align="center">RDR Detail</h1>
+<p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+
+<table id ="data" width="98%" style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
+    
+    {% for resource in resource_list %}
+    <tr>
+        <th>RDR ID</th>
+        <td>{{ resource.rdr_resource_id }}</th>
+    </tr>
+    <tr>
+        <th>RDR Type</th>
+        <td>{{ resource.rdr_type }}</th>
+    </tr>
+    <tr>
+        <th>Affiliation</th>
+        <td>{{ resource.project_affiliation }}</th>
+    </tr>
+    <tr>
+        <th>Provider Level</th>
+        <td>{{ resource.provider_level }}</th>
+    </tr>
+    <tr>
+        <th>ResourceID</th>
+        <td>{{ resource.info_resourceid }}</th>
+    </tr>
+    <tr>
+        <th>SiteID</th>
+        <td>{{ resource.info_siteid }}</th>
+    </tr>
+    <tr>
+        <th>Descriptive Name</th>
+        <td>{{ resource.resource_descriptive_name }}</th>
+    </tr>
+    <tr>
+        <th>Description</th>
+        <td>{{ resource.resource_descriptive_name }}</th>
+    </tr>
+    <tr>
+        <th>Current Status</th>
+        <td>{{ resource.current_status }}</th>
+    </tr>
+    <tr>
+        <th>Latest Status</th>
+        <td>{{ resource.latest_status }} from {{ resource.latest_status_begin }} till {{ resource.latest_status_end }}</th>
+    </tr>
+    <tr>
+        <th>Parent Resource</th>
+        <td>{{ resource.parent_resource }}</th>
+    </tr>
+    <tr>
+        <th>Recommended Use</th>
+        <td>{{ resource.recommended_use }}</th>
+    </tr>
+    <tr>
+        <th>Access Description</th>
+        <td>{{ resource.access_description }}</th>
+    </tr>
+    <tr>
+        <th>Resource Status</th>
+        <td>{{ resource.resource_status }}</th>
+    </tr>
+    <tr>
+        <th>Other Attributes</th>
+        <td>{{ resource.other_attributes }}</th>
+    </tr>
+    
+    <tr>
+        <th>Updated At</th>
+        <td>{{ resource.updated_at }}</th>
+    </tr>
+    
+    {% endfor %}
+{% endblock %}

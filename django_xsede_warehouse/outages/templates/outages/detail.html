@@ -29,8 +29,8 @@ table#data
 </style>
 
 <h1 align="center">Outage Detail</h1></td>
-
 <p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+
 <table id ="data" width="98%" style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
     
     {% for record in record_list %}
@@ -80,4 +80,4 @@ table#data
     </tr>
     
     {% endfor %}
-    {% endblock %}
+{% endblock %}

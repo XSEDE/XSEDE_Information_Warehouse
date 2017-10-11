@@ -40,7 +40,7 @@ class Resource_Status_Detail(APIView):
             #return Response(returnresponse)
             return Response(serializer.data)
         else:
-            return render(request, 'resources.html', {'resource_list': serializer.data})
+            return render(request, 'resource_status_api/resources.html', {'resource_list': serializer.data})
 
 class Resource_Ops_Status_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)

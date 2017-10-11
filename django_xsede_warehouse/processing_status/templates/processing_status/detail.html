@@ -29,56 +29,55 @@ table#data
 </style>
 
 <h1 align="center">Processing Status</h1>
-
 <p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+
 <table id ="data" width="98%" style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
     
     {% for record in record_list %}
     <tr>
         <th>Topic</th>
-        <td> {{ record.Topic }} </th>
+        <td> {{ record.Topic }}</th>
     </tr>
     
     <tr>
         <th>About</th>
-        <td> {{ record.About }} </th>
+        <td>{{ record.About }}</th>
     </tr>
     
     <tr>
         <th>Application</th>
-        <td> {{ record.ProcessingApplication }} </th>
+        <td>{{ record.ProcessingApplication }}</th>
     </tr>
     
     <tr>
         <th>Function</th>
-        <td> {{ record.ProcessingFunction }} </th>
+        <td>{{ record.ProcessingFunction }}</th>
     </tr>
     
     <tr>
         <th>Processed At</th>
-        <td> {{ record.ProcessingEnd|date:'Y/m/d H:i:s e' }} </th>
+        <td>{{ record.ProcessingEnd|date:'Y/m/d H:i:s e' }}</th>
     </tr>
     
     <tr>
         <th>Age</th>
-        <td> {{ record.ProcessingEnd|timesince }} </th>
+        <td>{{ record.ProcessingEnd|timesince }}</th>
     </tr>
     
     <tr>
         <th>Code</th>
-        <td> {{ record.ProcessingCode }} </th>
+        <td>{{ record.ProcessingCode }}</th>
     </tr>
     
     <tr>
         <th>Message</th>
-        <td> {{ record.ProcessingMessage }} </th>
+        <td>{{ record.ProcessingMessage }}</th>
     </tr>
     
     <tr>
         <th>Processed on</th>
-        <td> {{ record.ProcessingNode }} </th>
+        <td>{{ record.ProcessingNode }}</th>
     </tr>
     
-    
     {% endfor %}
-    {% endblock %}
+{% endblock %}

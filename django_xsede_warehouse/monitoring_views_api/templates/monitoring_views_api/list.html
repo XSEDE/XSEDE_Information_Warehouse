@@ -1,33 +1,29 @@
 {% extends "base.html" %}
-{% block title %}Monitoring Views List{% endblock %}
+{% block title %}Monitoring Results List{% endblock %}
 {% block content %}
 
-<h1 align="center">Monitoring Views List</h1>
-
+<h1 align="center">Monitoring Results List</h1>
 <p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+
 <table style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
-        <tr>
-                <th> <a href="?format=html;sort=Source"> Source </a></th>
-                <th> <a href="?format=html;sort=ResourceID"> ResourceID </a></th>
-                <th> <a href="?format=html;sort=Name"> Name </a> </th>
-                <th> <a href="?format=html;sort=Result"> Result </a> </th>
-                <th> <a href="?format=html;sort=CreationTime"> Creation Time </a> </th>
-                <th> Detail </th></tr>
+    <tr>
+        <th><a href="?format=html;sort=Source">Source</a></th>
+        <th><a href="?format=html;sort=ResourceID">ResourceID</a></th>
+        <th><a href="?format=html;sort=Name">Name</a></th>
+        <th><a href="?format=html;sort=Result">Result</a></th>
+        <th><a href="?format=html;sort=CreationTime">Creation Time</a></th>
+        <th>Detail</th>
+    </tr>
     
-        {% for record in record_list %}
-        <tr>
-                <td> {{ record.Source }}</td>
-                <td> {{ record.ResourceID }}</td>
-                <td> {{ record.Name }}</td>
-                <td> {{ record.Result }}</td>
-                <td> {{ record.CreationTime | date:'Y/m/d H:i:s e' }}</td>
-        
-                {% ifequal record.IsSoftware True %} <td> <a href="/monitoring-views-api/v1/software-status/ID/{{ record.ID }}/?format=html"> View </a></td> {% endifequal %}
-                {% ifequal record.IsService True %} <td> <a href="/monitoring-views-api/v1/services-status/ID/{{ record.ID }}/?format=html"> View </a></td> {% endifequal %}
-        
-        
-            </tr>
-        {% endfor %}
-        {% endblock %}
-        
-    
+    {% for record in record_list %}
+    <tr>
+        <td>{{ record.Source }}</td>
+        <td>{{ record.ResourceID }}</td>
+        <td>{{ record.Name }}</td>
+        <td>{{ record.Result }}</td>
+        <td>{{ record.CreationTime }}</td>
+        <td><a href="{{ record.DetailURL }}?format=html">View</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

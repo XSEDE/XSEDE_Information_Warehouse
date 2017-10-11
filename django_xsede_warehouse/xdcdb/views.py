@@ -9,17 +9,18 @@ from xdcdb.serializers import *
 class XcdbResource_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None, **kwargs):
-        returnformat = request.query_params.get('format', 'json')
         try:
             sort_by = request.GET.get('sort')
             objects = TGResource.objects.all().order_by(sort_by)
         except:
             objects = TGResource.objects.all()
+        returnformat = request.query_params.get('format', 'json')
         if returnformat != 'html':
             serializer = XcdbResource_Serializer(objects, many=True)
             return Response(serializer.data)
         else:
-            return render(request, 'xdcdb/list.html', {'resource_list': objects})
+            serializer = XcdbResource_DetailURL_Serializer(objects, context={'request': request}, many=True)
+            return render(request, 'xdcdb/list.html', {'resource_list': serializer.data})
 
 class XcdbResource_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -41,7 +42,7 @@ class XcdbResource_Detail(APIView):
             if returnformat != 'html':
                 return Response(serializer.data)
             else:
-                return render(request, 'xdcdb/detail.html', {'resource_list': objects})
+                return render(request, 'xdcdb/detail.html', {'resource_list': serializer.data})
 
 class XcdbResourcePublished_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)

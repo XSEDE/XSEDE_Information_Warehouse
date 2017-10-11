@@ -21,12 +21,12 @@
   </tr>
   {% for resource in resource_list %}
     <tr>
-    <td> {{ resource.info_resourceid }}</td>
+    <td>{{ resource.info_resourceid }}</td>
     <td>{{ resource.resource_descriptive_name }}</td>
     <td>{{ resource.current_statuses }}</td>
     <td>{{ resource.info_siteid }}</td>
     <td>{{ resource.Active }}</td>
-    <td><a href="/wh1/rdr-db/v1/rdr-xup/ID/{{ resource.rdr_resource_id }}">{{ resource.rdr_resource_id }}</a></td>
+    <td><a href="{{ resource.DetailURL }}?format=html">{{ resource.rdr_resource_id }}</a></td>
     </tr>
   {% endfor %}
 {% endblock %}

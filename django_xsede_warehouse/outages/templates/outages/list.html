@@ -3,24 +3,23 @@
 {% block content %}
 
 <h1 align="center">Outage List</h1>
-
 <p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+
 <table style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
     <tr>
-        <th> <a href="?format=html;sort=ResourceID"> ResourceID </a></th>
-        <th> <a href="?format=html;sort=OutageStart"> Outage Start </a> </th>
-        <th> <a href="?format=html;sort=OutageEnd"> Outage End </a> </th>
-        <th> <a href="?format=html;sort=Subject"> Subject </a></th>
-        <th> Detail </th>
+        <th><a href="?format=html;sort=ResourceID">ResourceID</a></th>
+        <th><a href="?format=html;sort=OutageStart">Outage Start</a></th>
+        <th><a href="?format=html;sort=OutageEnd">Outage End</a></th>
+        <th><a href="?format=html;sort=Subject">Subject</a></th>
+        <th>Detail</th>
     
     {% for record in record_list %}
     <tr>
-        <td> {{ record.ResourceID }}</td>
-        <td> {{ record.OutageStart|date:'Y/m/d H:i e' }}</td>
-        <td> {{ record.OutageEnd|date:'Y/m/d H:i e' }}</td>
-        <td> {{ record.Subject }}</td>
-        <td> <a href="/outages/v1/outages/ID/{{ record.ID }}/?format=html"> View </a></td>
-        
+        <td>{{ record.ResourceID }}</td>
+        <td>{{ record.OutageStart }}</td>
+        <td>{{ record.OutageEnd }}</td>
+        <td>{{ record.Subject }}</td>
+        <td><a href="{{ record.DetailURL }}?format=html">View</a></td>
     </tr>
     {% endfor %}
-    {% endblock %}
+{% endblock %}

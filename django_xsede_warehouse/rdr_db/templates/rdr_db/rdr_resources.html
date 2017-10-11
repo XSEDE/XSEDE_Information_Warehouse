@@ -1,13 +1,10 @@
 {% extends "base.html" %}
-{% block title %}XSEDE RDR XUPv2 List{% endblock %}
+{% block title %}XSEDE RDR Detail{% endblock %}
 {% block content %}
-  <table width="98%" border=0 cellspacing=0 cellpadding=0>
-    <tr height="50">
-      <td width="22%" align="left"></td>
-      <td width="52%" align="center" valign="center"><h1>XSEDE RDR XUPv2</h1></td>
-      <td width="22%" align="right" valign="top"><td>
-    </tr>
-  </table>
+
+<h1 align="center">XSEDE RDR Detail</h1>
+<p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+
   {% for resource in resource_list %}
     <ul style="list-style-type:none">Info Resource ID: {{ resource.info_resourceid }}
 	<li>Info SiteID: {{ resource.info_siteid }}</li>

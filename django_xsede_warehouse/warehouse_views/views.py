@@ -42,8 +42,8 @@ class Resource_List(APIView):
             serializer = RDRResource_Serializer_Plus(objects, many=True)
             return Response(serializer.data)
         else:
-            c = Context({'resource_list': objects})
-            return render(request, 'warehouse_views/warehouse_resources.html', c)
+            serializer = RDRResource_Serializer_Plus(objects, context={'request': request}, many=True)
+            return render(request, 'warehouse_views/warehouse_resources.html', {'resource_list': serializer.data})
 
 class Resource_List_Active(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)

@@ -8,7 +8,6 @@ from rest_framework import status
 from outages.models import *
 from outages.serializers import *
 
-
 # Create your views here.
 class Outages_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -23,7 +22,8 @@ class Outages_List(APIView):
             serializer = Outages_Serializer(objects, many=True)
             return Response(serializer.data)
         else:
-            return render(request, 'outages/list.html', {'record_list': objects})
+            serializer = Outages_DetailURL_Serializer(objects, context={'request': request}, many=True)
+            return render(request, 'outages/list.html', {'record_list': serializer.data})
 
 
 class Outages_Detail(APIView):

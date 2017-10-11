@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}RDR Resource List{% endblock %}
+{% block content %}
+
+<h1 align="center">RDR Resource List</h1>
+<p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+
+<table style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
+    <tr>
+        <th><a href="?format=html;sort=info_resourceid">ResourceID</a></th>
+        <th><a href="?format=html;sort=rdr_type">RDR Type</a></th>
+        <th><a href="?format=html;sort=resource_descriptive_name">Descriptive Name</a></th>
+        <th><a href="?format=html;sort=latest_status">Latest Status</a></th>
+        <th>Detail</th>
+    </tr>
+    {% for resource in resource_list %}
+    <tr>
+        <td>{{ resource.info_resourceid }}</td>
+        <td>{{ resource.rdr_type }}</td>
+        <td>{{ resource.resource_descriptive_name }}</td>
+        <td>{{ resource.latest_status }}</td>
+	<td><a href="{{ resource.DetailURL }}?format=html">View</a></td>
+    </tr>
+    {% endfor %}
+{% endblock %}

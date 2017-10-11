@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}XDCDB Detail{% endblock %}
+{% block title %}XCDB Detail{% endblock %}
 {% block content %}
 
 <style>
@@ -28,9 +28,9 @@ table#data
     }
 </style>
 
-<h1 align="center">XCDCB Detail</h1>
-
+<h1 align="center">XCDB Detail</h1>
 <p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+
 <table id ="data" width="98%" style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
     
     {% for resource in resource_list %}

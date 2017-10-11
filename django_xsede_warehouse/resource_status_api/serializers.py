@@ -350,56 +350,6 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
                 'Summary': '; '.join(Summary_Items),
                 'Status_at': timezone.now()}
 
-    #   Overall Status algorithm (Operations Overall Status factors Publishing)
-    #   Green: rdr declared status is one of (pre-production, production, post-production, friendly)
-    #           and NO outages, NO test failures, NO publishing issues
-    #   Red: rdr declared status is not one of (pre-production, production, post-production, friendly)
-    #           or FULL outage declared, or ALL tests failing
-    #   Yellow: otherwise
-#        if self.RDR_Label in ['Green', 'Yellow'] and \
-#                self.Outage_Label == 'Green' and \
-#                self.Monitor_Label == 'Green' and \
-#                self.Publishing_Label == 'Green':
-#            Overall_Label = 'Green'
-#            Overall_Summary = 'System operating normally'
-#        elif self.RDR_Label not in ['Green', 'Yellow'] or \
-#                self.Outage_Label == 'Red' or \
-#                self.Monitor_Label == 'Red':
-#            Overall_Label = 'Red'
-#            Overall_Summary = 'System not production, has full outage, or is failing all testing'
-#        else:
-#            Overall_Label = 'Yellow'
-#            Overall_Summary = 'System degraded'
-#        
-#        return {'Label': Overall_Label,
-#                'Summary': Overall_Summary,
-#                'Status_at': timezone.now()}
-
-    #   Overall Status algorithm
-    #   Green: rdr declared status is one of (pre-production, production, post-production, friendly)
-    #           and NO outages, NO test failures, NO publishing issues
-    #   Yellow: some tests pass
-    #   Red: no tests pass
-#        if self.RDR_Label in ['Green', 'Yellow'] and \
-#                self.Outage_Label == 'Green' and \
-#                self.Monitor_Label == 'Green' and \
-#                self.Publishing_Label == 'Green':
-#            Overall_Label = 'Green'
-#            Overall_Summary = 'No issues'
-#        elif self.RDR_Label not in ['Green', 'Yellow'] or \
-#                self.Outage_Label == 'Red' or \
-#                self.Monitor_Label == 'Red':
-#            Overall_Label = 'Red'
-#            Overall_Summary = 'System not production, has an outage, or is failing all monitoring'
-#        else:
-#            Overall_Label = 'Yellow'
-#            Overall_Summary = 'System in degraded state'
-#        now = timezone.now()
-#        
-#        return {'Label': Overall_Label,
-#                'Summary': Overall_Summary,
-#                'Status_at': now}
-
     class Meta:
         model = RDRResource
         fields = ('rdr_resource_id', 'rdr_type', 'info_resourceid', 'info_siteid',
