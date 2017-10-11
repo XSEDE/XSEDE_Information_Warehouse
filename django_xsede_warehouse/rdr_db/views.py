@@ -41,7 +41,6 @@ class RDRResource_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 #    renderer_classes = (JSONRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
-        pdb.set_trace()
         if 'id' in self.kwargs:
             try:
                 object = RDRResource.objects.get(pk=self.kwargs['id'])
@@ -71,7 +70,6 @@ class RDRResource_XUP_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
-#       pdb.set_trace()
         if 'id' in self.kwargs:
             try:
                 object = RDRResource.objects.get(pk=self.kwargs['id'])

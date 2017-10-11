@@ -21,7 +21,6 @@ class RDRResource_XUP_v2_List(APIView):
 #    renderer_classes = (JSONRenderer,XMLRenderer,TemplateHTMLRenderer,)
     renderer_classes = (JSONRenderer,XMLRenderer,)
     def get(self, request, format=None):
-        pdb.set_trace()
         returnformat = request.query_params.get('format', 'json')
         all_resources = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='ALL', result='OBJECTS')
         serializer = RDRResource_Serializer(all_resources, many=True)
