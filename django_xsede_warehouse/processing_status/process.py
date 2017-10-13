@@ -18,6 +18,13 @@ class UTC(tzinfo):
 utc = UTC()
 
 class ProcessingActivity():
+    '''
+        Application: application name, such as os.path.basename(__file__)
+        Function: application function, or 'main' if their is none
+        ID: unique ID (pk) for this entry, this value should stay the same between processing
+        Topic: type of information, such as 'Outages', 'inca', etc.
+        About: which qualified resource (ResourceID) or domain the information is about
+    '''
     def __init__(self, Application, Function, ID, Topic, About):
         self.Application = Application
         self.Function = Function
@@ -40,7 +47,7 @@ class ProcessingActivity():
         elif Code is True:
             self.model.ProcessingCode='0'
         else:
-            self.model.ProcessingCode=Code
+            self.model.ProcessingCode=str(Code)
         self.model.ProcessingMessage=Message
         self.model.save()
 

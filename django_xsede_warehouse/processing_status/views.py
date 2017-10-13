@@ -19,9 +19,14 @@ from processing_status.serializers import *
 class ProcessingRecord_DbList(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None, **kwargs):
-        if 'resourceid' in self.kwargs:
+        if 'about' in self.kwargs:
             try:
-                objects = ProcessingRecord.objects.filter(About__exact=uri_to_iri(self.kwargs['resourceid']))
+                objects = ProcessingRecord.objects.filter(About__exact=uri_to_iri(self.kwargs['about']))
+            except ProcessingRecord.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND);
+        elif 'topic' in self.kwargs:
+            try:
+                objects = ProcessingRecord.objects.filter(Topic__exact=uri_to_iri(self.kwargs['topic']))
             except ProcessingRecord.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND);
         else:
@@ -62,8 +67,7 @@ class ProcessingRecord_LatestList(APIView):
             serializer = ProcessingRecord_DbSerializer(object)
             return Response(serializer.data)
         else:
-            serializer = ProcessingRecord_DetailURL_DbSerializer(object, context={'request': request})
-            return render(request, 'processing_status/list.html', {'record_list': serializer.data})
+            return render(request, 'processing_status/detail.html', {'record_list': [object]})
 
 class ProcessingRecord_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
