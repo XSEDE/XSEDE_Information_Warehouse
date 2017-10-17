@@ -97,7 +97,7 @@ ROOT_URLCONF = 'xsede_warehouse.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ os.path.join(os.path.dirname(__file__), '../templates')],
+        'DIRS': [ os.path.normpath(os.path.join(os.path.dirname(__file__), '../templates'))],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -222,7 +222,6 @@ REST_FRAMEWORK = {
        'rest_framework.renderers.StaticHTMLRenderer',
        'rest_framework.renderers.BrowsableAPIRenderer',
        'rest_framework_xml.renderers.XMLRenderer',
-#       'rest_framework.renderers.HTMLFormRenderer',
     ],
     'PAGINATE_BY': 10,
 }

@@ -10,7 +10,6 @@ from rdr_db.models import RDRResource
 from rdr_db.filters import *
 from monitoring_db.models import TestResult
 from resource_status_api.serializers import *
-import pdb
 
 # Create your views here.
 

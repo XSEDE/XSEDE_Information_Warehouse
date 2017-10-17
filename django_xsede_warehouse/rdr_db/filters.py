@@ -34,7 +34,7 @@ from itertools import chain
 #
 # NOTES:
 #   list() forces evaluation so that we avoid issues with a sub-query in a different schema
-
+# 2017-10-17 JP Add "Q(other_attributes__is_allocated=True)" to filter out Beacon compute and similar
 ###############################################################################
 
 # Not Active_Sub or Active_All
@@ -77,28 +77,29 @@ def RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='SUB', result
     # Active sub-resources of active parent resources
     if allocated:
         child_resource = RDRResource.objects.filter(
-                                               Q(parent_resource__in=parent_ids) &
-                                               (Q(current_statuses__icontains='friendly') |
-                                                Q(current_statuses__icontains='coming soon') |
-                                                Q(current_statuses__icontains='pre-production') |
-                                                Q(current_statuses__istartswith='production') |
-                                                Q(current_statuses__icontains=',production') |
-                                                Q(current_statuses__icontains='post-production')) &
-                                               ((Q(rdr_type='compute') & Q(other_attributes__is_visualization=True)) |
-                                                (Q(rdr_type='compute') & Q(other_attributes__allocations_info__allocable_type='ComputeResource')) |
-                                                (Q(rdr_type='storage'))
+                                                Q(parent_resource__in=parent_ids) &
+                                                Q(other_attributes__is_allocated=True) &
+                                                (Q(current_statuses__icontains='friendly') |
+                                                 Q(current_statuses__icontains='coming soon') |
+                                                 Q(current_statuses__icontains='pre-production') |
+                                                 Q(current_statuses__istartswith='production') |
+                                                 Q(current_statuses__icontains=',production') |
+                                                 Q(current_statuses__icontains='post-production')) &
+                                                ((Q(rdr_type='compute') & Q(other_attributes__is_visualization=True)) |
+                                                 (Q(rdr_type='compute') & Q(other_attributes__allocations_info__allocable_type='ComputeResource')) |
+                                                 (Q(rdr_type='storage'))
                                                 )
                                                    )
     else:
         child_resource = RDRResource.objects.filter(
-                                               Q(parent_resource__in=parent_ids) &
-                                               (Q(current_statuses__icontains='friendly') |
-                                                Q(current_statuses__icontains='coming soon') |
-                                                Q(current_statuses__icontains='pre-production') |
-                                                Q(current_statuses__istartswith='production') |
-                                                Q(current_statuses__icontains=',production') |
-                                                Q(current_statuses__icontains='post-production')) &
-                                               (Q(rdr_type='compute') | Q(rdr_type='storage'))
+                                                Q(parent_resource__in=parent_ids) &
+                                                (Q(current_statuses__icontains='friendly') |
+                                                 Q(current_statuses__icontains='coming soon') |
+                                                 Q(current_statuses__icontains='pre-production') |
+                                                 Q(current_statuses__istartswith='production') |
+                                                 Q(current_statuses__icontains=',production') |
+                                                 Q(current_statuses__icontains='post-production')) &
+                                                (Q(rdr_type='compute') | Q(rdr_type='storage'))
                                                    )
     if result.upper() == 'RESOURCEID':
         if type.upper() == 'SUB':

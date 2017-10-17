@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from monitoring_provider.process import Glue2ProcessRawMonitoring
-import pdb
 
 class Glue2ProcessDoc(APIView):
 #    authentication_classes = (SessionAuthentication, BasicAuthentication)

@@ -2,7 +2,6 @@ from django.db import models
 from rdr_db.models import RDRResource
 #import jsonfield
 from django.contrib.postgres.fields import JSONField
-import pdb
 
 # The abstract GLUE2 model
 class AbstractGlue2Model(models.Model):

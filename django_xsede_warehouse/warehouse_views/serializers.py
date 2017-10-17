@@ -5,7 +5,6 @@ from rdr_db.models import RDRResource
 from xdcdb.models import TGResource
 from glue2_db.models import ApplicationEnvironment, ApplicationHandle
 from glue2_db.serializers import ApplicationHandle_DbSerializer
-import pdb
 
 #class JSONSerializerField(serializers.Field):
 #    """ Serializer for JSONField -- required to make field writable"""
@@ -77,7 +76,6 @@ class Generic_Resource_Serializer(serializers.ModelSerializer):
         return None
 
 class Software_Full_Serializer(serializers.ModelSerializer):
-#    pdb.set_trace()
     SiteID = serializers.SerializerMethodField('get_siteid')
     AppName = serializers.CharField(source='ApplicationEnvironment.AppName')
     AppVersion = serializers.CharField(source='ApplicationEnvironment.AppVersion')

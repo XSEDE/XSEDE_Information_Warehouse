@@ -3,7 +3,6 @@ from rest_framework import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
 from glue2_db.models import ApplicationEnvironment, ApplicationHandle, AbstractService, Endpoint
 from glue2_db.serializers import ApplicationHandle_DbSerializer, AbstractService_DbSerializer, Endpoint_DbSerializer
-import pdb
 
 class ApplicationEnvironment_Serializer(serializers.ModelSerializer):
     class Meta:

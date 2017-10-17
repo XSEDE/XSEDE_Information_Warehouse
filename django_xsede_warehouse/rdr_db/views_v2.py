@@ -10,7 +10,6 @@ from rdr_db.models import *
 from rdr_db.filters import *
 from rdr_db.serializers import *
 from itertools import chain
-import pdb
 
 # Create your views here.
 class RDRResource_XUP_v2_List(APIView):

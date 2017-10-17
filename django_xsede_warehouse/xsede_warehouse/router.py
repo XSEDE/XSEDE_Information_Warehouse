@@ -1,6 +1,5 @@
 import django.db.models.options as options
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('db_name',)
-#import pdb
 
 class ModelDatabaseRouter(object):
     """Allows each model to set its own target schema"""
@@ -37,7 +36,6 @@ class ModelDatabaseRouter(object):
         except:
             return False
         if app_label == 'outages':
-#           pdb.set_trace()
 #           print 'allow_migrate db=%s, app_label=%s, db_name=%s, model_name=%s -> %s' % \
                 (db, app_label, db_name, model_name, db == db_name)
         return db == db_name

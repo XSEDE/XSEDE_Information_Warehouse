@@ -3,7 +3,6 @@ from rest_framework import serializers
 from django.utils.encoding import uri_to_iri
 from django.core.urlresolvers import reverse, get_script_prefix
 import copy
-import pdb
 
 class RDRResource_Serializer(serializers.ModelSerializer):
     class Meta:

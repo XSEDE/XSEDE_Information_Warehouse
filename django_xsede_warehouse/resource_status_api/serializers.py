@@ -8,7 +8,6 @@ from monitoring_db.models import TestResult
 from outages.models import Outages
 from processing_status.models import ProcessingRecord
 import datetime
-import pdb
 
 class Resource_Status_Serializer(serializers.Serializer):
     # Resource identifiers and descriptions
@@ -261,8 +260,6 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
                 'Reference_URLs': monurls}
 
     def get_Publishing_Status(self, RDRResource):
-#        pdb.set_trace()
-
         pubsearch = ProcessingRecord.objects.filter(About=RDRResource.info_resourceid)
         puberror = set()
         pubwarning = set()

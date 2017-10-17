@@ -15,8 +15,6 @@ from glue2_db.serializers import *
 import logging
 logg2 = logging.getLogger('xsede.glue2')
 
-#import pdb
-
 #class ApplicationEnvironmentSet(viewsets.ReadOnlyModelViewSet):
 #    queryset = ApplicationEnvironment.objects.all()
 #    serializer_class = ApplicationEnvironment_DbSerializer

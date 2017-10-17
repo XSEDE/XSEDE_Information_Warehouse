@@ -10,7 +10,6 @@ from rest_framework import status
 from processing_status.process import ProcessingActivity
 from xsede_warehouse.exceptions import ProcessingException
 
-import pdb
 import logging
 logg2 = logging.getLogger('xsede.glue2')
 

@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from glue2_db.models import ApplicationEnvironment, AbstractService, Endpoint
 from glue2_views_api.serializers import *
-import pdb
 
 # Create your views here.
 class ApplicationEnvironment_List(APIView):

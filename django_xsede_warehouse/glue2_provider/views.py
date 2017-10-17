@@ -7,7 +7,6 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.response import Response
 from glue2_db.models import EntityHistory
 from glue2_provider.process import Glue2ProcessRawIPF
-import pdb
 
 class Glue2ProcessDoc(APIView):
     '''

@@ -19,8 +19,6 @@ from rdr_db.serializers import *
 import logging
 logg2 = logging.getLogger('xsede.glue2')
 
-#import pdb
-
 #Service information comes from Endpoint and the parent AbstractService
 class goServices_List(APIView):
     '''

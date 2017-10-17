@@ -16,7 +16,6 @@ from xdcdb.models import *
 from xdcdb.serializers import *
 from rdr_db.serializers import *
 from warehouse_views.serializers import Generic_Resource_Serializer, Software_Full_Serializer
-import pdb
 
 # Create your views here.
 class Resource_List(APIView):

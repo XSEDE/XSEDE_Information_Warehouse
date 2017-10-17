@@ -4,8 +4,6 @@ from glue2_db.models import ApplicationEnvironment, ApplicationHandle, AbstractS
 from rdr_db.models import *
 from glue2_db.models import *
 from glue2_db.serializers import ApplicationHandle_DbSerializer, AbstractService_DbSerializer, Endpoint_DbSerializer
-import pdb
-
 
 class goEndpointServices_Serializer(serializers.Serializer):
 
