@@ -55,7 +55,7 @@ class RDRResource_XUP_List(APIView):
         All RDR resources for the XUP
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    renderer_classes = (JSONRenderer,)
+    renderer_classes = (JSONRenderer,XMLRenderer,)
     def get(self, request, format=None):
         objects = RDRResource.objects.all()
         serializer = RDRResource_Serializer(objects, many=True)

@@ -5,7 +5,7 @@ class ModelDatabaseRouter(object):
     """Allows each model to set its own target schema"""
     def db_for_read(self, model, **hints):
         try:
-            db_name = model._meta.db_name
+            db_name = hints['model']._meta.db_name
         except:
             db_name = 'default'
 #       print 'db_for_read(model=%s) = %s' % (model, db_name)
@@ -13,13 +13,14 @@ class ModelDatabaseRouter(object):
 
     def db_for_write(self, model, **hints):
         try:
-            db_name = model._meta.db_name
+            db_name = hints['model']._meta.db_name
         except:
             db_name = 'default'
 #       print 'db_for_write(model=%s) = %s' % (model, db_name)
         return db_name
 
     def allow_relation(self, model1, model2, **hints):
+#        print 'allow_relation hints = {}'.format(repr(hints))
         try:
             db_name1 = model1._meta.db_name
         except:
@@ -35,7 +36,7 @@ class ModelDatabaseRouter(object):
             db_name = hints['model']._meta.db_name
         except:
             return False
-        if app_label == 'outages':
+#        if app_label == 'outages':
 #           print 'allow_migrate db=%s, app_label=%s, db_name=%s, model_name=%s -> %s' % \
-                (db, app_label, db_name, model_name, db == db_name)
+#                (db, app_label, db_name, model_name, db == db_name)
         return db == db_name

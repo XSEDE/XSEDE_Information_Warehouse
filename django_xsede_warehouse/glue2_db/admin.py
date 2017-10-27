@@ -1,6 +1,26 @@
 from django.contrib import admin
 from glue2_db.models import *
 
+class AdminDomainAdmin(admin.ModelAdmin):
+    list_display = ('Name', 'ID', 'CreationTime')
+    list_display_links = ['ID']
+
+class UserDomainAdmin(admin.ModelAdmin):
+    list_display = ('Name', 'ID', 'CreationTime')
+    list_display_links = ['ID']
+
+class AccessPolicyAdmin(admin.ModelAdmin):
+    list_display = ('Name', 'Scheme', 'ID', 'CreationTime')
+    list_display_links = ['ID']
+
+class ContactAdmin(admin.ModelAdmin):
+    list_display = ('Name', 'ID', 'CreationTime')
+    list_display_links = ['ID']
+
+class LocationAdmin (admin.ModelAdmin):
+    list_display = ('Name', 'ID', 'CreationTime')
+    list_display_links = ['ID']
+#
 class ApplicationEnvironmentAdmin(admin.ModelAdmin):
     list_display = ('ResourceID', 'Name', 'ID', 'CreationTime')
     list_display_links = ['ID']
@@ -25,10 +45,6 @@ class ExecutionEnvironmentAdmin(admin.ModelAdmin):
     list_display = ('ResourceID', 'Name', 'ID', 'CreationTime')
     list_display_links = ['ID']
 
-class LocationAdmin (admin.ModelAdmin):
-    list_display = ('ResourceID', 'Name', 'ID', 'CreationTime')
-    list_display_links = ['ID']
-
 class ComputingShareAdmin (admin.ModelAdmin):
     list_display = ('ResourceID', 'Name', 'ID', 'CreationTime')
     list_display_links = ['ID']
@@ -43,13 +59,17 @@ class EntityHistoryAdmin (admin.ModelAdmin):
     readonly_fields = ['ID']
 
 # Register your models here.
+admin.site.register(AdminDomain, AdminDomainAdmin)
+admin.site.register(UserDomain, UserDomainAdmin)
+admin.site.register(AccessPolicy, AccessPolicyAdmin)
+admin.site.register(Contact, ContactAdmin)
+admin.site.register(Location, LocationAdmin)
 admin.site.register(ApplicationEnvironment, ApplicationEnvironmentAdmin)
 admin.site.register(ApplicationHandle, ApplicationHandleAdmin)
 admin.site.register(AbstractService, AbstractServiceAdmin)
 admin.site.register(Endpoint, EndpointAdmin)
 admin.site.register(ComputingManager, ComputingManagerAdmin)
 admin.site.register(ExecutionEnvironment, ExecutionEnvironmentAdmin)
-admin.site.register(Location, LocationAdmin)
 admin.site.register(ComputingShare, ComputingShareAdmin)
 admin.site.register(ComputingActivity, ComputingActivityAdmin)
 admin.site.register(EntityHistory, EntityHistoryAdmin)

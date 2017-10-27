@@ -7,7 +7,8 @@ import jsonfield.fields
 
 class Migration(migrations.Migration):
 
-    replaces = [(b'glue2_db', '0001_initial'), (b'glue2_db', '0002_auto_20151103_1709'), (b'glue2_db', '0003_auto_20151106_1631'), (b'glue2_db', '0004_auto_20151107_0450'), (b'glue2_db', '0005_applicationenvironment_appversion'), (b'glue2_db', '0006_auto_20151119_0017'), (b'glue2_db', '0007_auto_20151119_0413'), (b'glue2_db', '0008_auto_20151218_0411'), (b'glue2_db', '0009_auto_20160126_2331'), (b'glue2_db', '0010_auto_20160127_1752'), (b'glue2_db', '0011_auto_20160128_1854')]
+    replaces = [
+    ]
 
     dependencies = [
     ]

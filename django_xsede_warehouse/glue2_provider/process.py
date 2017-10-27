@@ -584,11 +584,14 @@ class Glue2NewDocument():
                 'Endpoint': LoadNewEntityInstance,
                 'ComputingManager': LoadNewEntityInstance,
                 'ExecutionEnvironment': LoadNewEntityInstance,
-                'Location': LoadNewEntityInstance,
                 'ComputingShare': LoadNewEntityInstance,
                 'ComputingActivity': LoadNewEntityInstance,
     }
-    
+# Temporarily disabled by JP on 2017-10-25
+# This entity will be disassociating from a Resource and implemented with other newentities:
+#   AdminDomain, UserDomain, AccessPolicy, Contadt, and Location
+#                'Location': LoadNewEntityInstance,
+
     def process(self, data):
         if type(data) is not dict:
             msg = 'Expecting a JSON dictionary (DocType=%s, ResourceID=%s, ReceivedTime=%s)' % \

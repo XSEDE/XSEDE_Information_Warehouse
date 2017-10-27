@@ -6,6 +6,7 @@ import jsonfield
 
 # The actual GLUE2 models
 class TestResult(AbstractGlue2Model):
+    ResourceID = models.CharField(db_index=True, max_length=40)
     Source = models.CharField(max_length=16)
     Result = models.CharField(max_length=16)
     ErrorMessage = models.CharField(max_length=4096, null=True)
