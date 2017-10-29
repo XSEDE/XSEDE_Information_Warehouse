@@ -430,40 +430,40 @@ class Glue2NewDocument():
                                           status=status.HTTP_400_BAD_REQUEST)
 
         ########################################################################
-        me = 'Location'
-        # Load current database entries
-        for item in Location.objects.filter(ResourceID=self.resourceid):
-            self.cur[me][item.ID] = item
-        self.stats['%s.Current' % me] = len(self.cur[me])
-        
-        # Add/update entries
-        for ID in self.new[me]:
-            if ID in self.cur[me] and parse_datetime(self.new[me][ID]['CreationTime']) <= self.cur[me][ID].CreationTime:
-                self.new[me][ID]['model'] = self.cur[me][ID]    # Save the latest object reference
-                continue                                        # Don't update database since is has the latest
-            try:
-                model = Location(ID=self.new[me][ID]['ID'],
-                                          ResourceID=self.resourceid,
-                                          Name=self.new[me][ID]['Name'],
-                                          CreationTime=self.new[me][ID]['CreationTime'],
-                                          EntityJSON=self.new[me][ID])
-                model.save()
-                self.new[me][ID]['model'] = model
-                self.stats['%s.Updates' % me] += 1
-            except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
-                                          status=status.HTTP_400_BAD_REQUEST)
-
-        # Delete old entries
-        for ID in self.cur[me]:
-            if ID in self.new[me]:
-                continue
-            try:
-                Location.objects.filter(ID=ID).delete()
-                self.stats['%s.Deletes' % me] += 1
-            except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
-                                          status=status.HTTP_400_BAD_REQUEST)
+#        me = 'Location'
+#        # Load current database entries
+#        for item in Location.objects.filter(ResourceID=self.resourceid):
+#            self.cur[me][item.ID] = item
+#        self.stats['%s.Current' % me] = len(self.cur[me])
+#
+#        # Add/update entries
+#        for ID in self.new[me]:
+#            if ID in self.cur[me] and parse_datetime(self.new[me][ID]['CreationTime']) <= self.cur[me][ID].CreationTime:
+#                self.new[me][ID]['model'] = self.cur[me][ID]    # Save the latest object reference
+#                continue                                        # Don't update database since is has the latest
+#            try:
+#                model = Location(ID=self.new[me][ID]['ID'],
+#                                          ResourceID=self.resourceid,
+#                                          Name=self.new[me][ID]['Name'],
+#                                          CreationTime=self.new[me][ID]['CreationTime'],
+#                                          EntityJSON=self.new[me][ID])
+#                model.save()
+#                self.new[me][ID]['model'] = model
+#                self.stats['%s.Updates' % me] += 1
+#            except (DataError, IntegrityError) as e:
+#                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
+#                                          status=status.HTTP_400_BAD_REQUEST)
+#
+#        # Delete old entries
+#        for ID in self.cur[me]:
+#            if ID in self.new[me]:
+#                continue
+#            try:
+#                Location.objects.filter(ID=ID).delete()
+#                self.stats['%s.Deletes' % me] += 1
+#            except (DataError, IntegrityError) as e:
+#                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+#                                          status=status.HTTP_400_BAD_REQUEST)
 
         ########################################################################
         me = 'ComputingShare'
@@ -574,7 +574,7 @@ class Glue2NewDocument():
 ###############################################################################################
 # Main code to Load New JSON objects and Process each class of objects
 ###############################################################################################
-    handlers = {'ApplicationHandle': LoadNewEntityInstance,
+    input_handlers = {'ApplicationHandle': LoadNewEntityInstance,
                 'ApplicationEnvironment': LoadNewEntityInstance,
                 'ComputingService': LoadNewAbstractService,
                 'InformationService': LoadNewAbstractService,
@@ -586,25 +586,23 @@ class Glue2NewDocument():
                 'ExecutionEnvironment': LoadNewEntityInstance,
                 'ComputingShare': LoadNewEntityInstance,
                 'ComputingActivity': LoadNewEntityInstance,
-    }
 # Temporarily disabled by JP on 2017-10-25
 # This entity will be disassociating from a Resource and implemented with other newentities:
 #   AdminDomain, UserDomain, AccessPolicy, Contadt, and Location
 #                'Location': LoadNewEntityInstance,
+    }
 
     def process(self, data):
         if type(data) is not dict:
-            msg = 'Expecting a JSON dictionary (DocType=%s, ResourceID=%s, ReceivedTime=%s)' % \
-                (self.doctype, self.resourceid, self.receivedtime)
+            msg = 'Expecting a JSON dictionary (DocType={}, ResourceID={}, ReceivedTime={})'.format(self.doctype, self.resourceid, self.receivedtime)
             logg2.error(msg)
             raise ValidationError(msg)
         start = datetime.utcnow()
         for key in data:
-            if key in self.handlers:
-                self.handlers[key](self, key, data[key])
+            if key in self.input_handlers:
+                self.input_handlers[key](self, key, data[key])
             else:
-                logg2.warning('Element "%" not recognized (DocType=%s, ResourceID=%s, ReceivedTime=%s)' % \
-                              (key, self.doctype, self.resourceid, str(self.receivedtime)))
+                logg2.warning('Element "{}" not recognized (DocType={}, ResourceID={}, ReceivedTime={})'.format(key, self.doctype, self.resourceid, str(self.receivedtime)))
         if StatsHadApplication(self.stats):
             self.ProcessApplication()
         elif StatsHadCompute(self.stats):

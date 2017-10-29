@@ -88,6 +88,28 @@ class ComputingShare(AbstractGlue2Model):
 
 class ComputingActivity(AbstractGlue2Model):
     ResourceID = models.CharField(db_index=True, max_length=40)
+#
+class ComputingManagerAcceleratorInfo(AbstractGlue2Model):
+    ResourceID = models.CharField(db_index=True, max_length=40)
+    TotalPhysicalAccelerators = models.IntegerField(null=True)
+    TotalAcceleratorsSlots = models.IntegerField(null=True)
+    UsedAcceleratorSlots = models.IntegerField(null=True)
+
+class ComputingShareAcceleratorInfo(AbstractGlue2Model):
+    ResourceID = models.CharField(db_index=True, max_length=40)
+    FreeAcceleratorSlots = models.IntegerField(null=True)
+    UsedAcceleratorSlots = models.IntegerField(null=True)
+    MaxAcceleratorSlotsPerJob = models.IntegerField(null=True)
+
+class AcceleratorEnvironment(AbstractGlue2Model):
+    ResourceID = models.CharField(db_index=True, max_length=40)
+    Type = models.CharField(max_length=16, null=True)
+    Vendor = models.CharField(max_length=32, null=True)
+    Model = models.CharField(max_length=32, null=True)
+    Version = models.CharField(max_length=16, null=True)
+    PhysicalAccelerators = models.IntegerField(null=True)
+    LogicalAccelerators = models.IntegerField(null=True)
+    ComputeCapacity = models.CharField(max_length=64, null=True)
 
 # Where we store every raw document we process
 class EntityHistory(models.Model):

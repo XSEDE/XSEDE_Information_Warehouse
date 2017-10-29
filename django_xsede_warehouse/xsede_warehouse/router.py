@@ -5,7 +5,7 @@ class ModelDatabaseRouter(object):
     """Allows each model to set its own target schema"""
     def db_for_read(self, model, **hints):
         try:
-            db_name = hints['model']._meta.db_name
+            db_name = model._meta.db_name
         except:
             db_name = 'default'
 #       print 'db_for_read(model=%s) = %s' % (model, db_name)
@@ -13,7 +13,7 @@ class ModelDatabaseRouter(object):
 
     def db_for_write(self, model, **hints):
         try:
-            db_name = hints['model']._meta.db_name
+            db_name = model._meta.db_name
         except:
             db_name = 'default'
 #       print 'db_for_write(model=%s) = %s' % (model, db_name)

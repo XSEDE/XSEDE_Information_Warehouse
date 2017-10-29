@@ -46,9 +46,9 @@ SSLMutex  "file:logs/ssl_mutex"
 ## WSGI
 ##
 <IfModule mod_wsgi.c>
-    WSGIPythonHome /soft/python-2.7.13-1
+    WSGIPythonHome /soft/python-current
     WSGISocketPrefix run/wsgi
-#   WSGIPythonPath /soft/python-2.7.13-1/lib
+#   WSGIPythonPath /soft/python-current/lib
 </IfModule>
 
 ##
@@ -245,18 +245,18 @@ CustomLog "logs/ssl_request_log" \
         Allow from all
     </Directory>
 
-    Alias /static/admin/ /soft/python-2.7.13-1/lib/python2.7/site-packages/django/contrib/admin/static/admin/
-    <Directory "/soft/python-2.7.13-1/lib/python2.7/site-packages/django/contrib/admin/static/admin">
+    Alias /static/admin/ /soft/python-current/lib/python2.7/site-packages/django/contrib/admin/static/admin/
+    <Directory "/soft/python-current/lib/python2.7/site-packages/django/contrib/admin/static/admin">
         Order deny,allow
         Allow from all
     </Directory>
-    <Directory "/soft/python-2.7.13-1/lib/python2.7/site-packages/django/contrib/admin/">
+    <Directory "/soft/python-current/lib/python2.7/site-packages/django/contrib/admin/">
         Order deny,allow
         Allow from all
     </Directory>
 
-    Alias /static/rest_framework_swagger/ /soft/python-2.7.13-1/lib/python2.7/site-packages/rest_framework_swagger/static/rest_framework_swagger/
-    <Directory "/soft/python-2.7.13-1/lib/python2.7/site-packages/rest_framework_swagger/static/rest_framework_swagger/">
+    Alias /static/rest_framework_swagger/ /soft/python-current/lib/python2.7/site-packages/rest_framework_swagger/static/rest_framework_swagger/
+    <Directory "/soft/python-current/lib/python2.7/site-packages/rest_framework_swagger/static/rest_framework_swagger/">
         Order deny,allow
         Allow from all
     </Directory>
