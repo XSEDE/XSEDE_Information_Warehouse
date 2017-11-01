@@ -10,7 +10,7 @@ class UserDomainAdmin(admin.ModelAdmin):
     list_display_links = ['ID']
 
 class AccessPolicyAdmin(admin.ModelAdmin):
-    list_display = ('Name', 'Scheme', 'ID', 'CreationTime')
+    list_display = ('Name', 'ID', 'CreationTime')
     list_display_links = ['ID']
 
 class ContactAdmin(admin.ModelAdmin):
@@ -52,8 +52,20 @@ class ComputingShareAdmin (admin.ModelAdmin):
 class ComputingActivityAdmin (admin.ModelAdmin):
     list_display = ('ResourceID', 'Name', 'ID', 'CreationTime')
     list_display_links = ['ID']
+#
+class ComputingManagerAcceleratorInfoAdmin(admin.ModelAdmin):
+    list_display = ('ResourceID', 'Name', 'ID', 'CreationTime')
+    list_display_links = ['ID']
 
-class EntityHistoryAdmin (admin.ModelAdmin):
+class ComputingShareAcceleratorInfoAdmin(admin.ModelAdmin):
+    list_display = ('ResourceID', 'Name', 'ID', 'CreationTime')
+    list_display_links = ['ID']
+
+class AcceleratorEnvironmentAdmin(admin.ModelAdmin):
+    list_display = ('ResourceID', 'Name', 'Type', 'ID', 'CreationTime')
+    list_display_links = ['ID']
+#
+class EntityHistoryAdmin(admin.ModelAdmin):
     list_display = ('ID', 'DocumentType', 'ResourceID', 'ReceivedTime')
     list_display_links = ['ID']
     readonly_fields = ['ID']
@@ -72,4 +84,7 @@ admin.site.register(ComputingManager, ComputingManagerAdmin)
 admin.site.register(ExecutionEnvironment, ExecutionEnvironmentAdmin)
 admin.site.register(ComputingShare, ComputingShareAdmin)
 admin.site.register(ComputingActivity, ComputingActivityAdmin)
+admin.site.register(ComputingManagerAcceleratorInfo, ComputingManagerAcceleratorInfoAdmin)
+admin.site.register(ComputingShareAcceleratorInfo, ComputingShareAcceleratorInfoAdmin)
+admin.site.register(AcceleratorEnvironment, AcceleratorEnvironmentAdmin)
 admin.site.register(EntityHistory, EntityHistoryAdmin)

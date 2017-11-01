@@ -2,8 +2,10 @@ from django.db import models
 from rdr_db.models import RDRResource
 from django.contrib.postgres.fields import JSONField
 
-# The abstract GLUE2 model
-class AbstractGlue2Model(models.Model):
+################################################################################
+# The abstract model(s) derived from abstract GLUE2 entities
+################################################################################
+class AbstractGlue2EntityModel(models.Model):
     ID = models.CharField(primary_key=True, max_length=200)
     Name = models.CharField(max_length=128, null=True)
     CreationTime = models.DateTimeField()
@@ -15,44 +17,38 @@ class AbstractGlue2Model(models.Model):
     def __unicode__(self):
         return self.ID
 
+################################################################################
 # GLUE2 models NOT about specific resources
-class AdminDomain(AbstractGlue2Model):
+################################################################################
+class AdminDomain(AbstractGlue2EntityModel):
     Description = models.CharField(max_length=128, null=True)
     WWW = models.URLField(max_length=200, null=True)
-    Distributed = models.NullBooleanField
     Owner = models.CharField(max_length=128, null=True)
 
-class UserDomain(AbstractGlue2Model):
+class UserDomain(AbstractGlue2EntityModel):
     Description = models.CharField(max_length=128, null=True)
     WWW = models.URLField(max_length=200, null=True)
-    Level = models.PositiveIntegerField(null=True)
-    UserManager = models.URLField(max_length=200, null=True)
-    Member = models.CharField(max_length=128, null=True)
 
-class AccessPolicy(AbstractGlue2Model):
-    Scheme = models.CharField(max_length=16, null=True)
-    Rule = models.CharField(max_length=128, null=True)
+class AccessPolicy(AbstractGlue2EntityModel):
+    pass
 
-class Contact(AbstractGlue2Model):
+class Contact(AbstractGlue2EntityModel):
     Detail = models.CharField(max_length=128)
     Type = models.CharField(max_length=16)
 
-class Location(AbstractGlue2Model):
-    Address = models.CharField(max_length=64, null=True)
-    Place = models.CharField(max_length=64, null=True)
-    Country = models.CharField(max_length=64, null=True)
-    PostCode = models.CharField(max_length=64, null=True)
-    Latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
-    Longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
+class Location(AbstractGlue2EntityModel):
+    pass
 
+################################################################################
 # GLUE 2 models about specific resources
-class ApplicationEnvironment(AbstractGlue2Model):
+################################################################################
+class ApplicationEnvironment(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
     Description = models.CharField(max_length=512, null=True)
     AppName = models.CharField(max_length=64)
     AppVersion = models.CharField(max_length=64, default='none')
 
-class ApplicationHandle(AbstractGlue2Model):
+class ApplicationHandle(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
     ApplicationEnvironment = models.ForeignKey(ApplicationEnvironment,
                                                related_name='applicationhandles',
@@ -60,13 +56,13 @@ class ApplicationHandle(AbstractGlue2Model):
     Type = models.CharField(max_length=16)
     Value = models.CharField(max_length=64)
 
-class AbstractService(AbstractGlue2Model):
+class AbstractService(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
     ServiceType = models.CharField(max_length=32)
     Type = models.CharField(max_length=32)
     QualityLevel = models.CharField(max_length=16, null=True)
 
-class Endpoint(AbstractGlue2Model):
+class Endpoint(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
     AbstractService = models.ForeignKey(AbstractService,
                                         related_name='endpoints', null=True)
@@ -77,45 +73,33 @@ class Endpoint(AbstractGlue2Model):
     InterfaceVersion = models.CharField(max_length=16)
     InterfaceName = models.CharField(max_length=32)
 
-class ComputingManager(AbstractGlue2Model):
+class ComputingManager(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
 
-class ExecutionEnvironment(AbstractGlue2Model):
+class ExecutionEnvironment(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
 
-class ComputingShare(AbstractGlue2Model):
+class ComputingShare(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
 
-class ComputingActivity(AbstractGlue2Model):
+class ComputingActivity(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
 #
-class ComputingManagerAcceleratorInfo(AbstractGlue2Model):
+class ComputingManagerAcceleratorInfo(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
-    TotalPhysicalAccelerators = models.IntegerField(null=True)
-    TotalAcceleratorsSlots = models.IntegerField(null=True)
-    UsedAcceleratorSlots = models.IntegerField(null=True)
 
-class ComputingShareAcceleratorInfo(AbstractGlue2Model):
+class ComputingShareAcceleratorInfo(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
-    FreeAcceleratorSlots = models.IntegerField(null=True)
-    UsedAcceleratorSlots = models.IntegerField(null=True)
-    MaxAcceleratorSlotsPerJob = models.IntegerField(null=True)
 
-class AcceleratorEnvironment(AbstractGlue2Model):
+class AcceleratorEnvironment(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
     Type = models.CharField(max_length=16, null=True)
-    Vendor = models.CharField(max_length=32, null=True)
-    Model = models.CharField(max_length=32, null=True)
-    Version = models.CharField(max_length=16, null=True)
-    PhysicalAccelerators = models.IntegerField(null=True)
-    LogicalAccelerators = models.IntegerField(null=True)
-    ComputeCapacity = models.CharField(max_length=64, null=True)
 
-# Where we store every raw document we process
+# Stores every raw document received
 class EntityHistory(models.Model):
     ID = models.AutoField(primary_key=True)
     DocumentType = models.CharField(db_index=True, max_length=32)
-    ResourceID = models.CharField(db_index=True, max_length=40)
+    ResourceID = models.CharField(db_index=True, max_length=40, null=True)
     ReceivedTime = models.DateTimeField()
     EntityJSON = JSONField()
     class Meta:

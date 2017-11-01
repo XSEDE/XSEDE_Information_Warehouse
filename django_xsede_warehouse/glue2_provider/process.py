@@ -16,6 +16,8 @@ logg2 = logging.getLogger('xsede.glue2')
 Handled_Models = ('ApplicationEnvironment', 'ApplicationHandle', \
                   'AbstractService', 'Endpoint',
                   'ComputingManager', 'ComputingShare', 'ComputingActivity', \
+                  'ComputingManagerAcceleratorInfo', 'ComputingShareAcceleratorInfo', \
+                  'AcceleratorEnvironment', \
                   'ExecutionEnvironment', 'Location', )
 
 # Select Activity field cache
@@ -105,9 +107,9 @@ class Glue2NewDocument():
         for model in Handled_Models:
             self.new[model] = {}
             self.cur[model] = {}
-            self.stats['%s.Updates' % model] = 0
-            self.stats['%s.Deletes' % model] = 0
-            self.stats['%s.ToCache' % model] = 0
+            self.stats['{}.Updates'.format(model)] = 0
+            self.stats['{}.Deletes'.format(model)] = 0
+            self.stats['{}.ToCache'.format(model)] = 0
         self.newAbsServType = {}
 
     def LoadNewEntityInstance(self, model, obj):
@@ -144,6 +146,7 @@ class Glue2NewDocument():
                                                ResourceID=self.resourceid,
                                                Name=self.new[me][ID]['Name'],
                                                CreationTime=self.new[me][ID]['CreationTime'],
+                                               Validity=self.new[me][ID].get('Validity', None),
                                                Description=desc,
                                                AppName=self.new[me][ID]['AppName'],
                                                AppVersion=self.new[me][ID].get('AppVersion', 'none'),
@@ -190,6 +193,7 @@ class Glue2NewDocument():
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
+                                          Validity=self.new[me][ID].get('Validity', None),
                                           Type=self.new[me][ID]['Type'],
                                           Value=hval,
                                           ApplicationEnvironment=fk,
@@ -270,6 +274,7 @@ class Glue2NewDocument():
                                         ResourceID=self.resourceid,
                                         Name=self.new[me][ID]['Name'],
                                         CreationTime=self.new[me][ID]['CreationTime'],
+                                        Validity=self.new[me][ID].get('Validity', None),
                                         EntityJSON=other_json,
                                         ServiceType=self.newAbsServType[ID],
                                         Type=self.new[me][ID]['Type'],
@@ -309,6 +314,7 @@ class Glue2NewDocument():
                                  ResourceID=self.resourceid,
                                  Name=self.new[me][ID]['Name'],
                                  CreationTime=self.new[me][ID]['CreationTime'],
+                                 Validity=self.new[me][ID].get('Validity', None),
                                  AbstractService=fk,
                                  EntityJSON=other_json,
                                  HealthState=self.new[me][ID]['HealthState'],
@@ -374,6 +380,7 @@ class Glue2NewDocument():
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
+                                          Validity=self.new[me][ID].get('Validity', None),
                                           EntityJSON=self.new[me][ID])
                 model.save()
                 self.new[me][ID]['model'] = model
@@ -410,6 +417,7 @@ class Glue2NewDocument():
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
+                                          Validity=self.new[me][ID].get('Validity', None),
                                           EntityJSON=self.new[me][ID])
                 model.save()
                 self.new[me][ID]['model'] = model
@@ -446,6 +454,7 @@ class Glue2NewDocument():
 #                                          ResourceID=self.resourceid,
 #                                          Name=self.new[me][ID]['Name'],
 #                                          CreationTime=self.new[me][ID]['CreationTime'],
+#                                          Validity=self.new[me][ID].get('Validity', None),
 #                                          EntityJSON=self.new[me][ID])
 #                model.save()
 #                self.new[me][ID]['model'] = model
@@ -482,6 +491,7 @@ class Glue2NewDocument():
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
+                                          Validity=self.new[me][ID].get('Validity', None),
                                           EntityJSON=self.new[me][ID])
                 model.save()
                 self.new[me][ID]['model'] = model
@@ -527,7 +537,8 @@ class Glue2NewDocument():
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID].get('Name', 'none'),
                                           CreationTime=self.new[me][ID]['CreationTime'],
-                                          EntityJSON=self.new[me][ID])                                          
+                                          Validity=self.new[me][ID].get('Validity', None),
+                                          EntityJSON=self.new[me][ID])
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -544,6 +555,154 @@ class Glue2NewDocument():
                 continue
             try:
                 ComputingActivity.objects.filter(ID=ID).delete()
+                self.stats['%s.Deletes' % me] += 1
+            except (DataError, IntegrityError) as e:
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                                          status=status.HTTP_400_BAD_REQUEST)
+
+###############################################################################################
+# ComputingManagerAcceleratorInfo handling
+###############################################################################################
+    def ProcessComputingManagerAcceleratorInfo(self):
+        ########################################################################
+        me = 'ComputingManagerAcceleratorInfo'
+        # Load current database entries
+        for item in ComputingManagerAcceleratorInfo.objects.filter(ResourceID=self.resourceid):
+            self.cur[me][item.ID] = item
+        self.stats['%s.Current' % me] = len(self.cur[me])
+        
+        # Add/update entries
+        for ID in self.new[me]:
+            if ID in self.cur[me] and parse_datetime(self.new[me][ID]['CreationTime']) <= self.cur[me][ID].CreationTime:
+                self.new[me][ID]['model'] = self.cur[me][ID]    # Save the latest object reference
+                continue                                        # Don't update database since is has the latest
+
+            if self.activity_is_cached(ID, self.new[me][ID]):
+                self.stats['%s.ToCache' % me] += 1
+                continue
+            
+            try:
+                model = ComputingManagerAcceleratorInfo(ID=self.new[me][ID]['ID'],
+                                          ResourceID=self.resourceid,
+                                          Name=self.new[me][ID].get('Name', 'none'),
+                                          CreationTime=self.new[me][ID]['CreationTime'],
+                                          Validity=self.new[me][ID].get('Validity', None),
+                                          EntityJSON=self.new[me][ID])
+                model.save()
+                self.new[me][ID]['model'] = model
+                self.stats['%s.Updates' % me] += 1
+                
+                self.activity_to_cache(ID, self.new[me][ID])
+            
+            except (DataError, IntegrityError) as e:
+                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], \
+                                        e.message), status=status.HTTP_400_BAD_REQUEST)
+
+        # Delete old entries
+        for ID in self.cur[me]:
+            if ID in self.new[me]:
+                continue
+            try:
+                ComputingManagerAcceleratorInfo.objects.filter(ID=ID).delete()
+                self.stats['%s.Deletes' % me] += 1
+            except (DataError, IntegrityError) as e:
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                                          status=status.HTTP_400_BAD_REQUEST)
+
+###############################################################################################
+# ComputingShareAcceleratorInfo handling
+###############################################################################################
+    def ProcessComputingShareAcceleratorInfo(self):
+        ########################################################################
+        me = 'ComputingShareAcceleratorInfo'
+        # Load current database entries
+        for item in ComputingShareAcceleratorInfo.objects.filter(ResourceID=self.resourceid):
+            self.cur[me][item.ID] = item
+        self.stats['%s.Current' % me] = len(self.cur[me])
+        
+        # Add/update entries
+        for ID in self.new[me]:
+            if ID in self.cur[me] and parse_datetime(self.new[me][ID]['CreationTime']) <= self.cur[me][ID].CreationTime:
+                self.new[me][ID]['model'] = self.cur[me][ID]    # Save the latest object reference
+                continue                                        # Don't update database since is has the latest
+
+            if self.activity_is_cached(ID, self.new[me][ID]):
+                self.stats['%s.ToCache' % me] += 1
+                continue
+            
+            try:
+                model = ComputingShareAcceleratorInfo(ID=self.new[me][ID]['ID'],
+                                          ResourceID=self.resourceid,
+                                          Name=self.new[me][ID].get('Name', 'none'),
+                                          CreationTime=self.new[me][ID]['CreationTime'],
+                                          Validity=self.new[me][ID].get('Validity', None),
+                                          EntityJSON=self.new[me][ID])
+                model.save()
+                self.new[me][ID]['model'] = model
+                self.stats['%s.Updates' % me] += 1
+                
+                self.activity_to_cache(ID, self.new[me][ID])
+            
+            except (DataError, IntegrityError) as e:
+                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], \
+                                        e.message), status=status.HTTP_400_BAD_REQUEST)
+
+        # Delete old entries
+        for ID in self.cur[me]:
+            if ID in self.new[me]:
+                continue
+            try:
+                ComputingShareAcceleratorInfo.objects.filter(ID=ID).delete()
+                self.stats['%s.Deletes' % me] += 1
+            except (DataError, IntegrityError) as e:
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                                          status=status.HTTP_400_BAD_REQUEST)
+
+###############################################################################################
+# AcceleratorEnvironment handling
+###############################################################################################
+    def ProcessAcceleratorEnvironment(self):
+        ########################################################################
+        me = 'AcceleratorEnvironment'
+        # Load current database entries
+        for item in AcceleratorEnvironment.objects.filter(ResourceID=self.resourceid):
+            self.cur[me][item.ID] = item
+        self.stats['%s.Current' % me] = len(self.cur[me])
+        
+        # Add/update entries
+        for ID in self.new[me]:
+            if ID in self.cur[me] and parse_datetime(self.new[me][ID]['CreationTime']) <= self.cur[me][ID].CreationTime:
+                self.new[me][ID]['model'] = self.cur[me][ID]    # Save the latest object reference
+                continue                                        # Don't update database since is has the latest
+
+            if self.activity_is_cached(ID, self.new[me][ID]):
+                self.stats['%s.ToCache' % me] += 1
+                continue
+            
+            try:
+                model = AcceleratorEnvironment(ID=self.new[me][ID]['ID'],
+                                          ResourceID=self.resourceid,
+                                          Name=self.new[me][ID].get('Name', 'none'),
+                                          Type=self.new[me][ID].get('Type', 'none'),
+                                          CreationTime=self.new[me][ID]['CreationTime'],
+                                          Validity=self.new[me][ID].get('Validity', None),
+                                          EntityJSON=self.new[me][ID])
+                model.save()
+                self.new[me][ID]['model'] = model
+                self.stats['%s.Updates' % me] += 1
+                
+                self.activity_to_cache(ID, self.new[me][ID])
+            
+            except (DataError, IntegrityError) as e:
+                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], \
+                                        e.message), status=status.HTTP_400_BAD_REQUEST)
+
+        # Delete old entries
+        for ID in self.cur[me]:
+            if ID in self.new[me]:
+                continue
+            try:
+                AcceleratorEnvironment.objects.filter(ID=ID).delete()
                 self.stats['%s.Deletes' % me] += 1
             except (DataError, IntegrityError) as e:
                 raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
@@ -586,9 +745,12 @@ class Glue2NewDocument():
                 'ExecutionEnvironment': LoadNewEntityInstance,
                 'ComputingShare': LoadNewEntityInstance,
                 'ComputingActivity': LoadNewEntityInstance,
+                'ComputingManagerAcceleratorInfo': LoadNewEntityInstance,
+                'ComputingShareAcceleratorInfo': LoadNewEntityInstance,
+                'AcceleratorEnvironment': LoadNewEntityInstance,
 # Temporarily disabled by JP on 2017-10-25
 # This entity will be disassociating from a Resource and implemented with other newentities:
-#   AdminDomain, UserDomain, AccessPolicy, Contadt, and Location
+#   AdminDomain, UserDomain, AccessPolicy, Contact, and Location
 #                'Location': LoadNewEntityInstance,
     }
 
