@@ -389,6 +389,61 @@ class ComputingShare_DbDetail(APIView):
         object.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class ComputingQueue_DbList(APIView):
+    '''
+        GLUE2 Computing Queue entity
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    def get(self, request, format=None, **kwargs):
+        if 'resourceid' in self.kwargs:
+            try:
+                objects = ComputingQueue.objects.filter(ResourceID__exact=self.kwargs['resourceid'])
+            except ComputingQueue.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            try:
+                objects = ComputingQueue.objects.all()
+            except ComputingQueue.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = ComputingQueue_DbSerializer(objects, many=True)
+        return Response(serializer.data)
+    def post(self, request, format=None):
+        serializer = ComputingQueue_DbSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ComputingQueue_DbDetail(APIView):
+    '''
+        GLUE2 Computing Queue entity
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    def get(self, request, pk, format=None):
+        try:
+            object = ComputingQueue.objects.get(pk=pk)
+        except ComputingQueue.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = ComputingQueue_DbSerializer(object)
+        return Response(serializer.data)
+    def put(self, request, pk, format=None):
+        try:
+            object = ComputingQueue.objects.get(pk=pk)
+        except ComputingQueue.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = ComputingQueue_DbSerializer(object, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, pk, format=None):
+        try:
+            object = ComputingQueue.objects.get(pk=pk)
+        except ComputingQueue.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        object.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 class ComputingActivity_DbList(APIView):
     '''
         GLUE2 Computing Activity entity

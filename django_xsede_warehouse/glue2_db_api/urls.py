@@ -28,6 +28,10 @@ urlpatterns = [
     url(r'^computingshare/$', ComputingShare_DbList.as_view(), name='computingshare-dblist'),
     url(r'^computingshare/ID/(?P<pk>[^/]+)/$', ComputingShare_DbDetail.as_view(), name='computingshare-detail'),
 
+    url(r'^computingqueue/$', ComputingQueue_DbList.as_view(), name='computingqueue-dblist'),
+    url(r'^computingqueue/ResourceID/(?P<resourceid>[^/]+)/$', ComputingQueue_DbList.as_view(), name='computingqueue-dblist'),
+    url(r'^computingqueue/ID/(?P<pk>[^/]+)/$', ComputingQueue_DbDetail.as_view(), name='computingqueue-detail'),
+
     url(r'^computingactivity/$', ComputingActivity_DbList.as_view(), name='computingactivity-dblist'),
     url(r'^computingactivity/ID/(?P<pk>[^/]+)/$', ComputingActivity_DbDetail.as_view(), name='computingactivity-detail'),
 

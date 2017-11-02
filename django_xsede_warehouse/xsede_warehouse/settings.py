@@ -90,7 +90,9 @@ MIDDLEWARE_CLASSES = (
 
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
-    'xsede.org'
+    'xsede.org',
+    'www.xsede.org',
+    'portal.xsede.org',
 )
 CORS_ALLOW_METHODS = (
     'GET'

@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, tzinfo
+from datetime import datetime, timedelta, tzinfo
 from django.db import DataError, IntegrityError
 from django.core.exceptions import ValidationError
 from django.utils.dateparse import parse_datetime
@@ -95,6 +95,13 @@ def StatsHadServicesOnly(stats):
 def StatsHadComputeActivity(stats):
     return('ComputingActivity.New' in stats)
 
+def get_Validity(obj):
+    try:
+        val = timedelta(seconds=obj['Validity'])
+    except:
+        val = None
+    return val
+
 # Create your models here.
 class Glue2NewDocument():
     def __init__(self, DocType, ResourceID, ReceivedTime, Label):
@@ -146,7 +153,7 @@ class Glue2NewDocument():
                                                ResourceID=self.resourceid,
                                                Name=self.new[me][ID]['Name'],
                                                CreationTime=self.new[me][ID]['CreationTime'],
-                                               Validity=self.new[me][ID].get('Validity', None),
+                                               Validity=get_Validity(self.new[me][ID]),
                                                Description=desc,
                                                AppName=self.new[me][ID]['AppName'],
                                                AppVersion=self.new[me][ID].get('AppVersion', 'none'),
@@ -193,7 +200,7 @@ class Glue2NewDocument():
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=self.new[me][ID].get('Validity', None),
+                                          Validity=get_Validity(self.new[me][ID]),
                                           Type=self.new[me][ID]['Type'],
                                           Value=hval,
                                           ApplicationEnvironment=fk,
@@ -274,7 +281,7 @@ class Glue2NewDocument():
                                         ResourceID=self.resourceid,
                                         Name=self.new[me][ID]['Name'],
                                         CreationTime=self.new[me][ID]['CreationTime'],
-                                        Validity=self.new[me][ID].get('Validity', None),
+                                        Validity=get_Validity(self.new[me][ID]),
                                         EntityJSON=other_json,
                                         ServiceType=self.newAbsServType[ID],
                                         Type=self.new[me][ID]['Type'],
@@ -314,7 +321,7 @@ class Glue2NewDocument():
                                  ResourceID=self.resourceid,
                                  Name=self.new[me][ID]['Name'],
                                  CreationTime=self.new[me][ID]['CreationTime'],
-                                 Validity=self.new[me][ID].get('Validity', None),
+                                 Validity=get_Validity(self.new[me][ID]),
                                  AbstractService=fk,
                                  EntityJSON=other_json,
                                  HealthState=self.new[me][ID]['HealthState'],
@@ -380,7 +387,7 @@ class Glue2NewDocument():
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=self.new[me][ID].get('Validity', None),
+                                          Validity=get_Validity(self.new[me][ID]),
                                           EntityJSON=self.new[me][ID])
                 model.save()
                 self.new[me][ID]['model'] = model
@@ -417,7 +424,7 @@ class Glue2NewDocument():
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=self.new[me][ID].get('Validity', None),
+                                          Validity=get_Validity(self.new[me][ID]),
                                           EntityJSON=self.new[me][ID])
                 model.save()
                 self.new[me][ID]['model'] = model
@@ -454,7 +461,7 @@ class Glue2NewDocument():
 #                                          ResourceID=self.resourceid,
 #                                          Name=self.new[me][ID]['Name'],
 #                                          CreationTime=self.new[me][ID]['CreationTime'],
-#                                          Validity=self.new[me][ID].get('Validity', None),
+#                                          Validity=get_Validity(self.new[me][ID]),
 #                                          EntityJSON=self.new[me][ID])
 #                model.save()
 #                self.new[me][ID]['model'] = model
@@ -491,7 +498,7 @@ class Glue2NewDocument():
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=self.new[me][ID].get('Validity', None),
+                                          Validity=get_Validity(self.new[me][ID]),
                                           EntityJSON=self.new[me][ID])
                 model.save()
                 self.new[me][ID]['model'] = model
@@ -516,6 +523,8 @@ class Glue2NewDocument():
 ###############################################################################################
     def ProcessComputingActivity(self):
         ########################################################################
+        # Stores individual job entries
+        ########################################################################
         me = 'ComputingActivity'
         # Load current database entries
         for item in ComputingActivity.objects.filter(ResourceID=self.resourceid):
@@ -537,7 +546,7 @@ class Glue2NewDocument():
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID].get('Name', 'none'),
                                           CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=self.new[me][ID].get('Validity', None),
+                                          Validity=get_Validity(self.new[me][ID]),
                                           EntityJSON=self.new[me][ID])
                 model.save()
                 self.new[me][ID]['model'] = model
@@ -559,6 +568,29 @@ class Glue2NewDocument():
             except (DataError, IntegrityError) as e:
                 raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
                                           status=status.HTTP_400_BAD_REQUEST)
+
+    def ProcessComputingQueue(self):
+        ########################################################################
+        me = 'ComputingActivity'
+        
+        old = ComputingQueue.objects.filter(ResourceID=self.resourceid)
+        if old:
+            self.stats['%s.Current' % me] = 1
+        else:
+            self.stats['%s.Current' % me] = 0
+        try:
+            ID='urn:glue2:ComputingQueue:{}'.format(self.resourceid)
+            model = ComputingQueue(ID=ID,
+                                  ResourceID=self.resourceid,
+                                  Name='queue',
+                                  CreationTime=timezone.now(),
+                                  Validity=None,
+                                  EntityJSON=self.new[me])
+            model.save()
+            self.stats['%s.Updates' % me] += 1
+        except (DataError, IntegrityError) as e:
+            raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                                      status=status.HTTP_400_BAD_REQUEST)
 
 ###############################################################################################
 # ComputingManagerAcceleratorInfo handling
@@ -586,7 +618,7 @@ class Glue2NewDocument():
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID].get('Name', 'none'),
                                           CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=self.new[me][ID].get('Validity', None),
+                                          Validity=get_Validity(self.new[me][ID]),
                                           EntityJSON=self.new[me][ID])
                 model.save()
                 self.new[me][ID]['model'] = model
@@ -635,7 +667,7 @@ class Glue2NewDocument():
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID].get('Name', 'none'),
                                           CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=self.new[me][ID].get('Validity', None),
+                                          Validity=get_Validity(self.new[me][ID]),
                                           EntityJSON=self.new[me][ID])
                 model.save()
                 self.new[me][ID]['model'] = model
@@ -685,7 +717,7 @@ class Glue2NewDocument():
                                           Name=self.new[me][ID].get('Name', 'none'),
                                           Type=self.new[me][ID].get('Type', 'none'),
                                           CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=self.new[me][ID].get('Validity', None),
+                                          Validity=get_Validity(self.new[me][ID]),
                                           EntityJSON=self.new[me][ID])
                 model.save()
                 self.new[me][ID]['model'] = model
@@ -770,7 +802,7 @@ class Glue2NewDocument():
         elif StatsHadCompute(self.stats):
             self.ProcessCompute()
         elif StatsHadComputeActivity(self.stats):
-            self.ProcessComputingActivity()
+            self.ProcessComputingQueue()
 
         end = datetime.utcnow()
         self.stats['ProcessingSeconds'] = (end - start).total_seconds()
@@ -792,7 +824,7 @@ class Glue2ProcessRawIPF():
             pa_id = '{}:{}'.format(doctype, resourceid)
         pa = ProcessingActivity(self.application, self.function, pa_id, doctype, resourceid)
 
-        if doctype not in ['glue2.applications', 'glue2.compute']:
+        if doctype not in ['glue2.applications', 'glue2.compute', 'glue2.computing_activities']:
             msg = 'Ignoring DocType (DocType={}, ResourceID={})'.format(doctype, resourceid)
             logg2.info(msg)
             pa.FinishActivity('0', msg)

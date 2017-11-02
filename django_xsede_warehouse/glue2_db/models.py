@@ -82,6 +82,9 @@ class ExecutionEnvironment(AbstractGlue2EntityModel):
 class ComputingShare(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
 
+class ComputingQueue(AbstractGlue2EntityModel):
+    ResourceID = models.CharField(db_index=True, max_length=40)
+
 class ComputingActivity(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
 #

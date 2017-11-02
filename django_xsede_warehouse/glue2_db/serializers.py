@@ -70,6 +70,11 @@ class ComputingShare_DbSerializer(serializers.ModelSerializer):
         model = ComputingShare
         fields = ('ID', 'ResourceID', 'Name', 'CreationTime', 'Validity', 'EntityJSON')
 
+class ComputingQueue_DbSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComputingQueue
+        fields = ('ID', 'ResourceID', 'Name', 'CreationTime', 'Validity', 'EntityJSON')
+
 class ComputingActivity_DbSerializer(serializers.ModelSerializer):
     class Meta:
         model = ComputingActivity

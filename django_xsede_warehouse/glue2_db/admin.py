@@ -49,6 +49,10 @@ class ComputingShareAdmin (admin.ModelAdmin):
     list_display = ('ResourceID', 'Name', 'ID', 'CreationTime')
     list_display_links = ['ID']
 
+class ComputingQueueAdmin (admin.ModelAdmin):
+    list_display = ('ResourceID', 'Name', 'ID', 'CreationTime')
+    list_display_links = ['ID']
+
 class ComputingActivityAdmin (admin.ModelAdmin):
     list_display = ('ResourceID', 'Name', 'ID', 'CreationTime')
     list_display_links = ['ID']
@@ -83,6 +87,7 @@ admin.site.register(Endpoint, EndpointAdmin)
 admin.site.register(ComputingManager, ComputingManagerAdmin)
 admin.site.register(ExecutionEnvironment, ExecutionEnvironmentAdmin)
 admin.site.register(ComputingShare, ComputingShareAdmin)
+admin.site.register(ComputingQueue, ComputingQueueAdmin)
 admin.site.register(ComputingActivity, ComputingActivityAdmin)
 admin.site.register(ComputingManagerAcceleratorInfo, ComputingManagerAcceleratorInfoAdmin)
 admin.site.register(ComputingShareAcceleratorInfo, ComputingShareAcceleratorInfoAdmin)
