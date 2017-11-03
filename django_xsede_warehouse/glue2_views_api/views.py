@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from glue2_db.models import ApplicationEnvironment, AbstractService, Endpoint
+from glue2_db.models import ApplicationEnvironment, AbstractService, ComputingQueue, Endpoint
 from glue2_views_api.serializers import *
 
 # Create your views here.
@@ -78,4 +78,20 @@ class Services_Detail(APIView):
         elif 'servicetype' in self.kwargs:
             objects = Endpoint.objects.filter(AbstractService__ServiceType__exact=self.kwargs['servicetype'])
             serializer = EndpointServices_Serializer(objects, many=True)
+        return Response(serializer.data)
+
+class Jobs_List(APIView):
+    '''
+        GLUE2 Jobs from ComputingQueue
+    '''
+    permission_classes = (IsAuthenticated,)
+    def get(self, request, format=None, **kwargs):
+        if 'resourceid' in self.kwargs:
+            try:
+                objects = ComputingQueue.objects.filter(ResourceID__exact=self.kwargs['resourceid'])
+            except ComputingQueue.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            objects = ComputingQueue.objects.all()
+        serializer = ComputingQueue_Expand_Serializer(objects, many=True)
         return Response(serializer.data)

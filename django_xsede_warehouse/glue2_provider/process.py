@@ -582,7 +582,7 @@ class Glue2NewDocument():
             ID='urn:glue2:ComputingQueue:{}'.format(self.resourceid)
             model = ComputingQueue(ID=ID,
                                   ResourceID=self.resourceid,
-                                  Name='queue',
+                                  Name='entire_queue',
                                   CreationTime=timezone.now(),
                                   Validity=None,
                                   EntityJSON=self.new[me])

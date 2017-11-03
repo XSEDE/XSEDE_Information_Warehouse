@@ -393,7 +393,7 @@ class ComputingQueue_DbList(APIView):
     '''
         GLUE2 Computing Queue entity
     '''
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
     def get(self, request, format=None, **kwargs):
         if 'resourceid' in self.kwargs:
             try:
@@ -418,7 +418,7 @@ class ComputingQueue_DbDetail(APIView):
     '''
         GLUE2 Computing Queue entity
     '''
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
     def get(self, request, pk, format=None):
         try:
             object = ComputingQueue.objects.get(pk=pk)
