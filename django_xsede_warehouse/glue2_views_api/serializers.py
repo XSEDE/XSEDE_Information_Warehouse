@@ -41,9 +41,30 @@ class EndpointServices_Serializer(serializers.ModelSerializer):
 class ComputingQueue_Expand_Serializer(serializers.ModelSerializer):
     JobQueue = serializers.SerializerMethodField()
     def get_JobQueue(self, ComputingQueue):
+#        try:
+#            sort_by = self.context.get('sort_by', None)
+#            if sort_by:
+#                jobsort = {}
+#                for key in ComputingQueue.EntityJSON:
+#                    jobin = ComputingQueue.EntityJSON[key]
+#                    try:
+#                        if sort_by in ('RequestedTotalWallTime', 'RequestedSlots'):
+#                            prefix = '{:d030d}'.format(jobin[sort_by])
+#                        elif sort_by in ('SubmissionTime', 'StartTime'):
+#                            prefix = '{:%Y/%m/%d %H:%M:%S %Z}'.format(jobin[sort_by])
+#                        else:
+#                            prefix = jobin[sort_by]
+#                    except:
+#                        prefix = jobin[sort_by]
+#                    jobsort[prefix + ':' + jobin['ID']] = jobin
+#            else:
+#                jobsort = ComputingQueue.EntityJSON
+#        except Exception as e:
+#            jobsort = ComputingQueue.EntityJSON
         response = []
-        for jobid in ComputingQueue.EntityJSON:
-            jobin = ComputingQueue.EntityJSON[jobid]
+#        for key in sorted(jobsort):
+        for key in ComputingQueue.EntityJSON:
+            jobin = ComputingQueue.EntityJSON[key]
             jobout = {'ID': jobin['LocalIDFromManager']}
             for s in jobin['State']:
                 if s.startswith('ipf:'):

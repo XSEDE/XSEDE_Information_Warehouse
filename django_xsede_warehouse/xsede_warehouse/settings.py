@@ -59,6 +59,7 @@ INSTALLED_APPS = (
     'glue2_db',
     'glue2_db_api',
     'glue2_provider',
+    'glue2_views_api',
     'monitoring_db.apps.MonitoringDbConfig',
     'monitoring_db_api.apps.MonitoringDbApiConfig',
     'monitoring_provider.apps.MonitoringProviderConfig',
