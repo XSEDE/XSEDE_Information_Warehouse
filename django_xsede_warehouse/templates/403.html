@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}Bad request{% endblock %}
+
+{% block content %}
+</p>
+<h1>Permission Denied (403)</h1>
+<p><b>Code:</b>&nbsp;{{ status_code }}</p>
+<p><b>Detail:</b>&nbsp;{{ detail }}</p>
+{% endblock %}
