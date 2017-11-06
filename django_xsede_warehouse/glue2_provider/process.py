@@ -623,9 +623,6 @@ class Glue2NewDocument():
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
-                
-                self.activity_to_cache(ID, self.new[me][ID])
-            
             except (DataError, IntegrityError) as e:
                 raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], \
                                         e.message), status=status.HTTP_400_BAD_REQUEST)
@@ -672,9 +669,6 @@ class Glue2NewDocument():
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
-                
-                self.activity_to_cache(ID, self.new[me][ID])
-            
             except (DataError, IntegrityError) as e:
                 raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], \
                                         e.message), status=status.HTTP_400_BAD_REQUEST)
@@ -722,9 +716,6 @@ class Glue2NewDocument():
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
-                
-                self.activity_to_cache(ID, self.new[me][ID])
-            
             except (DataError, IntegrityError) as e:
                 raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], \
                                         e.message), status=status.HTTP_400_BAD_REQUEST)
