@@ -94,6 +94,8 @@ CORS_ORIGIN_WHITELIST = (
     'xsede.org',
     'www.xsede.org',
     'portal.xsede.org',
+    'resttesttest.com',
+    'test-cors.org',
 )
 CORS_ALLOW_METHODS = (
     'GET'
@@ -106,7 +108,6 @@ if 'SUB_SITE' in CONF:
 
 ROOT_URLCONF = 'xsede_warehouse.urls'
 
-#    'DIRS': [],
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -148,6 +149,7 @@ DATABASES = {
         'PASSWORD': CONF['DJANGO_PASS'],
         'HOST': 'localhost',
         'PORT': '',
+        'CONN_MAX_AGE': 600,            # Persist DB connections
     },
     'glue2': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -156,7 +158,8 @@ DATABASES = {
         'USER': 'glue2_owner',
         'PASSWORD': CONF['GLUE2_PASS'],
         'HOST': 'localhost',
-        'PORT': '',                    # Set to empty string for default.
+        'PORT': '',                     # Set to empty string for default.
+        'CONN_MAX_AGE': 600,            # Persist DB connections
     },
     'xcsr': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -165,7 +168,8 @@ DATABASES = {
         'USER': 'xcsr_owner',
         'PASSWORD': CONF['XCSR_PASS'],
         'HOST': 'localhost',
-        'PORT': '',                    # Set to empty string for default.
+        'PORT': '',                     # Set to empty string for default.
+        'CONN_MAX_AGE': 600,            # Persist DB connections
     }
 }
 
