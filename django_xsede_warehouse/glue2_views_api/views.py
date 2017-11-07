@@ -6,9 +6,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework_xml.renderers import XMLRenderer
-from glue2_db.models import ApplicationEnvironment, AbstractService, ComputingQueue, Endpoint
+from glue2_db.models import ApplicationEnvironment, AbstractService, ComputingActivity, ComputingQueue, Endpoint
+from glue2_db.serializers import ComputingActivity_DbSerializer
 from glue2_views_api.serializers import *
 from xsede_warehouse.responses import MyAPIResponse
+from xsede_warehouse.exceptions import MyAPIException
 
 # Create your views here.
 class ApplicationEnvironment_List(APIView):
@@ -83,9 +85,9 @@ class Services_Detail(APIView):
             serializer = EndpointServices_Serializer(objects, many=True)
         return Response(serializer.data)
 
-class Jobs_List(APIView):
+class Jobqueue_List(APIView):
     '''
-        GLUE2 Jobs from ComputingQueue
+        GLUE2 Jobs Queue from ComputingQueue
     '''
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -94,7 +96,7 @@ class Jobs_List(APIView):
             try:
                 objects = ComputingQueue.objects.filter(ResourceID__exact=self.kwargs['resourceid'])
             except ComputingQueue.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='ResourceID not found')
         else:
             objects = ComputingQueue.objects.all()
         try:
@@ -102,4 +104,53 @@ class Jobs_List(APIView):
         except:
             sort_by = None
         serializer = ComputingQueue_Expand_Serializer(objects, many=True, context={'sort_by': sort_by})
+        return MyAPIResponse({'result_set': serializer.data}, template_name='glue2_views_api/jobqueues.html')
+
+class Job_Detail(APIView):
+    '''
+        GLUE2 Job Detail from ComputingActivity
+    '''
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    def get(self, request, format=None, **kwargs):
+        if 'id' in self.kwargs:
+            try:
+                object = ComputingActivity.objects.get(pk=self.kwargs['id'])
+            except ComputingActivity.DoesNotExist:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='ID not found')
+        else:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Invalid request')
+        serializer = ComputingActivity_Expand_Serializer(object)
+        return MyAPIResponse({'result_set': [serializer.data]}, template_name='glue2_views_api/job_detail.html')
+
+class Job_List(APIView):
+    '''
+        GLUE2 Jobs from ComputingActivity
+    '''
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    def get(self, request, format=None, **kwargs):
+        if 'id' in self.kwargs:
+            try:
+                objects = [ComputingActivity.objects.get(pk=self.kwargs['id'])]
+            except ComputingActivity.DoesNotExist:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='ID not found')
+        elif 'resourceid' in self.kwargs and 'queue' in self.kwargs:
+            try:
+                objects = ComputingActivity.objects.filter(ResourceID__exact=self.kwargs['resourceid']).filter(EntityJSON__Queue__exact=self.kwargs['queue'])
+            except ComputingActivity.DoesNotExist:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='ResourceID and Queue not found')
+        elif 'resourceid' in self.kwargs and 'localaccount' in self.kwargs:
+            try:
+                objects = ComputingActivity.objects.filter(ResourceID__exact=self.kwargs['resourceid']).filter(EntityJSON__LocalOwner__exact=self.kwargs['localaccount'])
+            except ComputingActivity.DoesNotExist:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='ResourceID and LocalAccount not found')
+        elif 'resourceid' in self.kwargs:
+            try:
+                objects = ComputingActivity.objects.filter(ResourceID__exact=self.kwargs['resourceid'])
+            except ComputingActivity.DoesNotExist:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='ResourceID not found')
+        else:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Invalid request')
+        serializer = ComputingActivity_Expand_Serializer(objects, many=True, context={'request': request})
         return MyAPIResponse({'result_set': serializer.data}, template_name='glue2_views_api/jobs.html')

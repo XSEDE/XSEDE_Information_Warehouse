@@ -1,8 +1,11 @@
 from rest_framework import serializers
 #from drf_toolbox import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
-from glue2_db.models import ApplicationEnvironment, ApplicationHandle, AbstractService, ComputingQueue, Endpoint
+from glue2_db.models import ApplicationEnvironment, ApplicationHandle, AbstractService, ComputingActivity, ComputingQueue, Endpoint
 from glue2_db.serializers import ApplicationHandle_DbSerializer, AbstractService_DbSerializer, Endpoint_DbSerializer
+from django.core.urlresolvers import reverse, get_script_prefix
+from django.utils.encoding import uri_to_iri
+import copy
 
 class ApplicationEnvironment_Serializer(serializers.ModelSerializer):
     class Meta:
@@ -37,6 +40,26 @@ class EndpointServices_Serializer(serializers.ModelSerializer):
                   'QualityLevel', 'ServingState', 'HealthState', 'ServiceType',
                   'CreationTime', 'ID')
 #                  'Name', 'AbstractService')
+
+class ComputingActivity_Expand_Serializer(serializers.ModelSerializer):
+    DetailURL = serializers.SerializerMethodField()
+    StandardState = serializers.SerializerMethodField()
+    def get_DetailURL(self, ComputingActivity):
+        http_request = self.context.get('request')
+        if http_request:
+            return http_request.build_absolute_uri(uri_to_iri(reverse('jobs-detail', args=[ComputingActivity.ID])))
+        else:
+            return ''
+    def get_StandardState(self, ComputingActivity):
+        for s in ComputingActivity.EntityJSON.get('State'):
+            if s.startswith('ipf:'):
+                return s[4:]
+        return ''
+    class Meta:
+        model = ComputingActivity
+        fields = copy.copy([f.name for f in ComputingActivity._meta.get_fields(include_parents=False)])
+        fields.append('DetailURL')
+        fields.append('StandardState')
 
 class ComputingQueue_Expand_Serializer(serializers.ModelSerializer):
     JobQueue = serializers.SerializerMethodField()

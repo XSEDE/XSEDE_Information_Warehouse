@@ -29,8 +29,14 @@ urlpatterns = [
     url(r'^services-spf/InterfaceName/(?P<interfacename>[^/]+)/$', Services_Detail.as_view(), name='services-detail'),
     url(r'^services-spf/ServiceType/(?P<servicetype>[^/]+)/$', Services_Detail.as_view(), name='services-detail'),
 
-    url(r'^jobs/$', Jobs_List.as_view(), name='jobs-list'),
-    url(r'^jobs/ResourceID/(?P<resourceid>[^/]+)/$', Jobs_List.as_view(), name='jobs-list'),
+    url(r'^jobqueue/$', Jobqueue_List.as_view(), name='jobsqueue-list'),
+    url(r'^jobqueue/ResourceID/(?P<resourceid>[^/]+)/$', Jobqueue_List.as_view(), name='jobsqueue-list'),
+    url(r'^jobs/$', Jobqueue_List.as_view(), name='jobsqueue-list'),
+    url(r'^jobs/ResourceID/(?P<resourceid>[^/]+)/$', Jobqueue_List.as_view(), name='jobsqueue-list'),
+    url(r'^jobs2/ID/(?P<id>[^/]+)/$', Job_Detail.as_view(), name='jobs-detail'),
+    url(r'^jobs2/ResourceID/(?P<resourceid>[^/]+)/$', Job_List.as_view(), name='jobs-list'),
+    url(r'^jobs2/ResourceID/(?P<resourceid>[^/]+)/Queue/(?P<queue>[^/]+)/$', Job_List.as_view(), name='jobs-list'),
+    url(r'^jobs2/ResourceID/(?P<resourceid>[^/]+)/LocalAccount/(?P<localaccount>[^/]+)/$', Job_List.as_view(), name='jobs-list'),
                
 #    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
