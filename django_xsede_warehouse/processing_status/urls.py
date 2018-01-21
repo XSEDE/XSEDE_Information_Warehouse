@@ -5,7 +5,8 @@ from processing_status.views import *
 # Additionally, we include login URLs for the browseable API.
 urlpatterns = [
     url(r'^record/$', ProcessingRecord_DbList.as_view(), name='processingrecord-dblist'),
-    url(r'^record/(about|resourceid)/(?P<about>[^/]+)/$', ProcessingRecord_DbList.as_view(), name='processingrecord-dblist-byabout'),
+    url(r'^record/about/(?P<about>[^/]+)/$', ProcessingRecord_DbList.as_view(), name='processingrecord-dblist-byabout'),
+    url(r'^record/resourceid/(?P<about>[^/]+)/$', ProcessingRecord_DbList.as_view(), name='processingrecord-dblist-byabout'),
     url(r'^record/topic/(?P<topic>[^/]+)/$', ProcessingRecord_DbList.as_view(), name='processingrecord-dblist-bytopic'),
     url(r'^record/id/(?P<id>[^/]+)/$', ProcessingRecord_Detail.as_view(), name='processingrecord-detail'),
     url(r'^record/latest/(about|resourceid)/(?P<about>[^/]+)/$', ProcessingRecord_LatestList.as_view(), name='processingrecord-latestlist-byabout'),

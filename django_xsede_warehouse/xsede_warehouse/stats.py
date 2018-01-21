@@ -18,7 +18,6 @@ class StatsTracker():
             self.stats['%s.Updates' % t] = 0
             self.stats['%s.Deletes' % t] = 0
             self.stats['%s.ToCache' % t] = 0
-        
     def __unicode__(self):
         return(self.summary())
     def set(self, key, value):
@@ -29,13 +28,13 @@ class StatsTracker():
     def end(self):
         self.ProcessingSeconds = datetime.now() - self.StartTS
     def summary(self):
-        out = 'Processed %s in %s/sec:' % (self.Label, self.ProcessingSeconds.total_seconds())
+        out = 'Processed {} in {}/sec:'.format(self.Label, self.ProcessingSeconds.total_seconds())
         for i in self.StatTypes:
             if self.stats.get('%s.New' % i, None) > 0:
-                out += ' %s %s->%s (%s/up' % (i, self.stats['%s.Current' % i], self.stats['%s.New' % i], self.stats['%s.Updates' % i])
+                out += ' {} {}->{} ({}/up'.format(i, self.stats['%s.Current' % i], self.stats['%s.New' % i], self.stats['%s.Updates' % i])
                 if self.stats.get('%s.Deletes' % i, None) > 0:
-                    out += ', %s/del' % self.stats['%s.Deletes' % i]
+                    out += ', {}/del'.format(self.stats['%s.Deletes' % i])
                 if self.stats.get('%s.ToCache' % i, None) > 0:
-                    out += ', %s/cache' % self.stats['%s.ToCache' % i]
+                    out += ', {}/cache'.format(self.stats['%s.ToCache' % i])
                 out += ')'
         return(out)

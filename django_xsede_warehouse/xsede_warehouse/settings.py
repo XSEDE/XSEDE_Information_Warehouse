@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import sys
+import socket
+import subprocess
 from logging.handlers import SysLogHandler
 
 import json
@@ -134,6 +136,17 @@ WSGI_APPLICATION = 'xsede_warehouse.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
+#
+# If we are running on 'infodb.xsede.org' connect to database thru localhost
+# Introduced 2018-01-21 by JP
+#
+myhostname = subprocess.check_output(['/bin/hostname']).strip()
+myip = socket.gethostbyname(myhostname)
+dbhostname = 'infodb.xsede.org'
+dbip = socket.gethostbyname(dbhostname)
+if myip == dbip:
+    dbhostname = 'localhost'
+
 DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.sqlite3',
@@ -147,7 +160,7 @@ DATABASES = {
         'NAME': 'warehouse',
         'USER': 'django_owner',
         'PASSWORD': CONF['DJANGO_PASS'],
-        'HOST': 'localhost',
+        'HOST': dbhostname,
         'PORT': '',
         'CONN_MAX_AGE': 600,            # Persist DB connections
     },
@@ -157,7 +170,7 @@ DATABASES = {
         'NAME': 'warehouse',
         'USER': 'glue2_owner',
         'PASSWORD': CONF['GLUE2_PASS'],
-        'HOST': 'localhost',
+        'HOST': dbhostname,
         'PORT': '',                     # Set to empty string for default.
         'CONN_MAX_AGE': 600,            # Persist DB connections
     },
@@ -167,7 +180,7 @@ DATABASES = {
         'NAME': 'warehouse',
         'USER': 'xcsr_owner',
         'PASSWORD': CONF['XCSR_PASS'],
-        'HOST': 'localhost',
+        'HOST': dbhostname,
         'PORT': '',                     # Set to empty string for default.
         'CONN_MAX_AGE': 600,            # Persist DB connections
     }

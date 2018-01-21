@@ -583,7 +583,7 @@ class Glue2NewDocument():
             model = ComputingQueue(ID=ID,
                                   ResourceID=self.resourceid,
                                   Name='entire_queue',
-                                  CreationTime=timezone.now(),
+                                  CreationTime=self.receivedtime,
                                   Validity=None,
                                   EntityJSON=self.new[me])
             model.save()
