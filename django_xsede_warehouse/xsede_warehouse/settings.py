@@ -24,7 +24,6 @@ if 'DJANGO_CONF' not in os.environ:
 try:
     with open(os.environ['DJANGO_CONF'], 'r') as file:
         conf=file.read()
-        file.close()
     CONF = json.loads(conf)
 except (ValueError, IOError), e:
     print 'Failed to load DJANGO_CONF=%s' % os.environ['DJANGO_CONF']
@@ -142,7 +141,10 @@ WSGI_APPLICATION = 'xsede_warehouse.wsgi.application'
 #
 myhostname = subprocess.check_output(['/bin/hostname']).strip()
 myip = socket.gethostbyname(myhostname)
-dbhostname = 'infodb.xsede.org'
+if 'DB_HOSTNAME' in CONF:
+    dbhostname = CONF['DB_HOSTNAME']
+else:
+    dbhostname = 'infodb.xsede.org'
 dbip = socket.gethostbyname(dbhostname)
 if myip == dbip:
     dbhostname = 'localhost'
