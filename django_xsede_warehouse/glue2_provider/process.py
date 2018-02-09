@@ -124,7 +124,9 @@ class Glue2NewDocument():
             raise ValidationError('New entity %s doesn\'t contain a list' % model)
         for item in obj:
             self.new[model][item['ID']] = item
-        self.stats['%s.New' % model] = len(self.new[model])
+        self.stats['{}.New'.format(model)] = len(self.new[model])
+        self.stats['{}.Current'.format(model)] = 0
+
 
 ###############################################################################################
 # Application handling
@@ -518,6 +520,11 @@ class Glue2NewDocument():
                 raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
+        ########################################################################
+        self.ProcessComputingManagerAcceleratorInfo()
+        self.ProcessComputingShareAcceleratorInfo()
+        self.ProcessAcceleratorEnvironment()
+                                          
 ###############################################################################################
 # ComputingActivity handling
 ###############################################################################################
