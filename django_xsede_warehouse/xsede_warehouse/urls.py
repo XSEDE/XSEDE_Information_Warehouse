@@ -18,7 +18,9 @@ from django.conf import settings
 #from django.views.generic.simple import direct_to_template
 from django.views.generic import TemplateView
 
-from rest_framework_swagger.views import SwaggerResourcesView, SwaggerApiView, SwaggerUIView
+#from rest_framework_swagger.views import SwaggerResourcesView, SwaggerApiView, SwaggerUIView
+from rest_framework_swagger.views import get_swagger_view
+schema_view = get_swagger_view(title='XSEDE Warehouse API')
 
 urlpatterns = [
     url('^$', TemplateView.as_view(template_name='wh.html')),
@@ -40,5 +42,5 @@ urlpatterns = [
     url('^xdcdb/v1/', include('xdcdb.urls')),
     url('^xdinfo/v1/', include('xdinfo.urls')),
     url('^warehouse-views/', include('warehouse_views.urls')),
-    url('^api-docs/', include('rest_framework_swagger.urls'), name='swagger')
+    url('^api-docs/', schema_view, name='swagger')
 ]

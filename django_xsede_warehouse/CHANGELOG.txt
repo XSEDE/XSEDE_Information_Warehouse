@@ -1,3 +1,5 @@
+# 2018-02-25 Upgrade to swagger 2.1.* from 0.3.* with new python-2.7.14-2
+
 # 2016-07-15 Upgrading to Django 1.9 + latest dependences
 - For enhanced PostgreSQL JSON support
 - Upgraded to:
