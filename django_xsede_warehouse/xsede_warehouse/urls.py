@@ -20,7 +20,7 @@ from django.views.generic import TemplateView
 
 #from rest_framework_swagger.views import SwaggerResourcesView, SwaggerApiView, SwaggerUIView
 from rest_framework_swagger.views import get_swagger_view
-schema_view = get_swagger_view(title='XSEDE Warehouse API')
+schema_view = get_swagger_view(title='XSEDE Warehouse API', url='/wh1')
 
 urlpatterns = [
     url('^$', TemplateView.as_view(template_name='wh.html')),
