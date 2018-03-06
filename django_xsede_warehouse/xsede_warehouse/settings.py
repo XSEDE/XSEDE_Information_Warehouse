@@ -145,9 +145,12 @@ if 'DB_HOSTNAME' in CONF:
     dbhostname = CONF['DB_HOSTNAME']
 else:
     dbhostname = 'infodb.xsede.org'
-dbip = socket.gethostbyname(dbhostname)
-if myip == dbip:
-    dbhostname = 'localhost'
+try:
+    dbip = socket.gethostbyname(dbhostname)
+    if myip == dbip:
+        dbhostname = 'localhost'
+except:
+    dbip = 'localhost'
 
 DATABASES = {
 #    'default': {
