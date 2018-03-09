@@ -448,7 +448,7 @@ class ComputingActivity_DbList(APIView):
     '''
         GLUE2 Computing Activity entity
     '''
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
     def get(self, request, format=None):
         objects = ComputingActivity.objects.all()
         serializer = ComputingActivity_DbSerializer(objects, many=True)
@@ -464,7 +464,7 @@ class ComputingActivity_DbDetail(APIView):
     '''
         GLUE2 Computing Activity entity
     '''
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
     def get(self, request, pk, format=None):
         try:
             object = ComputingActivity.objects.get(pk=pk)
