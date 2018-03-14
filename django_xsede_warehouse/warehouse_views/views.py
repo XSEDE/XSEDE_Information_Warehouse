@@ -2,7 +2,6 @@ from django.db.models import Q
 from django.core.serializers import serialize
 from django.shortcuts import render
 from django.template.loader import get_template
-from django.template import Context
 from django.utils.encoding import uri_to_iri
 
 from rest_framework.views import APIView
@@ -37,11 +36,10 @@ class Resource_List(APIView):
                 objects = RDRResource.objects.filter(rdr_type='resource').order_by('info_resourceid')
         for o in objects:
             o.Active = o.info_resourceid in active_resourceids
+        serializer = RDRResource_Serializer_Plus(objects, context={'request': request}, many=True)
         if returnformat != 'html':
-            serializer = RDRResource_Serializer_Plus(objects, many=True)
             return Response(serializer.data)
         else:
-            serializer = RDRResource_Serializer_Plus(objects, context={'request': request}, many=True)
             return render(request, 'warehouse_views/warehouse_resources.html', {'resource_list': serializer.data})
 
 class Resource_List_Active(APIView):
@@ -55,12 +53,11 @@ class Resource_List_Active(APIView):
             objects = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='SUB', result='OBJECTS').order_by('info_resourceid')
         for o in objects:
             o.Active = True
+        serializer = RDRResource_Serializer_Plus(objects, context={'request': request}, many=True)
         if returnformat != 'html':
-            serializer = RDRResource_Serializer_Plus(objects, many=True)
             return Response(serializer.data)
         else:
-            c = Context({'resource_list': objects})
-            return render(request, 'warehouse_views/warehouse_resources.html', c)
+            return render(request, 'warehouse_views/warehouse_resources.html', {'resource_list': serializer.data})
 
 class Resource_List_XDCDB_Active(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -73,12 +70,12 @@ class Resource_List_XDCDB_Active(APIView):
             objects = objects = TGResource.objects.filter(ResourceID__in=active_resourceids).order_by('ResourceID')
         returnformat = request.query_params.get('format', None)
         objects = TGResource.objects.filter(ResourceID__in=active_resourceids).order_by('ResourceID')
+        serializer = XcdbResource_Serializer(objects, many=True)
         if returnformat != 'html':
-            serializer = XcdbResource_Serializer(objects, many=True)
             return Response(serializer.data)
         else:
-            c = Context({'xdcdb_list': objects})
-            return render(request, 'warehouse_views/xdcdb_resources.html', c)
+            context = {'xdcdb_list': serializer.data}
+            return render(request, 'warehouse_views/xdcdb_resources.html', context)
 
 class Resource_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -96,8 +93,8 @@ class Resource_Detail(APIView):
             return Response(serializer.data)
         else:
             serializer = Generic_Resource_Serializer(objects[0])
-            c = Context({'resource_details': serializer.data})
-            return render(request, 'warehouse_views/resource_details.html', c)
+            context = {'resource_details': serializer.data}
+            return render(request, 'warehouse_views/resource_details.html', context)
 
 class Software_Full(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)

@@ -1,5 +1,4 @@
 from django.db import models
-#import jsonfield
 from django.contrib.postgres.fields import JSONField
 # Create your models here.
 

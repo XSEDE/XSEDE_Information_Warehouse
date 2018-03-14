@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from glue2_db.models import AbstractGlue2EntityModel
-import jsonfield
+#import jsonfield
 
 # The actual GLUE2 models
 class TestResult(AbstractGlue2EntityModel):
