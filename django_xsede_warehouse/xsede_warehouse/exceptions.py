@@ -15,9 +15,9 @@ class ProcessingException(Exception):
 class MyAPIException(APIException):
     def __init__(self, code=None, detail=None, template_name=None):
         self.status_code = code
-        self.response_obj = {'status_code': code or 'UNKNOWN'}
+        self.detail = {'status_code': code or 'UNKNOWN'}
         if detail:
-            self.response_obj['detail'] = detail
+            self.detail['detail'] = detail
         if template_name is None:
             if code == status.HTTP_400_BAD_REQUEST:
                 self.template_name = '400.html'
@@ -25,4 +25,4 @@ class MyAPIException(APIException):
                 self.template_name = '404.html'
             else:
                 self.template_name = '500.html'
-        Response(self.response_obj, status=self.status_code, template_name=self.template_name)
+        Response(self.detail, status=self.status_code, template_name=self.template_name)

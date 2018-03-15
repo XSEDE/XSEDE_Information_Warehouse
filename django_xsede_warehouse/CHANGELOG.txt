@@ -1,3 +1,9 @@
+# 2018-03-15 Merged XSEDE-UIUC Warehouse API
+
+# 2018-03-14 Upgrade to Django 1.11.11 from 1.10.7 with new python-2.7.14-3,
+#            also djangorestframe 3.6.4 from 3.6.3, Markdown 2.6.11 from 3.6.8
+#            also dropped django-jsonfield because the functionality is now embedded
+
 # 2018-02-25 Upgrade to swagger 2.1.* from 0.3.* with new python-2.7.14-2
 
 # 2016-07-15 Upgrading to Django 1.9 + latest dependences

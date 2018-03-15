@@ -45,6 +45,8 @@ DEBUG = CONF['DEBUG']
 #ALLOWED_HOSTS = []
 ALLOWED_HOSTS = CONF['ALLOWED_HOSTS']
 
+API_BASE = CONF.get('API_BASE', '')
+
 # Application definition
 
 INSTALLED_APPS = (
@@ -68,6 +70,7 @@ INSTALLED_APPS = (
     'rdr_db',
     'xcsr_db',
     'goendpoint_api',
+    'resource_cat',
     'resource_status_api',
     'warehouse_views',
     'xdcdb',
