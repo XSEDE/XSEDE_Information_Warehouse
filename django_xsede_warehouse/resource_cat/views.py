@@ -47,16 +47,17 @@ def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'
     # SORT_KEY fields:
     #   <B_RANK>:<C_RANK>:<D_RANK>:<D_RANK>:<SORT_SUFFIX>
     # Where:
+    #   A_RANK: all terms matched Name; RANK=999 minus how many keywords matched
     #   B_RANK: keyword match; RANK=999 minus how many keywords matched
-    #   C_RANK: all terms matched Name or Description; RANK=99 minus how many terms matched
-    #   D_RANK: some terms matched Name or Description; RANK=99 minus total number of words matching terms
+    #   C_RANK: all terms matched Name or Description; RANK=999 minus how many terms matched
+    #   D_RANK: some terms matched Name or Description; RANK=999 minus total number of words matching terms
     # Where "999 minus match count" makes higher match counts sort firts alphabetically (996=999-3 before 998=999-1)
     sort_array = {}
     
     for obj in input_objects:
         name_words = obj.Name.replace(',', ' ').lower().split()
         name_rank = len(set(name_words).intersection(search_terms_set))                 # How many matches
-        if name_rank == len(search_terms_set):                                          # All terms matched Name or Description
+        if name_rank == len(search_terms_set):                                          # All terms matched Name
             A_RANK = u'{:03d}'.format(999-name_rank)
         else:
             A_RANK = u'999'
