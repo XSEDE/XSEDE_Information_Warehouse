@@ -25,7 +25,6 @@ def resource_categories_filter(input_objects, search_categories_set):
         objcats = obj.EntityJSON.get('category', '')
         if len(objcats or '') < 1: # Skip objects without a category
             continue
-#       objcats_list = set(int(x) for x in objcats.split(',') if x.strip().isdigit())
         objcats_list = set(objcats.split(','))
         if not objcats_list.isdisjoint(search_categories_set):
             filtered_objects.append(obj)
@@ -46,30 +45,38 @@ def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'
     #     before resources with that term happening 2 times or once.
 
     # SORT_KEY fields:
-    #   <A_RANK>:<B_RANK>:<C_RANK>:<SORT_SUFFIX>
+    #   <B_RANK>:<C_RANK>:<D_RANK>:<D_RANK>:<SORT_SUFFIX>
     # Where:
-    #   A_RANK: keyword match; RANK=999 minus how many keywords matched
-    #   B_RANK: all terms matched Name or Description; RANK=99 minus how many terms matched
-    #   C_RANK: some terms matched Name or Description; RANK=99 minus total number of words matching terms
+    #   B_RANK: keyword match; RANK=999 minus how many keywords matched
+    #   C_RANK: all terms matched Name or Description; RANK=99 minus how many terms matched
+    #   D_RANK: some terms matched Name or Description; RANK=99 minus total number of words matching terms
     # Where "999 minus match count" makes higher match counts sort firts alphabetically (996=999-3 before 998=999-1)
     sort_array = {}
     
     for obj in input_objects:
+        name_words = obj.Name.replace(',', ' ').lower().split()
+        name_rank = len(set(name_words).intersection(search_terms_set))                 # How many matches
+        if name_rank == len(search_terms_set):                                          # All terms matched Name or Description
+            A_RANK = u'{:03d}'.format(999-name_rank)
+        else:
+            A_RANK = u'999'
+        
         keyword_set = set((obj.Keywords or '').replace(',', ' ').lower().split())       # Empty string '' if Null
         keyword_rank = len(keyword_set.intersection(search_terms_set))                  # How many keyword matches
-        A_RANK = u'{:03d}'.format(999-keyword_rank)
+        B_RANK = u'{:03d}'.format(999-keyword_rank)
 
         name_desc_words = u' '.join((obj.Name, obj.Description)).replace(',', ' ').lower().split()
         name_desc_rank = len(set(name_desc_words).intersection(search_terms_set))       # How many matches
         if name_desc_rank == len(search_terms_set):                                     # All terms matched Name or Description
-            B_RANK = u'{:03d}'.format(999-name_desc_rank)
+            C_RANK = u'{:03d}'.format(999-name_desc_rank)
         else:
-            B_RANK = u'999'
+            C_RANK = u'999'
                 
         total_matches = [word in search_terms_set for word in name_desc_words].count(True)  # How many times terms appear
-        C_RANK = u'{:03d}'.format(999-total_matches)
+        D_RANK = u'{:03d}'.format(999-total_matches)
 
-        if A_RANK == u'999' and B_RANK == u'999' and C_RANK == u'999':                  # No matches
+        all_RANKS = u':'.join((A_RANK, B_RANK, C_RANK, D_RANK))
+        if all_RANKS == u'999:999:999:999':                                             # No matches
             continue                                                                    # Loop to discard this object
 
         if sort_field == 'start_date_time':
@@ -77,7 +84,7 @@ def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'
         else: # sort_field == 'name':
             SORT_SUFFIX = (obj.Name or '').lower()
 
-        SORT_KEY = u':'.join((A_RANK, B_RANK, C_RANK, SORT_SUFFIX, str(obj.ID)))
+        SORT_KEY = u':'.join((all_RANKS, SORT_SUFFIX, str(obj.ID)))
         sort_array[SORT_KEY] = obj
 
     filtered_objects = [sort_array[key] for key in sorted(sort_array.keys())]
