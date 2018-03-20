@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
@@ -29,7 +30,7 @@ class XcdbResource_Detail(APIView):
         if 'id' in self.kwargs:
             try:
                 object = TGResource.objects.get(pk=self.kwargs['id'])
-            except Endpoint.DoesNotExist:
+            except TGResource.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             serializer = XcdbResource_Serializer(object)
             if returnformat != 'html':
@@ -51,7 +52,7 @@ class XcdbResourcePublished_Detail(APIView):
         if 'id' in self.kwargs:
             try:
                 object = TGResource.objects.get(pk=self.kwargs['id'])
-            except Endpoint.DoesNotExist:
+            except TGResource.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             serializer = XcdbResourcePublished_Serializer(object)
             if returnformat != 'html':
