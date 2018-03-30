@@ -87,7 +87,9 @@ class Resource_Detail(APIView):
                 objects = RDRResource.objects.filter(info_resourceid__exact=uri_to_iri(self.kwargs['resourceid']),rdr_type__exact='resource')
             except RDRResource.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-    
+        if not objects:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         if returnformat != 'html':
             serializer = Generic_Resource_Serializer(objects[0])
             return Response(serializer.data)
