@@ -143,56 +143,60 @@ WSGI_APPLICATION = 'xsede_warehouse.wsgi.application'
 # Introduced 2018-01-21 by JP
 #
 myhostname = subprocess.check_output(['/bin/hostname']).strip()
-myip = socket.gethostbyname(myhostname)
-if 'DB_HOSTNAME' in CONF:
-    dbhostname = CONF['DB_HOSTNAME']
-else:
-    dbhostname = 'infodb.xsede.org'
+WRITE_HOSTNAME = CONF.get('DB_HOSTNAME_WRITE', 'infodb.xsede.org')
 try:
-    dbip = socket.gethostbyname(dbhostname)
-    if myip == dbip:
-        dbhostname = 'localhost'
+    if socket.gethostbyname(myhostname) == socket.gethostbyname(WRITE_HOSTNAME):
+        WRITE_HOSTNAME = 'localhost'
 except:
-    dbip = 'localhost'
+    pass
+READ_HOSTNAME = CONF.get('DB_HOSTNAME_READ', 'infodb.xsede.org')
+try:
+    if socket.gethostbyname(myhostname) == socket.gethostbyname(READ_HOSTNAME):
+        READ_HOSTNAME = 'localhost'
+except:
+    pass
 
-DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+# Relies on: alter role django_owner set search_path='django';
+# Relies on: alter role glue2_owner set search_path='glue2';
+# Relies on: alter role xcsr_owner set search_path='glue2';
+DATABASES = {       # Set common NAME, ENGINE, PORT, CONN_MAX_AGE below
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-# Inead have: alter role django_owner set search_path='django';
-#        'OPTIONS': {
-#            'options': '-c search_path=django'
-#        },
-        'NAME': 'warehouse',
         'USER': 'django_owner',
         'PASSWORD': CONF['DJANGO_PASS'],
-        'HOST': dbhostname,
-        'PORT': '',
-        'CONN_MAX_AGE': 600,            # Persist DB connections
+        'HOST': WRITE_HOSTNAME,
+    },
+    'default.read': {
+        'USER': 'django_owner',
+        'PASSWORD': CONF['DJANGO_PASS'],
+        'HOST': READ_HOSTNAME,
     },
     'glue2': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-# Relies on: alter role glue2_owner set search_path='glue2';
-        'NAME': 'warehouse',
         'USER': 'glue2_owner',
         'PASSWORD': CONF['GLUE2_PASS'],
-        'HOST': dbhostname,
-        'PORT': '',                     # Set to empty string for default.
-        'CONN_MAX_AGE': 600,            # Persist DB connections
+        'HOST': WRITE_HOSTNAME,
+    },
+    'glue2.read': {
+        'USER': 'glue2_owner',
+        'PASSWORD': CONF['GLUE2_PASS'],
+        'HOST': READ_HOSTNAME,
     },
     'xcsr': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-# Relies on: alter role glue2_owner set search_path='glue2';
-        'NAME': 'warehouse',
         'USER': 'xcsr_owner',
         'PASSWORD': CONF['XCSR_PASS'],
-        'HOST': dbhostname,
-        'PORT': '',                     # Set to empty string for default.
-        'CONN_MAX_AGE': 600,            # Persist DB connections
+        'HOST': WRITE_HOSTNAME,
+    },
+    'xcsr.read': {
+        'USER': 'xcsr_owner',
+        'PASSWORD': CONF['XCSR_PASS'],
+        'HOST': READ_HOSTNAME,
     }
 }
+
+for db in DATABASES:
+    DATABASES[db]['NAME'] = 'warehouse'
+    DATABASES[db]['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+    DATABASES[db]['PORT'] = ''
+    DATABASES[db]['CONN_MAX_AGE'] = 600 # Persist DB connections
 
 DATABASE_ROUTERS = ['xsede_warehouse.router.ModelDatabaseRouter',]
 from xsede_warehouse.router import *

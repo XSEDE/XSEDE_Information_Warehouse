@@ -1,5 +1,6 @@
 import django.db.models.options as options
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('db_name',)
+from xsede_warehouse.settings import DATABASES
 
 class ModelDatabaseRouter(object):
     """Allows each model to set its own target schema"""
@@ -8,8 +9,9 @@ class ModelDatabaseRouter(object):
             db_name = model._meta.db_name
         except:
             db_name = 'default'
-#       print 'db_for_read(model=%s) = %s' % (model, db_name)
-        return db_name
+        db_name_read = db_name + '.read'
+#       print 'db_for_read(model=%s) = %s' % (model, db_name_read if db_name_read in DATABASES else db_name)
+        return db_name_read if db_name_read in DATABASES else db_name
 
     def db_for_write(self, model, **hints):
         try:
