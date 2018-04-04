@@ -56,8 +56,11 @@ class RDRResource_XUP_List(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,XMLRenderer,)
-    def get(self, request, format=None):
-        objects = RDRResource.objects.all()
+    def get(self, request, format=None, **kwargs):
+        if 'resourceid' in self.kwargs:
+            objects = RDRResource.objects.filter(info_resourceid__exact=self.kwargs['resourceid'])
+        else:
+            objects = RDRResource.objects.all()
         serializer = RDRResource_Serializer(objects, many=True)
         return Response(serializer.data)
 
