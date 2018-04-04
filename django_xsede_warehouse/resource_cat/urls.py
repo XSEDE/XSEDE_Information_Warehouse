@@ -1,5 +1,6 @@
 from django.conf.urls import include, url
 from resource_cat.views import *
+from django.views.decorators.cache import cache_page
 
 # Define our custom URLs
 # Additionally, we include login URLs for the browseable API.
@@ -11,7 +12,7 @@ urlpatterns = [
         Resource_Search.as_view(),
         name='resource-search'),
     url(r'^providers/affiliation/(?P<affiliation>[^/]+)/?$',
-        Resource_Provider_List.as_view(),
+        cache_page(60 * 60)(Resource_Provider_List.as_view()),
         name='resource-provider-list'),
     url(r'^providers/?$',
         Resource_Provider_List.as_view(),
