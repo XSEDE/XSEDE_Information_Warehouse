@@ -291,7 +291,9 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
             if http_request and add_url:
                 puburls.add(http_request.build_absolute_uri(uri_to_iri(reverse('processingrecord-detail', args=[pub.ID]))))
 
-        if not puberror and not pubwarning:
+        if not pubsearch:       # Nothing published
+            self.Publishing_Label = 'Blue'
+        elif not puberror and not pubwarning:
             self.Publishing_Label = 'Green'
         elif puberror:
             self.Publishing_Label = 'Red'
