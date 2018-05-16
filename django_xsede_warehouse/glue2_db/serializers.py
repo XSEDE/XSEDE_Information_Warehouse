@@ -84,3 +84,8 @@ class EntityHistory_DbSerializer(serializers.ModelSerializer):
     class Meta:
         model = EntityHistory
         fields = ('ID', 'DocumentType', 'ResourceID', 'ReceivedTime', 'EntityJSON')
+
+class EntityHistory_Usage_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = EntityHistory
+        fields = ('DocumentType', 'ResourceID', 'ReceivedTime')

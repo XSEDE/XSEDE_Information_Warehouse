@@ -1,15 +1,22 @@
 from django.http import *
 from django.shortcuts import render
 from django.utils.encoding import uri_to_iri
+from django.utils.dateparse import parse_datetime
 
 # Create your views here.
-from datetime import datetime
+from datetime import datetime, timedelta
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from glue2_db.models import *
 from glue2_db.serializers import *
+
+from xsede_warehouse.exceptions import MyAPIException
+from xsede_warehouse.responses import MyAPIResponse
+
+import pytz
+UTC = pytz.timezone("UTC")
 
 #from django.core.urlresolvers import resolve
 import logging
@@ -492,13 +499,74 @@ class ComputingActivity_DbDetail(APIView):
 
 class EntityHistory_DbList(APIView):
     '''
-        GLUE2 received entity history
+        ### GLUE2 entityhistory search and list
+        
+        Optional selection argument(s):
+        ```
+            start_date=<yyyy-mm-dd>
+            end_date=<yyyy-mm-dd>
+            resourceid=<resourceid>
+        ```
+        Optional response argument(s):
+        ```
+            fields=__usage__                    (return three fields for usage analysis)
+            format={json,xml,html}              (json default)
+        ```
+        .
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    def get(self, request, format=None):
-        objects = EntityHistory.objects.all()
-        serializer = EntityHistory_DbSerializer(objects, many=True)
-        return Response(serializer.data)
+    def get(self, request, format=None, **kwargs):
+        if 'doctype' not in self.kwargs:
+            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing /doctype/.. argument')
+        arg_doctype = kwargs['doctype']
+        
+        try:
+            dt = request.GET.get('start_date', None)
+            pdt = parse_datetime(dt)
+            if pdt is None: # If it was only a date try adding the time
+                pdt = parse_datetime(dt + 'T00:00:00.0+00:00')
+            if pdt is None:
+                raise Exception
+            arg_startdate = pdt.astimezone(UTC).strftime('%Y-%m-%dT%H:%M:%S%z')
+        except:
+            arg_startdate = None
+        
+        try:
+            dt = request.GET.get('end_date', None)
+            pdt = parse_datetime(dt)
+            if pdt is None: # If it was only a date try adding the time
+                pdt = parse_datetime(dt + 'T23:59:59.0+00:00')
+            if pdt is None:
+                raise Exception
+            arg_enddate = (pdt.astimezone(UTC) + timedelta(seconds=1)).strftime('%Y-%m-%dT%H:%M:%S%z')
+        except:
+            arg_enddate = None
+
+        arg_resourceid = request.GET.get('resourceid', None)
+
+        arg_fields = request.GET.get('fields', None)
+        if arg_fields:
+            want_fields = set(arg_fields.lower().split(','))
+        else:
+            want_fields = set()
+
+        objects = EntityHistory.objects.filter(DocumentType=arg_doctype)
+
+        if arg_resourceid:
+            objects = objects.filter(ResourceID=arg_resourceid)             # String Comparison
+        if arg_startdate:
+            objects = objects.filter(ReceivedTime__gte=arg_startdate)       # String Comparison
+        if arg_enddate:
+            objects = objects.filter(ReceivedTime__lt=arg_enddate)         # String Comparison
+
+        if '__usage__' in want_fields:
+            serializer = EntityHistory_Usage_Serializer(objects, many=True)
+        else:
+            serializer = EntityHistory_DbSerializer(objects, many=True)
+        response_obj = {'results': serializer.data}
+        response_obj['total_results'] = len(objects)
+        return MyAPIResponse(response_obj)
+    
     def post(self, request, format=None):
         serializer = EntityHistory_DbSerializer(data=request.data)
         if serializer.is_valid():
