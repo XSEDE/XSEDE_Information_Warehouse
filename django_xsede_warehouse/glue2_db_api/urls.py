@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^computingactivity/$', ComputingActivity_DbList.as_view(), name='computingactivity-dblist'),
     url(r'^computingactivity/ID/(?P<pk>[^/]+)/$', ComputingActivity_DbDetail.as_view(), name='computingactivity-detail'),
 
-    url(r'^entityhistory/doctype/(?P<doctype>[^/]+)/$', EntityHistory_DbList.as_view(), name='entityhistory-dblist'),
     url(r'^entityhistory/ID/(?P<id>[^/]+)/$', EntityHistory_DbDetail.as_view(), name='entityhistory-detail'),
 ]
+#  Disable because it causes problems, JP 2018-05-16
+#url(r'^entityhistory/doctype/(?P<doctype>[^/]+)/$', EntityHistory_DbList.as_view(), name='entityhistory-dblist'),
