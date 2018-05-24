@@ -1,3 +1,5 @@
+# 2018-05-24 v1.9: Fully implement AdminDomain, UserDomain, AccessPolicy, Contact and Accelerator models, views, urls
+
 # 2018-03-15 Merged XSEDE-UIUC Warehouse API
 
 # 2018-03-14 Upgrade to Django 1.11.11 from 1.10.7 with new python-2.7.14-3,
