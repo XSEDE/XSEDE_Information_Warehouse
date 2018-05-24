@@ -6,5 +6,6 @@ def MyAPIResponse(data, code=None, template_name=None):
         my_data = {}
     else:
         my_data = data
-    my_data['status_code'] = code or status.HTTP_200_OK
-    return Response(my_data, template_name=template_name)
+    status_code = code or status.HTTP_200_OK
+    my_data['status_code'] = status_code
+    return Response(my_data, status=status_code, template_name=template_name)

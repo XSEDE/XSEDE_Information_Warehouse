@@ -779,7 +779,7 @@ class Glue2NewDocument():
                 'ComputingShareAcceleratorInfo': LoadNewEntityInstance,
                 'AcceleratorEnvironment': LoadNewEntityInstance,
 # Temporarily disabled by JP on 2017-10-25
-# This entity will be disassociating from a Resource and implemented with other newentities:
+# This entity will be disassociating from a Resource and implemented with other new entities:
 #   AdminDomain, UserDomain, AccessPolicy, Contact, and Location
 #                'Location': LoadNewEntityInstance,
     }

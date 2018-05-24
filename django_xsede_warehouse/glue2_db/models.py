@@ -23,14 +23,19 @@ class AbstractGlue2EntityModel(models.Model):
 class AdminDomain(AbstractGlue2EntityModel):
     Description = models.CharField(max_length=128, null=True)
     WWW = models.URLField(max_length=200, null=True)
+    Distributed = models.NullBooleanField(null=True)
     Owner = models.CharField(max_length=128, null=True)
 
 class UserDomain(AbstractGlue2EntityModel):
     Description = models.CharField(max_length=128, null=True)
     WWW = models.URLField(max_length=200, null=True)
+    Level = models.IntegerField(null=True)
+    UserManager = models.CharField(max_length=200, null=True)
+    Member = models.CharField(max_length=64, null=True)
 
 class AccessPolicy(AbstractGlue2EntityModel):
-    pass
+    Scheme = models.CharField(max_length=64, null=True)
+    Rule = models.CharField(max_length=64, null=True)
 
 class Contact(AbstractGlue2EntityModel):
     Detail = models.CharField(max_length=128)
@@ -76,10 +81,10 @@ class Endpoint(AbstractGlue2EntityModel):
 class ComputingManager(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
 
-class ExecutionEnvironment(AbstractGlue2EntityModel):
+class ComputingShare(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
 
-class ComputingShare(AbstractGlue2EntityModel):
+class ExecutionEnvironment(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
 
 class ComputingQueue(AbstractGlue2EntityModel):
