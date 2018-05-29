@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Support Contact Detail{% endblock %}
+{% block content %}
+
+<style>
+th, td
+    {
+        padding: 15px;
+    }
+
+th
+    {
+        color: white;
+        background-color: #1E06B4;
+        text-align: left;
+        width: 10px;
+    }
+
+td
+    {
+        color: #69696B;
+    }
+
+table#data
+    {
+        border: 2px solid black;
+        border-collapse: collapse;
+    }
+</style>
+
+<table id ="data" width="98%" style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
+    
+    {% for record in results %}
+    <tr>
+        <th>Global ID</th>
+        <td>{{ record.GlobalID }}</th>
+    </tr>
+    
+    <tr>
+        <th>Name</th>
+        <td>{{ record.Name }}</th>
+    </tr>
+    
+    <tr>
+        <th>Description</th>
+        <td>{{ record.Description }}</th>
+    </tr>
+    
+    <tr>
+        <th>Short Name</th>
+        <td>{{ record.ShortName }}</th>
+    </tr>
+    
+    <tr>
+        <th>Contact Email</th>
+        <td>{{ record.ContactEmail }}</a></th>
+    </tr>
+    
+    <tr>
+        <th>Contact URL</th>
+        <td>{{ record.ContactURL }}</a></th>
+    </tr>
+    
+    <tr>
+        <th>Contact Phone</th>
+        <td>{{ record.ContactPhone }}</a></th>
+    </tr>
+    
+    <tr>
+        <th>Distributed</th>
+        <td>{{ record.Distributed }}</a></th>
+    </tr>
+    
+    <tr>
+        <th>WWW</th>
+        <td>{{ record.WWW }}</a></th>
+    </tr>
+    
+    <tr>
+        <th>Creation Time</th>
+        <td>{{ record.CreationTime }}</th>
+    </tr>
+    
+    <tr>
+        <th>Validity</th>
+        <td>{{ record.Validity }}</th>
+    </tr>
+    
+    {% endfor %}
+{% endblock %}
