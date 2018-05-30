@@ -57,5 +57,4 @@ class SupportContacts_Serializer(serializers.ModelSerializer):
         model = AdminDomain
         fields = ('GlobalID', 'Name', 'Description', 'ShortName', \
                   'ContactEmail', 'ContactURL', 'ContactPhone', \
-                  'Distributed', 'WWW', 'ID',
-                  'CreationTime', 'Validity', 'DetailURL')
+                  'ID', 'CreationTime', 'DetailURL')

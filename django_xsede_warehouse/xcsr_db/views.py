@@ -28,6 +28,14 @@ class ComponentSPRequirement_Detail(APIView):
         return Response(serializer.data)
 
 class SupportContacts_List(APIView):
+    '''
+        ### Support Contact list
+        
+        Optional response argument(s):
+        ```
+            format={json,xml,html}              (json default)
+        ```
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None):
@@ -37,6 +45,14 @@ class SupportContacts_List(APIView):
         return MyAPIResponse(response_obj, template_name='xcsr_db/supportcontact_list.html')
 
 class SupportContacts_Detail(APIView):
+    '''
+        ### Support Contact detail
+        
+        Optional response argument(s):
+        ```
+            format={json,xml,html}              (json default)
+        ```
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
