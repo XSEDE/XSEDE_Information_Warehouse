@@ -856,7 +856,7 @@ class Glue2ProcessRawIPF():
         g2doc = Glue2NewDocument(doctype, resourceid, ts, 'EntityHistory.ID=%s' % model.ID)
         try:
             response = g2doc.process(jsondata)
-        except (ValidationError, ProcessingException), e:
+        except (ValidationError, ProcessingException) as e:
             pa.FinishActivity(False, e.response)
             return (False, e.response)
         pa.FinishActivity(True, response)

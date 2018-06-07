@@ -1,5 +1,5 @@
 from django.conf.urls import include, url
-from views import *
+from monitoring_views_api.views import *
 
 # Define our custom URLs
 # Additionally, we include login URLs for the browseable API.

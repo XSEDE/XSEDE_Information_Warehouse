@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from __future__ import print_function
 import os
 import sys
 import socket
@@ -19,14 +20,14 @@ from logging.handlers import SysLogHandler
 
 import json
 if 'DJANGO_CONF' not in os.environ:
-    print 'Missing DJANGO_CONF environment variable'
+    print('Missing DJANGO_CONF environment variable')
     sys.exit(1)
 try:
     with open(os.environ['DJANGO_CONF'], 'r') as file:
         conf=file.read()
     CONF = json.loads(conf)
-except (ValueError, IOError), e:
-    print 'Failed to load DJANGO_CONF=%s' % os.environ['DJANGO_CONF']
+except (ValueError, IOError) as e:
+    print('Failed to load DJANGO_CONF=%s' % os.environ['DJANGO_CONF'])
     raise
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

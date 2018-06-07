@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from serializers import *
+from monitoring_views_api.serializers import *
 
 # Create your views here.
 class Software_List(APIView):
