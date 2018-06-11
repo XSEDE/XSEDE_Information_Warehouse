@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from processing_status.models import *
 from django.utils.encoding import uri_to_iri
-from django.core.urlresolvers import reverse, get_script_prefix
+from django.utils.http import urlquote
+from django.core.urlresolvers import reverse
 import copy
 
 class ProcessingRecord_DbSerializer(serializers.ModelSerializer):
@@ -17,7 +18,7 @@ class ProcessingRecord_DetailURL_DbSerializer(serializers.ModelSerializer):
     def get_DetailURL(self, ProcessingRecord):
         http_request = self.context.get('request')
         if http_request:
-            return http_request.build_absolute_uri(uri_to_iri(reverse('processingrecord-detail', args=[ProcessingRecord.ID])))
+            return http_request.build_absolute_uri(uri_to_iri(reverse('processingrecord-detail', args=[urlquote(ProcessingRecord.ID, safe='')] )))
         else:
             return ''
     class Meta:

@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='wh.html')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^debug/', include('debug.urls', namespace="hidden_apis")),
+    url(r'^allocations/v1/', include('allocations.urls')),
     url(r'^glue2-db-api/v1/', include('glue2_db_api.urls')),
     url(r'^glue2-provider-api/v1/', include('glue2_provider.urls')),
     url(r'^glue2-views-api/v1/', include('glue2_views_api.urls')),

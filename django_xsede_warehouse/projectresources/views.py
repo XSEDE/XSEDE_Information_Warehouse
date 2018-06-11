@@ -29,7 +29,7 @@ class ProjectResource_By_Number(APIView):
     def get(self, request, format=None, **kwargs):
         if 'project_number' in self.kwargs:
             try:
-                objects = ProjectResource.objects.filter(ResourceID__exact=self.kwargs['project_number'])
+                objects = ProjectResource.objects.filter(project_number=self.kwargs['project_number'])
             except ProjectResource.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             serializer = ProjectResource_Serializer(objects, many=True)
