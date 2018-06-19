@@ -19,7 +19,7 @@ class Resource(models.Model):
     Affiliation = models.CharField(db_index=True, max_length=32)
     ProviderID = models.CharField(max_length=200, null=True)
     Type = models.CharField(max_length=32)
-    Description = models.CharField(max_length=8000, null=True)
+    Description = models.CharField(max_length=24000, null=True)
     QualityLevel = models.CharField(max_length=16, null=True)
     LocalID = models.CharField(db_index=True, max_length=32, null=True)
     Keywords = models.CharField(max_length=1000, null=True)
