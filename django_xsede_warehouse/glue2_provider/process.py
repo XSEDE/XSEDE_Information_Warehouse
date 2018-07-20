@@ -59,7 +59,7 @@ class StatsTracker():
             self.stats[key] = value
     def add(self, key, increment):
         if key in self.stats:
-            self.stats[key] += value
+            self.stats[key] += increment
 
 def StatsSummary(stats):
     out = 'Processed %s in %s/sec:' % (stats['Label'], str(stats['ProcessingSeconds']))
@@ -104,10 +104,11 @@ def get_Validity(obj):
 
 # Create your models here.
 class Glue2NewDocument():
-    def __init__(self, DocType, ResourceID, ReceivedTime, Label):
+    def __init__(self, DocType, ResourceID, ReceivedTime, Label, Application):
         self.doctype = DocType
         self.resourceid = ResourceID
         self.receivedtime = ReceivedTime
+        self.application = Application
         self.new = {}   # Contains new object json
         self.cur = {}   # Contains existing object references
         self.stats = { 'Label': Label, }
@@ -148,6 +149,7 @@ class Glue2NewDocument():
                 other_json = self.new[me][ID].copy()
                 for k in ['ID', 'Name', 'CreationTime', 'Description', 'AppName', 'AppVersion']:
                     other_json.pop(k, None)
+                self.tag_from_application(other_json)
                 desc = self.new[me][ID].get('Description')
                 if desc is not None:
                     desc = desc[:512]
@@ -193,6 +195,7 @@ class Glue2NewDocument():
                 other_json = self.new[me][ID].copy()
                 for k in ['ID', 'Name', 'CreationTime', 'Type', 'Value']:
                     other_json.pop(k, None)
+                self.tag_from_application(other_json)
                 if len(self.new[me][ID]['Value']) > maxval:     # Value too long, log ERROR and truncate
                     logg2.error('Truncating ApplicationHandle.Value (ID=%s)' % self.new[me][ID]['ID'])
                     hval = self.new[me][ID]['Value'][:maxval]
@@ -279,6 +282,7 @@ class Glue2NewDocument():
                 other_json = self.new[me][ID].copy()
                 for k in ['ID', 'Name', 'CreationTime', 'Type', 'QualityLevel']:
                     other_json.pop(k, None)
+                self.tag_from_application(other_json)
                 model = AbstractService(ID=self.new[me][ID]['ID'],
                                         ResourceID=self.resourceid,
                                         Name=self.new[me][ID]['Name'],
@@ -319,6 +323,7 @@ class Glue2NewDocument():
                 for k in ['ID', 'Name', 'CreationTime', 'HealthState', 'ServingState', 'URL',
                           'QualityLevel', 'InterfaceVersion', 'InterfaceName']:
                     other_json.pop(k, None)
+                self.tag_from_application(other_json)
                 model = Endpoint(ID=self.new[me][ID]['ID'],
                                  ResourceID=self.resourceid,
                                  Name=self.new[me][ID]['Name'],
@@ -385,12 +390,14 @@ class Glue2NewDocument():
                 self.new[me][ID]['model'] = self.cur[me][ID]    # Save the latest object reference
                 continue                                        # Don't update database since is has the latest
             try:
+                other_json = self.new[me][ID].copy()
+                self.tag_from_application(other_json)
                 model = ComputingManager(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
                                           Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=self.new[me][ID])
+                                          EntityJSON=other_json)
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -422,12 +429,14 @@ class Glue2NewDocument():
                 self.new[me][ID]['model'] = self.cur[me][ID]    # Save the latest object reference
                 continue                                        # Don't update database since is has the latest
             try:
+                other_json = self.new[me][ID].copy()
+                self.tag_from_application(other_json)
                 model = ExecutionEnvironment(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
                                           Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=self.new[me][ID])
+                                          EntityJSON=other_json)
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -459,12 +468,14 @@ class Glue2NewDocument():
 #                self.new[me][ID]['model'] = self.cur[me][ID]    # Save the latest object reference
 #                continue                                        # Don't update database since is has the latest
 #            try:
+#                other_json = self.new[me][ID].copy()
+#                self.tag_from_application(other_json)
 #                model = Location(ID=self.new[me][ID]['ID'],
 #                                          ResourceID=self.resourceid,
 #                                          Name=self.new[me][ID]['Name'],
 #                                          CreationTime=self.new[me][ID]['CreationTime'],
 #                                          Validity=get_Validity(self.new[me][ID]),
-#                                          EntityJSON=self.new[me][ID])
+#                                          EntityJSON=other_json)
 #                model.save()
 #                self.new[me][ID]['model'] = model
 #                self.stats['%s.Updates' % me] += 1
@@ -496,12 +507,14 @@ class Glue2NewDocument():
                 self.new[me][ID]['model'] = self.cur[me][ID]    # Save the latest object reference
                 continue                                        # Don't update database since is has the latest
             try:
+                other_json = self.new[me][ID].copy()
+                self.tag_from_application(other_json)
                 model = ComputingShare(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
                                           Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=self.new[me][ID])
+                                          EntityJSON=other_json)
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -549,12 +562,14 @@ class Glue2NewDocument():
                 continue
             
             try:
+                other_json = self.new[me][ID].copy()
+                self.tag_from_application(other_json)
                 model = ComputingActivity(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID].get('Name', 'none'),
                                           CreationTime=self.new[me][ID]['CreationTime'],
                                           Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=self.new[me][ID])
+                                          EntityJSON=other_json)
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -587,12 +602,14 @@ class Glue2NewDocument():
             self.stats['%s.Current' % me] = 0
         try:
             ID='urn:glue2:ComputingQueue:{}'.format(self.resourceid)
+            other_json = self.new[me].copy()
+            self.tag_from_application(other_json)
             model = ComputingQueue(ID=ID,
                                   ResourceID=self.resourceid,
                                   Name='entire_queue',
                                   CreationTime=self.receivedtime,
                                   Validity=None,
-                                  EntityJSON=self.new[me])
+                                  EntityJSON=other_json)
             model.save()
             self.stats['%s.Updates' % me] += 1
         except (DataError, IntegrityError) as e:
@@ -621,12 +638,14 @@ class Glue2NewDocument():
                 continue
             
             try:
+                other_json = self.new[me][ID].copy()
+                self.tag_from_application(other_json)
                 model = ComputingManagerAcceleratorInfo(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID].get('Name', 'none'),
                                           CreationTime=self.new[me][ID]['CreationTime'],
                                           Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=self.new[me][ID])
+                                          EntityJSON=other_json)
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -667,12 +686,14 @@ class Glue2NewDocument():
                 continue
             
             try:
+                other_json = self.new[me][ID].copy()
+                self.tag_from_application(other_json)
                 model = ComputingShareAcceleratorInfo(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID].get('Name', 'none'),
                                           CreationTime=self.new[me][ID]['CreationTime'],
                                           Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=self.new[me][ID])
+                                          EntityJSON=other_json)
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -713,13 +734,15 @@ class Glue2NewDocument():
                 continue
             
             try:
+                other_json = self.new[me][ID].copy()
+                self.tag_from_application(other_json)
                 model = AcceleratorEnvironment(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID].get('Name', 'none'),
                                           Type=self.new[me][ID].get('Type', 'none'),
                                           CreationTime=self.new[me][ID]['CreationTime'],
                                           Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=self.new[me][ID])
+                                          EntityJSON=other_json)
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -760,6 +783,14 @@ class Glue2NewDocument():
             hash_list.append(obj['UsedTotalWallTime'])
         return(json.dumps(hash_list))
     
+    def tag_from_application(self, obj):
+        if not isinstance(obj, dict) or not self.application:
+            return
+        if 'Extensions' not in obj:
+            obj['Extensions'] = {'From_Application': self.application}
+        else:
+            obj['Extensions']['From_Application'] = self.application
+
 ###############################################################################################
 # Main code to Load New JSON objects and Process each class of objects
 ###############################################################################################
@@ -853,7 +884,7 @@ class Glue2ProcessRawIPF():
             pa.FinishActivity(False, msg)
             return (False, msg)
 
-        g2doc = Glue2NewDocument(doctype, resourceid, ts, 'EntityHistory.ID=%s' % model.ID)
+        g2doc = Glue2NewDocument(doctype, resourceid, ts, 'EntityHistory.ID=%s' % model.ID, self.application)
         try:
             response = g2doc.process(jsondata)
         except (ValidationError, ProcessingException) as e:

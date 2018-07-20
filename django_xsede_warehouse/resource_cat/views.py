@@ -414,6 +414,7 @@ class Events_List(APIView):
             arg_enddate = (pdt.astimezone(UTC) + timedelta(seconds=1)).strftime('%Y-%m-%dT%H:%M:%S%z')
         except:
             arg_enddate = (timezone.now().astimezone(UTC) + timedelta(days=365*10)).strftime('%Y-%m-%dT%H:%M:%S%z')
+        cur_datetime = timezone.now().astimezone(UTC).strftime('%Y-%m-%dT%H:%M:%S%z')
 
         page = request.GET.get('page', None)
         page_size = request.GET.get('results_per_page', 25)
@@ -421,7 +422,7 @@ class Events_List(APIView):
         response_obj = {}
 
         try:
-            objects = Resource.objects.filter(Type__exact='Event').filter(EntityJSON__record_status__in=[1,2])
+            objects = Resource.objects.filter(Type__exact='Event').filter(EntityJSON__record_status__in=[1,2]).filter(EntityJSON__end_date_time__gte=cur_datetime)
             if want_affiliation:
                 objects = objects.filter(Affiliation__in=want_affiliation)
             # resource.start_date_time <= end_date && resource.end_date_time >= start_date
