@@ -30,6 +30,18 @@ def resource_categories_filter(input_objects, search_categories_set):
             filtered_objects.append(obj)
     return(filtered_objects)
 
+def resource_oldevents_filter(input_objects):
+    # Inspect objects because we can't push this filter to the database
+    cur_datetime = timezone.now().astimezone(UTC).strftime('%Y-%m-%dT%H:%M:%S%z')
+    filtered_objects = []
+    for obj in input_objects:
+        if obj.Type == 'Event':
+            edt = obj.EntityJSON.get('end_date_time', '')
+            if edt < cur_datetime: # Skip events that ended in the past
+                continue
+        filtered_objects.append(obj)
+    return(filtered_objects)
+
 def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'):
     # This function inspects and sorts objects using an algorithm that is too complex to do using SQL
     # Sorting algorithms requirements:
@@ -268,6 +280,7 @@ class Resource_Search(APIView):
                 objects = resource_categories_filter(objects, want_categories)
             if want_terms:
                 objects = resource_terms_filtersort(objects, want_terms, sort_field='name')
+            objects = resource_oldevents_filter(objects)
 
             response_obj['total_results'] = len(objects)
             if page:
@@ -414,7 +427,6 @@ class Events_List(APIView):
             arg_enddate = (pdt.astimezone(UTC) + timedelta(seconds=1)).strftime('%Y-%m-%dT%H:%M:%S%z')
         except:
             arg_enddate = (timezone.now().astimezone(UTC) + timedelta(days=365*10)).strftime('%Y-%m-%dT%H:%M:%S%z')
-        cur_datetime = timezone.now().astimezone(UTC).strftime('%Y-%m-%dT%H:%M:%S%z')
 
         page = request.GET.get('page', None)
         page_size = request.GET.get('results_per_page', 25)
@@ -422,7 +434,7 @@ class Events_List(APIView):
         response_obj = {}
 
         try:
-            objects = Resource.objects.filter(Type__exact='Event').filter(EntityJSON__record_status__in=[1,2]).filter(EntityJSON__end_date_time__gte=cur_datetime)
+            objects = Resource.objects.filter(Type__exact='Event').filter(EntityJSON__record_status__in=[1,2])
             if want_affiliation:
                 objects = objects.filter(Affiliation__in=want_affiliation)
             # resource.start_date_time <= end_date && resource.end_date_time >= start_date
