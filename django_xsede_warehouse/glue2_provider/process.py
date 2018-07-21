@@ -786,10 +786,10 @@ class Glue2NewDocument():
     def tag_from_application(self, obj):
         if not isinstance(obj, dict) or not self.application:
             return
-        if 'Extensions' not in obj:
-            obj['Extensions'] = {'From_Application': self.application}
+        if 'Extension' not in obj:
+            obj['Extension'] = {'From_Application': self.application}
         else:
-            obj['Extensions']['From_Application'] = self.application
+            obj['Extension']['From_Application'] = self.application
 
 ###############################################################################################
 # Main code to Load New JSON objects and Process each class of objects
