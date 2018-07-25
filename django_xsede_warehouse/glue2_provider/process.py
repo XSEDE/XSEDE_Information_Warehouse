@@ -112,6 +112,7 @@ class Glue2NewDocument():
         self.new = {}   # Contains new object json
         self.cur = {}   # Contains existing object references
         self.stats = { 'Label': Label, }
+        self.ServiceSource = ''
         for model in Handled_Models:
             self.new[model] = {}
             self.cur[model] = {}
