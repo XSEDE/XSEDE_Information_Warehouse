@@ -42,6 +42,21 @@ def resource_oldevents_filter(input_objects):
         filtered_objects.append(obj)
     return(filtered_objects)
 
+def resource_subtotals(input_objects):
+    category_totals = {}
+    provider_totals = {}
+    for obj in input_objects:
+        this_category = obj.EntityJSON.get('category', None)
+        if this_category:
+            for x in this_category.split(','):
+                category_totals[x] = category_totals.get(x, 0) + 1
+        this_provider = obj.ProviderID
+        if this_provider:
+            provider_totals[this_provider] = provider_totals.get(this_provider, 0) + 1
+    category_return = [ {"id": key, "subtotal": value} for key, value in category_totals.items() ]
+    provider_return = [ {"ProviderID": key, "subtotal": value} for key, value in provider_totals.items() ]
+    return({'categories': category_return, 'providers': provider_return})
+
 def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'):
     # This function inspects and sorts objects using an algorithm that is too complex to do using SQL
     # Sorting algorithms requirements:
@@ -213,6 +228,7 @@ class Resource_Search(APIView):
             sort=<local_field>                  (default global Name)
             page=<number>
             results_per_page=<number>           (default=25)
+            subtotals={only,include}            (default no totals)
         ```
         <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
             target="_blank">More API documentation</a>
@@ -257,6 +273,11 @@ class Resource_Search(APIView):
         sort = request.GET.get('sort', 'resource_name')
         page = request.GET.get('page', None)
         page_size = request.GET.get('results_per_page', 25)
+
+        arg_subtotals = request.GET.get('subtotals', None)
+        if arg_subtotals:
+            arg_subtotals = arg_subtotals.lower()
+
         response_obj = {}
         try:
             # These filters are handled by the database; they are first
@@ -283,6 +304,11 @@ class Resource_Search(APIView):
             objects = resource_oldevents_filter(objects)
 
             response_obj['total_results'] = len(objects)
+            if arg_subtotals in ('only', 'include'):
+                response_obj['subtotals'] = resource_subtotals(objects)
+                if arg_subtotals == 'only':
+                    return MyAPIResponse(response_obj, template_name='resource_cat/resource_list.html')
+
             if page:
                 paginator = Paginator(objects, page_size)
                 final_objects = paginator.page(page)
