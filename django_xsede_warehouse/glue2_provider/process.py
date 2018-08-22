@@ -785,6 +785,8 @@ class Glue2NewDocument():
         return(json.dumps(hash_list))
     
     def tag_from_application(self, obj):
+        # Tag which application this entry came from so that we can insulate those that came
+        #   from IPF publishing and from the XCSR so that they do not overwrite each other
         if not isinstance(obj, dict) or not self.application:
             return
         if 'Extension' not in obj:

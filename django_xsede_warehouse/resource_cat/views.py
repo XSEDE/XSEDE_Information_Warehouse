@@ -45,6 +45,7 @@ def resource_oldevents_filter(input_objects):
 def resource_subtotals(input_objects):
     category_totals = {}
     provider_totals = {}
+    provider_alt_id = {}
     for obj in input_objects:
         this_category = obj.EntityJSON.get('category', None)
         if this_category:
@@ -53,8 +54,9 @@ def resource_subtotals(input_objects):
         this_provider = obj.ProviderID
         if this_provider:
             provider_totals[this_provider] = provider_totals.get(this_provider, 0) + 1
-    category_return = [ {"id": key, "subtotal": value} for key, value in category_totals.items() ]
-    provider_return = [ {"ProviderID": key, "subtotal": value} for key, value in provider_totals.items() ]
+            provider_alt_id[this_provider] = obj.EntityJSON.get('provider', None)
+    category_return = [ {'id': key, 'subtotal': value} for key, value in category_totals.items() ]
+    provider_return = [ {'ProviderID': key, 'id': provider_alt_id[key], 'subtotal': value} for key, value in provider_totals.items() ]
     return({'categories': category_return, 'providers': provider_return})
 
 def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'):
