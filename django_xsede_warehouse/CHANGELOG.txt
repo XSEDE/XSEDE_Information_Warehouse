@@ -1,3 +1,7 @@
+# 2018-09-05 Small change rdr_db/migrations/0001_squashed_0003_auto_20160524_0115.py
+#                  removing b' ' prefix in literals to resolve Python 3.6 issue
+#                  described here https://code.djangoproject.com/ticket/29290
+
 # 2018-05-24 v1.9: Fully implement AdminDomain, UserDomain, AccessPolicy, Contact and Accelerator models, views, urls
 
 # 2018-03-15 Merged XSEDE-UIUC Warehouse API

@@ -8,7 +8,7 @@ from django.contrib.postgres.fields import JSONField
 
 class Migration(migrations.Migration):
 
-    replaces = [(b'rdr_db', '0001_initial'), (b'rdr_db', '0002_auto_20160524_0104'), (b'rdr_db', '0003_auto_20160524_0115')]
+    replaces = [('rdr_db', '0001_initial'), ('rdr_db', '0002_auto_20160524_0104'), ('rdr_db', '0003_auto_20160524_0115')]
 
     dependencies = [
     ]
