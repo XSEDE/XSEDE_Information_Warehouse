@@ -319,7 +319,10 @@ class Resource_Search(APIView):
             else:
                 final_objects = objects
         except Exception as exc:
-            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc.message))
+            if hasattr(exc, 'message'):
+                raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc.message))
+            else:
+                raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
         context = {'fields': want_fields}
         serializer = Resource_Search_Serializer(final_objects, context=context, many=True)
