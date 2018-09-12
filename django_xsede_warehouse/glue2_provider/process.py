@@ -269,7 +269,7 @@ class Glue2NewDocument():
         
         # 2017-06-02 by JP: Track the source to only update/delete entries from that source
         if len(self.new[me]) >= 1:
-            ID = self.new[me].keys()[0]
+            ID = list(self.new[me].keys())[0]
             if self.newAbsServType[ID] == 'ComputingService' and self.new[me][ID]['Type'].startswith('ipf.'):
                 self.ServiceSource = 'compute'      # From the GLUE2 compute workflow; Type contains 'ipf.{PBS,SLURM,...}'
             else:
