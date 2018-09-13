@@ -201,8 +201,11 @@ class xdinfo_Cmd(APIView):
             for line in serialized_data:
                 #print line
                 for key, value in line.items():
-                    keylen = len(key.decode("utf-8"))
-                    vallen = len(unicodedata.normalize('NFC', safe_unicode(value)))
+                    # Replace during Python 3 upgrade
+#                    keylen = len(key.decode("utf-8"))
+#                    vallen = len(unicodedata.normalize('NFC', safe_unicode(value)))
+                    keylen = len(key)
+                    vallen = len(unicodedata.normalize('NFC', value))
                     #This was working except for non-mappable unicode chars
                     #vallen = len(value.decode("utf-8"))
                         
@@ -217,7 +220,9 @@ class xdinfo_Cmd(APIView):
                 #print line
                 headerstring = ''
                 for key, value in line.items():
-                    fmtstring = '{:'+unicode(width[key]+1)+'}'
+                    # Replace during Python 3 upgrade
+#                    fmtstring = '{:'+unicode(width[key]+1)+'}'
+                    fmtstring = '{:'+str(width[key]+1)+'}'
                     returnstring += fmtstring.format(value)
                     headerstring += fmtstring.format(key)
                 returnstring += "\n"
