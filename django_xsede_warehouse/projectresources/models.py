@@ -8,5 +8,5 @@ class ProjectResource(models.Model):
     ResourceID = models.CharField(db_index=True, max_length=40)
     class Meta:
         db_name = 'xcsr'
-    def __unicode__(self):
+    def __str__(self):
        return str(self.ResourceID)

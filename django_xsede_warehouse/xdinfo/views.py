@@ -285,11 +285,12 @@ Additional documentation available at https://software.xsede.org/production/xdin
 
         return helpstring
 
-def safe_unicode(obj, *args):
-    """ return the unicode representation of obj """
-    try:
-        return unicode(obj, *args)
-    except UnicodeDecodeError:
-        # obj is byte string
-        ascii_text = str(obj).encode('string_escape')
-        return unicode(ascii_text)
+# Deprecated during Python 3 upgrade
+#def safe_unicode(obj, *args):
+#    """ return the unicode representation of obj """
+#    try:
+#        return unicode(obj, *args)
+#    except UnicodeDecodeError:
+#        # obj is byte string
+#        ascii_text = str(obj).encode('string_escape')
+#        return unicode(ascii_text)

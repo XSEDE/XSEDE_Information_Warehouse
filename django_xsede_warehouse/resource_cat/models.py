@@ -26,8 +26,8 @@ class Resource(models.Model):
     Associations = models.CharField(max_length=1000, null=True)
     class Meta:
         db_name = 'glue2'
-    def __unicode__(self):
-        return self.ID
+    def __str__(self):
+        return str(self.ID)
 
 class ResourceProvider(models.Model):
     # AbstraceGlue2Entity attributes
@@ -41,5 +41,5 @@ class ResourceProvider(models.Model):
     LocalID = models.CharField(db_index=True, max_length=32, null=True)
     class Meta:
         db_name = 'glue2'
-    def __unicode__(self):
-        return self.ID
+    def __str__(self):
+        return str(self.ID)

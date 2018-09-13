@@ -18,7 +18,7 @@ class StatsTracker():
             self.stats['%s.Updates' % t] = 0
             self.stats['%s.Deletes' % t] = 0
             self.stats['%s.ToCache' % t] = 0
-    def __unicode__(self):
+    def __str__(self):
         return(self.summary())
     def set(self, key, value):
         self.stats[key] = value

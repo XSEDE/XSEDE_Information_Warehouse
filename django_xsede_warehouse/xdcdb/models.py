@@ -18,5 +18,5 @@ class TGResource(models.Model):
     class Meta:
         #app_label = 'RDRResource'
         db_name = 'xcsr'
-    def __unicode__(self):
+    def __str__(self):
        return str(self.ResourceID)

@@ -16,8 +16,8 @@ class ComponentSPRequirement(models.Model):
     UpdateTime = models.DateTimeField(auto_now=True)
     UpdateUser = models.CharField(max_length=16)
     
-    def __unicode__(self):
-        return '%s.%s' % (self.ComponentName, self.SPClass)
+    def __str__(self):
+        return '{}.{}'.format(self.ComponentName, self.SPClass)
 
     class Meta:
         db_name = 'xcsr'

@@ -36,7 +36,7 @@ class StatsTracker():
             self.stats['%s.Updates' % model] = 0
             self.stats['%s.Deletes' % model] = 0
             self.stats['%s.ToCache' % model] = 0
-    def __unicode__(self):
+    def __str__(self):
         out = 'Processed %s in %s/sec:' % (self.Label, str(self.ProcessingSeconds))
         for i in Handled_Models:
             if '%s.New' % i in self.stats and self.stats['%s.New' % i] > 0:

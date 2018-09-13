@@ -24,8 +24,8 @@ class ProcessingRecord(models.Model):
     ProcessingMessage = models.CharField(max_length=4096, null=True)
     class Meta:
         db_name = 'xcsr'
-    def __unicode__(self):
-        return self.ID
+    def __str__(self):
+        return str(self.ID)
 
 #
 # A record of processing errors
@@ -43,7 +43,7 @@ class ProcessingError(models.Model):
     Reference1 = models.CharField(max_length=255, null=True)
     class Meta:
         db_name = 'xcsr'
-    def __unicode__(self):
+    def __str__(self):
         return str(self.ID)
 
 

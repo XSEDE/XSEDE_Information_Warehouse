@@ -14,8 +14,8 @@ class AbstractGlue2EntityModel(models.Model):
     class Meta:
         abstract = True
         db_name = 'glue2'
-    def __unicode__(self):
-        return self.ID
+    def __str__(self):
+        return str(self.ID)
 
 ################################################################################
 # GLUE2 models NOT about specific resources

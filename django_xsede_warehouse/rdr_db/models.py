@@ -23,7 +23,7 @@ class RDRResource(models.Model):
     updated_at = models.DateTimeField(null=True)
     class Meta:
         db_name = 'xcsr'
-    def __unicode__(self):
-       return unicode(self.rdr_resource_id)
+    def __str__(self):
+       return str(self.rdr_resource_id)
 # Under consideration
 #    parent_resource = models.ForeignKey("self", db_constraint=False, null=True)
