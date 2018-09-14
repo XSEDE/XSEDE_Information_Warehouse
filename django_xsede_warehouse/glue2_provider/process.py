@@ -457,34 +457,38 @@ class Glue2NewDocument():
                                           status=status.HTTP_400_BAD_REQUEST)
 
         ########################################################################
-#        me = 'Location'
-#        # Load current database entries
+        # Each Location is identified by Name (which IPF derives ID from)
+        me = 'Location'
+        # Can't load current database entries because
+        #   there's nothing to associate  them with the last time we published
 #        for item in Location.objects.filter(ResourceID=self.resourceid):
 #            self.cur[me][item.ID] = item
 #        self.stats['%s.Current' % me] = len(self.cur[me])
-#
-#        # Add/update entries
-#        for ID in self.new[me]:
-#            if ID in self.cur[me] and parse_datetime(self.new[me][ID]['CreationTime']) <= self.cur[me][ID].CreationTime:
-#                self.new[me][ID]['model'] = self.cur[me][ID]    # Save the latest object reference
-#                continue                                        # Don't update database since is has the latest
-#            try:
-#                other_json = self.new[me][ID].copy()
-#                self.tag_from_application(other_json)
-#                model = Location(ID=self.new[me][ID]['ID'],
-#                                          ResourceID=self.resourceid,
-#                                          Name=self.new[me][ID]['Name'],
-#                                          CreationTime=self.new[me][ID]['CreationTime'],
-#                                          Validity=get_Validity(self.new[me][ID]),
-#                                          EntityJSON=other_json)
-#                model.save()
-#                self.new[me][ID]['model'] = model
-#                self.stats['%s.Updates' % me] += 1
-#            except (DataError, IntegrityError) as e:
-#                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
-#                                          status=status.HTTP_400_BAD_REQUEST)
-#
-#        # Delete old entries
+        self.stats['%s.Current' % me] = 0
+
+        # Add/update entries
+        for ID in self.new[me]:
+            if ID == 'urn:glue2:Location:NameofCenter':         # Ignore default value
+                continue
+            if ID in self.cur[me] and parse_datetime(self.new[me][ID]['CreationTime']) <= self.cur[me][ID].CreationTime:
+                self.new[me][ID]['model'] = self.cur[me][ID]    # Save the latest object reference
+                continue                                        # Don't update database since is has the latest
+            try:
+                other_json = self.new[me][ID].copy()
+                self.tag_from_application(other_json)
+                model = Location(ID=self.new[me][ID]['ID'],
+                                          Name=self.new[me][ID]['Name'],
+                                          CreationTime=self.new[me][ID]['CreationTime'],
+                                          Validity=get_Validity(self.new[me][ID]),
+                                          EntityJSON=other_json)
+                model.save()
+                self.new[me][ID]['model'] = model
+                self.stats['%s.Updates' % me] += 1
+            except (DataError, IntegrityError) as e:
+                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
+                                          status=status.HTTP_400_BAD_REQUEST)
+
+        # Can't delete old entries
 #        for ID in self.cur[me]:
 #            if ID in self.new[me]:
 #                continue
@@ -812,10 +816,7 @@ class Glue2NewDocument():
                 'ComputingManagerAcceleratorInfo': LoadNewEntityInstance,
                 'ComputingShareAcceleratorInfo': LoadNewEntityInstance,
                 'AcceleratorEnvironment': LoadNewEntityInstance,
-# Temporarily disabled by JP on 2017-10-25
-# This entity will be disassociating from a Resource and implemented with other new entities:
-#   AdminDomain, UserDomain, AccessPolicy, Contact, and Location
-#                'Location': LoadNewEntityInstance,
+                'Location': LoadNewEntityInstance,
     }
 
     def process(self, data):
