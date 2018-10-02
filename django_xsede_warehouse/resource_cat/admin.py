@@ -3,11 +3,11 @@ from resource_cat.models import *
 
 # Register your models here.
 class ResourceAdmin(admin.ModelAdmin):
-    list_display = ('Affiliation', 'LocalID', 'Name', 'Type', 'ID', 'CreationTime')
+    list_display = ('Affiliation', 'Name', 'Type', 'ID', 'CreationTime', 'LocalID')
     list_display_links = ['ID']
 
 class ResourceProviderAdmin(admin.ModelAdmin):
-    list_display = ('Affiliation', 'ID', 'LocalID', 'Name', 'CreationTime')
+    list_display = ('Affiliation', 'Name', 'ID', 'CreationTime', 'LocalID')
     list_display_links = ['ID']
 
 # Register your models here.

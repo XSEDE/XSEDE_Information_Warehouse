@@ -21,7 +21,7 @@ class Resource(models.Model):
     Type = models.CharField(max_length=32)
     Description = models.CharField(max_length=24000, null=True)
     QualityLevel = models.CharField(max_length=16, null=True)
-    LocalID = models.CharField(db_index=True, max_length=32, null=True)
+    LocalID = models.CharField(db_index=True, max_length=200, null=True)
     Keywords = models.CharField(max_length=1000, null=True)
     Associations = models.CharField(max_length=1000, null=True)
     class Meta:
