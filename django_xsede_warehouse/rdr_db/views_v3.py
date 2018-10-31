@@ -10,6 +10,7 @@ from xsede_warehouse.responses import MyAPIResponse
 class RDRResource_XUP_v3_List(APIView):
     '''
         Selected RDR resources: affiliated with XSEDE, active, and allocated
+        See https://software.xsede.org/svn/xci/source/info.warehouse/trunk/django_xsede_warehouse/rdr_db/filters.py
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,XMLRenderer,)
