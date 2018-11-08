@@ -123,7 +123,9 @@ class Glue2NewDocument():
 
     def LoadNewEntityInstance(self, model, obj):
         if type(obj) is not list:
-            raise ValidationError('New entity %s doesn\'t contain a list' % model)
+            logg2.error('New entity %s doesn\'t contain a list' % model)
+#            raise ValidationError('New entity %s doesn\'t contain a list' % model)
+            return
         for item in obj:
             self.new[model][item['ID']] = item
         self.stats['{}.New'.format(model)] = len(self.new[model])
@@ -252,7 +254,9 @@ class Glue2NewDocument():
 ###############################################################################################
     def LoadNewAbstractService(self, model, obj):
         if type(obj) is not list:
-            raise ValidationError('New AbstractService(%s) doesn\'t contain a list' % model)
+            logg2.error('New AbstractService(%s) doesn\'t contain a list' % model)
+#            raise ValidationError('New AbstractService(%s) doesn\'t contain a list' % model)
+            return
         for item in obj:
             self.new['AbstractService'][item['ID']] = item
             self.newAbsServType[item['ID']] = model

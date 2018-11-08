@@ -53,7 +53,13 @@ class Glue2NewMonitoring():
 
     def LoadNewMonitoringService(self, model, obj):
         if type(obj) is not dict:
-            raise ValidationError('New entity %s doesn\'t contain a dictionary' % model)
+            logg2.error('New entity %s doesn\'t contain a dictionary' % model)
+#            raise ValidationError('New entity %s doesn\'t contain a dictionary' % model)
+            return
+        if 'ID' not in obj:
+            logg2.error('New entity %s is missing the ID attribute' % model)
+#            raise ValidationError('New entity %s is missing the ID attribute' % model)
+            return
 
         self.new[model][obj['ID']] = obj
         self.stats['%s.New' % model] = len(self.new[model])
