@@ -10,8 +10,8 @@ class Outages_Serializer(serializers.ModelSerializer):
         fields = ('__all__')
 
 class Outages_DetailURL_Serializer(serializers.ModelSerializer):
-    OutageStart = serializers.DateTimeField(format='%Y/%m/%d %H:%M:%S %Z')
-    OutageEnd = serializers.DateTimeField(format='%Y/%m/%d %H:%M:%S %Z')
+    OutageStart = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S %Z')
+    OutageEnd = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S %Z')
     DetailURL = serializers.SerializerMethodField()
     
     def get_DetailURL(self, Outages):

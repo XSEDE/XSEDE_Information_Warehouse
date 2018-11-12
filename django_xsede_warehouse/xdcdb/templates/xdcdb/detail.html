@@ -29,7 +29,7 @@ table#data
 </style>
 
 <h1 align="center">XCDB Detail</h1>
-<p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+<p><h3>As of: {% now 'Y-m-d H:i e' %}</h3></p>
 
 <table id ="data" width="98%" style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
     
@@ -71,7 +71,7 @@ table#data
     
     <tr>
         <th> Timestamp </th>
-        <td> {{ resource.Timestamp|date:'Y/m/d H:i e' }} </th>
+        <td> {{ resource.Timestamp|date:'Y-m-d H:i e' }} </th>
     </tr>
     
     {% endfor %}

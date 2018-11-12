@@ -3,7 +3,7 @@
 {% block content %}
 
 <h1 align="center">XSEDE RDR Detail</h1>
-<p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+<p><h3>As of: {% now 'Y-m-d H:i e' %}</h3></p>
 
   {% for resource in resource_list %}
     <ul style="list-style-type:none">Info Resource ID: {{ resource.info_resourceid }}

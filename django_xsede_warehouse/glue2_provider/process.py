@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 from glue2_db.models import *
+from processing_status.models import PublisherInfo
 
 from rest_framework import status
 from processing_status.process import ProcessingActivity
@@ -18,7 +19,7 @@ Handled_Models = ('ApplicationEnvironment', 'ApplicationHandle', \
                   'ComputingManager', 'ComputingShare', 'ComputingActivity', \
                   'ComputingManagerAcceleratorInfo', 'ComputingShareAcceleratorInfo', \
                   'AcceleratorEnvironment', \
-                  'ExecutionEnvironment', 'Location', )
+                  'ExecutionEnvironment', 'Location', 'PublisherInfo' )
 
 # Select Activity field cache
 # New activities that match the cache aren't updated in the db to optimize performance
@@ -95,6 +96,9 @@ def StatsHadServicesOnly(stats):
 def StatsHadComputeActivity(stats):
     return('ComputingActivity.New' in stats)
 
+def StatsHadPublisherInfo(stats):
+    return('PublisherInfo.New' in stats)
+
 def get_Validity(obj):
     try:
         val = timedelta(seconds=obj['Validity'])
@@ -104,11 +108,12 @@ def get_Validity(obj):
 
 # Create your models here.
 class Glue2NewDocument():
-    def __init__(self, DocType, ResourceID, ReceivedTime, Label, Application):
+    def __init__(self, DocType, ResourceID, ReceivedTime, Label, Application, HistoryID=None):
         self.doctype = DocType
         self.resourceid = ResourceID
         self.receivedtime = ReceivedTime
         self.application = Application
+        self.EntityHistory_ID = HistoryID
         self.new = {}   # Contains new object json
         self.cur = {}   # Contains existing object references
         self.stats = { 'Label': Label, }
@@ -770,6 +775,70 @@ class Glue2NewDocument():
                 raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
+###############################################################################################
+# PublisherInfo handling
+###############################################################################################
+    def ProcessPublisherInfo(self):
+        ########################################################################
+        me = 'PublisherInfo'
+        # Load current database entries
+### We are overwriting everything and should now have older items
+        for item in PublisherInfo.objects.filter(ResourceID=self.resourceid):
+            self.cur[me][item.ID] = item
+        self.stats['%s.Current' % me] = len(self.cur[me])
+
+        # Add/update entries
+        for ID in self.new[me]:
+#            if ID in self.cur[me] and parse_datetime(self.new[me][ID]['CreationTime']) <= self.cur[me][ID].CreationTime:
+#                self.new[me][ID]['model'] = self.cur[me][ID]    # Save the latest object reference
+#                continue                                        # Don't update database since is has the latest
+            # Work around a bug where IDs aren't globally unique (XCI-507)
+            if self.new[me][ID]['ID'].find(self.resourceid) == -1:
+                new_id = self.new[me][ID]['ID'] + ':' + self.resourceid
+            else:
+                new_id = self.new[me][ID]['ID']
+            
+            # Prepent new EntityHistory.ID into EntityHistory_ID
+            if len(self.cur[me][ID].RecentHistory) > 0:
+                new_history = str(self.EntityHistory_ID) + ',' + self.cur[me][ID].RecentHistory
+            else:
+                new_history = str(self.EntityHistory_ID)
+            # Remove IDs to fit in field
+            max_history = PublisherInfo._meta.get_field('RecentHistory').max_length
+            while len(new_history) > max_history:
+                tmp = new_history.split(',')
+                del tmp[-1]
+                new_history = ','.join(tmp)
+            try:
+                other_json = self.new[me][ID].copy()
+                model = PublisherInfo(ID=new_id,
+                                        ResourceID=self.resourceid,
+                                        Type=self.new[me][ID].get('Type', 'none'),
+                                        Version=self.new[me][ID].get('Version', 'none'),
+                                        Hostname=self.new[me][ID].get('Hostname', 'none'),
+                                        Location=self.new[me][ID].get('Location', 'none'),
+                                        CreationTime=self.new[me][ID]['CreationTime'],
+                                        RecentHistory=new_history,
+                                        EntityJSON=other_json)
+                model.save()
+                self.new[me][ID]['model'] = model
+                self.stats['%s.Updates' % me] += 1
+            except (DataError, IntegrityError) as e:
+                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], \
+                                        e.message), status=status.HTTP_400_BAD_REQUEST)
+
+        # Delete old entries
+#        for ID in self.cur[me]:
+#            if ID in self.new[me]:
+#                continue
+#            try:
+#                PublisherInfo.objects.filter(ID=ID).delete()
+#                self.stats['%s.Deletes' % me] += 1
+#            except (DataError, IntegrityError) as e:
+#                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+#                                          status=status.HTTP_400_BAD_REQUEST)
+
+###############################################################################################
     def activity_is_cached(self, id, obj): # id=object unique id
         global a_cache
         global a_cache_ts
@@ -821,6 +890,7 @@ class Glue2NewDocument():
                 'ComputingShareAcceleratorInfo': LoadNewEntityInstance,
                 'AcceleratorEnvironment': LoadNewEntityInstance,
                 'Location': LoadNewEntityInstance,
+                'PublisherInfo': LoadNewEntityInstance,
     }
 
     def process(self, data):
@@ -840,6 +910,9 @@ class Glue2NewDocument():
             self.ProcessCompute()
         elif StatsHadComputeActivity(self.stats):
             self.ProcessComputingQueue()
+        # PublisherInfo can be included with all Glue2 documents
+        if StatsHadPublisherInfo(self.stats):
+            self.ProcessPublisherInfo()
 
         end = datetime.utcnow()
         self.stats['ProcessingSeconds'] = (end - start).total_seconds()
@@ -883,6 +956,7 @@ class Glue2ProcessRawIPF():
             model = EntityHistory(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=ts, EntityJSON=jsondata)
             model.save()
             logg2.info('New GLUE2 EntityHistory.ID={} (DocType={}, ResourceID={})'.format(model.ID, model.DocumentType, model.ResourceID))
+            self.EntityHistory_ID = model.ID
         except (ValidationError) as e:
             msg = 'Exception on GLUE2 EntityHistory (DocType={}, ResourceID={}): {}'.format(model.DocumentType, model.ResourceID, e.error_list)
             pa.FinishActivity(False, msg)
@@ -892,7 +966,7 @@ class Glue2ProcessRawIPF():
             pa.FinishActivity(False, msg)
             return (False, msg)
 
-        g2doc = Glue2NewDocument(doctype, resourceid, ts, 'EntityHistory.ID=%s' % model.ID, self.application)
+        g2doc = Glue2NewDocument(doctype, resourceid, ts, 'EntityHistory.ID=%s' % model.ID, self.application, HistoryID=self.EntityHistory_ID)
         try:
             response = g2doc.process(jsondata)
         except (ValidationError, ProcessingException) as e:

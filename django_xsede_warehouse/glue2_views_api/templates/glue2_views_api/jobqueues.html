@@ -3,7 +3,7 @@
 {% block content %}
 
 <h1 align="center">XSEDE Resource Job Queue</h1>
-<p><h3>As of: {% now 'Y/m/d H:i e' %}</h3></p>
+<p><h3>As of: {% now 'Y-m-d H:i e' %}</h3></p>
 
   {% for resource in result_set %}
   <h2>ResourceID {{ resource.ResourceID }}</h2>

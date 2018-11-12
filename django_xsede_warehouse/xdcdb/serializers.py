@@ -12,7 +12,7 @@ class XcdbResource_Serializer(serializers.ModelSerializer):
         fields = ('__all__')
 
 class XcdbResource_DetailURL_Serializer(serializers.ModelSerializer):
-    Timestamp = serializers.DateTimeField(format='%Y/%m/%d %H:%M:%S %Z')
+    Timestamp = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S %Z')
     DetailURL = serializers.SerializerMethodField()
     
     def get_DetailURL(self, TGResource):

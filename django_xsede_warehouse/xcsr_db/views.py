@@ -9,7 +9,6 @@ from glue2_db.models import AdminDomain
 from xcsr_db.serializers import *
 from xsede_warehouse.exceptions import MyAPIException
 from xsede_warehouse.responses import MyAPIResponse
-import pdb
 
 # Create your views here.
 class ComponentSPRequirement_List(APIView):

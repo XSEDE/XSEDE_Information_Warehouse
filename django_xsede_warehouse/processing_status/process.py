@@ -3,6 +3,7 @@ from django.utils import timezone
 
 from processing_status.models import *
 
+import json
 import logging
 import hashlib
 import socket
@@ -48,7 +49,10 @@ class ProcessingActivity():
             self.model.ProcessingCode='0'
         else:
             self.model.ProcessingCode=str(Code)
-        self.model.ProcessingMessage=Message
+        if isinstance(Message, dict):
+            self.model.ProcessingMessage=json.dumps(Message)
+        else:
+            self.model.ProcessingMessage=Message
         self.model.save()
 
         if self.model.ProcessingCode != '0':

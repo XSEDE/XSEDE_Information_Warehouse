@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 #
 # Track processing. Applications should choose an appropriate unique ID
@@ -46,7 +47,22 @@ class ProcessingError(models.Model):
     def __str__(self):
         return str(self.ID)
 
-
-
-
-
+#
+# A record of publishers
+#   RecentHistory contains most recently processed EntityHistory.ID values
+#      with the most recent first and oldest last
+#
+class PublisherInfo(models.Model):
+    ID = models.CharField(primary_key=True, max_length=200)
+    ResourceID = models.CharField(db_index=True, max_length=40)
+    Type = models.CharField(max_length=32)
+    Version = models.CharField(max_length=32)
+    Hostname = models.CharField(max_length=64)
+    Location = models.CharField(max_length=64, null=True)
+    EntityJSON = JSONField()
+    CreationTime = models.DateTimeField()
+    RecentHistory = models.CharField(max_length=1024)
+    class Meta:
+        db_name = 'xcsr'
+    def __str__(self):
+        return str(self.ID)

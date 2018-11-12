@@ -11,4 +11,7 @@ urlpatterns = [
     url(r'^record/id/(?P<id>[^/]+)/$', ProcessingRecord_Detail.as_view(), name='processingrecord-detail'),
     url(r'^record/latest/(about|resourceid)/(?P<about>[^/]+)/$', ProcessingRecord_LatestList.as_view(), name='processingrecord-latestlist-byabout'),
     url(r'^record/latest/topic/(?P<topic>[^/]+)/$', ProcessingRecord_LatestList.as_view(), name='processingrecord-latestlist-bytopic'),
+    url(r'^publisherinfo/$', PublisherInfo_DbList.as_view(), name='publisherinfo-dblist'),
+    url(r'^publisherinfo/id/(?P<id>[^/]+)/$', PublisherInfo_Detail.as_view(), name='publisherinfo-detail'),
+    url(r'^publisherinfo/resourceid/(?P<resourceid>[^/]+)/$', PublisherInfo_DbList.as_view(), name='publisherinfo-dblist-byresourceid'),
 ]

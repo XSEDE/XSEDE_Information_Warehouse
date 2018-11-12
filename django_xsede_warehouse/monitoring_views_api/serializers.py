@@ -11,7 +11,7 @@ class TestResult_Serializer(serializers.ModelSerializer):
                   'IsSoftware', 'IsService', 'EntityJSON')
 
 class TestResult_DetailURL_Serializer(serializers.ModelSerializer):
-    CreationTime = serializers.DateTimeField(format='%Y/%m/%d %H:%M:%S %Z')
+    CreationTime = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S %Z')
     DetailURL = serializers.SerializerMethodField()
     
     def get_DetailURL(self, TestResult):

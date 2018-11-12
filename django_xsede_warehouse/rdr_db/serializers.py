@@ -11,7 +11,7 @@ class RDRResource_Serializer(serializers.ModelSerializer):
 
 class RDRResource_Serializer_Plus(serializers.ModelSerializer):
     DetailURL = serializers.SerializerMethodField()
-    updated_at = serializers.DateTimeField(format='%Y/%m/%d %H:%M:%S %Z')
+    updated_at = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S %Z')
     
     def get_DetailURL(self, RDRResource):
         http_request = self.context.get('request')

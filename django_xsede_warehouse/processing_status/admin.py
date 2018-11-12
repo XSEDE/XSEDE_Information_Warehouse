@@ -11,6 +11,11 @@ class ProcessingErrorAdmin(admin.ModelAdmin):
     list_display = ('Topic', 'About', 'ErrorTime', 'ID')
     list_display_links = ['ID']
 
+class PublisherInfoAdmin(admin.ModelAdmin):
+    list_display = ('ResourceID', 'Type', 'Hostname', 'ID')
+    list_display_links = ['ID']
+
 # Register your models here.
 admin.site.register(ProcessingRecord, ProcessingRecordAdmin)
 admin.site.register(ProcessingError, ProcessingErrorAdmin)
+admin.site.register(PublisherInfo, PublisherInfoAdmin)
