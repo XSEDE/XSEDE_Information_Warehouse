@@ -799,10 +799,14 @@ class Glue2NewDocument():
                 new_id = self.new[me][ID]['ID']
             
             # Prepent new EntityHistory.ID into EntityHistory_ID
-            if len(self.cur[me][ID].RecentHistory) > 0:
-                new_history = str(self.EntityHistory_ID) + ',' + self.cur[me][ID].RecentHistory
-            else:
+            try:
+                if len(self.cur[me][ID].RecentHistory) > 0:
+                    new_history = str(self.EntityHistory_ID) + ',' + self.cur[me][ID].RecentHistory
+                else:
+                    new_history = str(self.EntityHistory_ID)
+            except:
                 new_history = str(self.EntityHistory_ID)
+
             # Remove IDs to fit in field
             max_history = PublisherInfo._meta.get_field('RecentHistory').max_length
             while len(new_history) > max_history:
