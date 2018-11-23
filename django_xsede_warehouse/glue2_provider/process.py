@@ -175,8 +175,8 @@ class Glue2NewDocument():
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
 #       Temporary, perhaps permanent, warn of these types of errors but continue, 2016-10-20 JP
-                logg2.warning('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message))
-#                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
+                logg2.warning('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], str(e))
+#                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], str(e)), \
 #                                          status=status.HTTP_400_BAD_REQUEST)
 
         ########################################################################
@@ -223,8 +223,8 @@ class Glue2NewDocument():
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
 #       Temporary, perhaps permanent, warn of these types of errors but continue, 2016-10-20 JP
-                logg2.warning('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message))
-#                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
+                logg2.warning('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], str(e))
+#                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], str(e)), \
 #                                          status=status.HTTP_400_BAD_REQUEST)
 
         # Delete old entries
@@ -236,8 +236,8 @@ class Glue2NewDocument():
                 self.stats['%s.Deletes' % me] += 1
             except (DataError, IntegrityError) as e:
 #       Temporary, perhaps permanent, warn of these types of errors but continue, 2016-10-20 JP
-                logg2.warning('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message))
-#                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                logg2.warning('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], str(e)))
+#                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
 #                                          status=status.HTTP_400_BAD_REQUEST)
 
         # Delete old entries
@@ -250,8 +250,8 @@ class Glue2NewDocument():
                 self.stats['%s.Deletes' % me] += 1
             except (DataError, IntegrityError) as e:
 #       Temporary, perhaps permanent, warn of these types of errors but continue, 2016-10-20 JP
-                logg2.warning('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message))
-#               raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                logg2.warning('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], str(e)))
+#               raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
 #                                          status=status.HTTP_400_BAD_REQUEST)
 
 ###############################################################################################
@@ -306,8 +306,7 @@ class Glue2NewDocument():
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
-                                          status=status.HTTP_400_BAD_REQUEST)
+                raise ProcessingException('{} updating {} (ID={}): {}'.format(type(e).__name__, me, self.new[me][ID]['ID'], str(e)), status=status.HTTP_400_BAD_REQUEST))
 
         ########################################################################
         me = 'Endpoint'
@@ -351,7 +350,7 @@ class Glue2NewDocument():
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
+                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
         # 2017-06-02 by JP: For now have a Source not affect records from the other Source
@@ -365,7 +364,7 @@ class Glue2NewDocument():
                 Endpoint.objects.filter(ID=ID).delete()
                 self.stats['%s.Deletes' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
         # 2017-06-02 by JP: For now have a Source not affect records from the other Source
@@ -384,7 +383,7 @@ class Glue2NewDocument():
                 AbstractService.objects.filter(ID=ID).delete()
                 self.stats['%s.Deletes' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
         ########################################################################
@@ -412,7 +411,7 @@ class Glue2NewDocument():
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
+                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
         # Delete old entries
@@ -423,7 +422,7 @@ class Glue2NewDocument():
                 ComputingManager.objects.filter(ID=ID).delete()
                 self.stats['%s.Deletes' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
         ########################################################################
@@ -451,7 +450,7 @@ class Glue2NewDocument():
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
+                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
         # Delete old entries
@@ -462,7 +461,7 @@ class Glue2NewDocument():
                 ExecutionEnvironment.objects.filter(ID=ID).delete()
                 self.stats['%s.Deletes' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
         ########################################################################
@@ -494,7 +493,7 @@ class Glue2NewDocument():
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
+                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
         # Can't delete old entries
@@ -505,7 +504,7 @@ class Glue2NewDocument():
 #                Location.objects.filter(ID=ID).delete()
 #                self.stats['%s.Deletes' % me] += 1
 #            except (DataError, IntegrityError) as e:
-#                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+#                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
 #                                          status=status.HTTP_400_BAD_REQUEST)
 
         ########################################################################
@@ -533,7 +532,7 @@ class Glue2NewDocument():
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message), \
+                raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
         # Delete old entries
@@ -544,7 +543,7 @@ class Glue2NewDocument():
                 ComputingShare.objects.filter(ID=ID).delete()
                 self.stats['%s.Deletes' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
         ########################################################################
@@ -592,7 +591,7 @@ class Glue2NewDocument():
             
             except (DataError, IntegrityError) as e:
                 raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], \
-                                        e.message), status=status.HTTP_400_BAD_REQUEST)
+                                        str(e)), status=status.HTTP_400_BAD_REQUEST)
 
         # Delete old entries
         for ID in self.cur[me]:
@@ -602,7 +601,7 @@ class Glue2NewDocument():
                 ComputingActivity.objects.filter(ID=ID).delete()
                 self.stats['%s.Deletes' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
     def ProcessComputingQueue(self):
@@ -627,7 +626,7 @@ class Glue2NewDocument():
             model.save()
             self.stats['%s.Updates' % me] += 1
         except (DataError, IntegrityError) as e:
-            raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+            raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
                                       status=status.HTTP_400_BAD_REQUEST)
 
 ###############################################################################################
@@ -665,7 +664,7 @@ class Glue2NewDocument():
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
                 raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], \
-                                        e.message), status=status.HTTP_400_BAD_REQUEST)
+                                        str(e)), status=status.HTTP_400_BAD_REQUEST)
 
         # Delete old entries
         for ID in self.cur[me]:
@@ -675,7 +674,7 @@ class Glue2NewDocument():
                 ComputingManagerAcceleratorInfo.objects.filter(ID=ID).delete()
                 self.stats['%s.Deletes' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
 ###############################################################################################
@@ -713,7 +712,7 @@ class Glue2NewDocument():
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
                 raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], \
-                                        e.message), status=status.HTTP_400_BAD_REQUEST)
+                                        str(e)), status=status.HTTP_400_BAD_REQUEST)
 
         # Delete old entries
         for ID in self.cur[me]:
@@ -723,7 +722,7 @@ class Glue2NewDocument():
                 ComputingShareAcceleratorInfo.objects.filter(ID=ID).delete()
                 self.stats['%s.Deletes' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
 ###############################################################################################
@@ -762,7 +761,7 @@ class Glue2NewDocument():
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
                 raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], \
-                                        e.message), status=status.HTTP_400_BAD_REQUEST)
+                                        str(e)), status=status.HTTP_400_BAD_REQUEST)
 
         # Delete old entries
         for ID in self.cur[me]:
@@ -772,7 +771,7 @@ class Glue2NewDocument():
                 AcceleratorEnvironment.objects.filter(ID=ID).delete()
                 self.stats['%s.Deletes' % me] += 1
             except (DataError, IntegrityError) as e:
-                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
                                           status=status.HTTP_400_BAD_REQUEST)
 
 ###############################################################################################
@@ -829,7 +828,7 @@ class Glue2NewDocument():
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
                 raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], \
-                                        e.message), status=status.HTTP_400_BAD_REQUEST)
+                                        str(e)), status=status.HTTP_400_BAD_REQUEST)
 
         # Delete old entries
 #        for ID in self.cur[me]:
@@ -839,7 +838,7 @@ class Glue2NewDocument():
 #                PublisherInfo.objects.filter(ID=ID).delete()
 #                self.stats['%s.Deletes' % me] += 1
 #            except (DataError, IntegrityError) as e:
-#                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, e.message), \
+#                raise ProcessingException('%s deleting %s (ID=%s): %s' % (type(e).__name__, me, ID, str(e)), \
 #                                          status=status.HTTP_400_BAD_REQUEST)
 
 ###############################################################################################
@@ -899,9 +898,7 @@ class Glue2NewDocument():
 
     def process(self, data):
         if type(data) is not dict:
-            msg = 'Expecting a JSON dictionary (DocType={}, ResourceID={}, ReceivedTime={})'.format(self.doctype, self.resourceid, self.receivedtime)
-            logg2.error(msg)
-            raise ValidationError(msg)
+            raise ProcessingException('Expecting a JSON dictionary (DocType={}, ResourceID={}, ReceivedTime={})'.format(self.doctype, self.resourceid, self.receivedtime))
         start = datetime.utcnow()
         for key in data:
             if key in self.input_handlers:
