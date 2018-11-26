@@ -2,6 +2,7 @@ drop table django_migrations ;
 drop table outages_outages ;
 drop table processing_status_processingerror ;
 drop table processing_status_processingrecord ;
+drop table processing_status_publisherinfo ;
 drop table projectresources_projectresource ;
 drop table rdr_db_rdrresource ;
 drop table speedpage_speedpage ;

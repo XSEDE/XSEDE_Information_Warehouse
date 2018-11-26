@@ -1,5 +1,6 @@
 drop schema django cascade;
 drop schema glue2 cascade;
+drop schema xcsr cascade;
 create schema django;
 alter schema django owner to django_owner;
 create schema glue2;
