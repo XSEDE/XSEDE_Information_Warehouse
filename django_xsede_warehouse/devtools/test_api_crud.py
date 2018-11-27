@@ -76,17 +76,18 @@ class Test():
         print('KEY: ' + KEY)
         URLP = urlparse(URL)
         
+        ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         headers = {'Content-type': 'application/json',
                 'Authorization': 'Basic %s' % base64.standard_b64encode(self.args.auth) }
 
-        conn = httplib.HTTPConnection(URLP.hostname, URLP.port)
+        conn = httplib.HTTPSConnection(URLP.hostname, URLP.port, context=ctx)
         
         GET_URL = '/'.join([URLP.path.rstrip('/'), 'ID', KEY]) + '/'
         print('** GET ' + GET_URL)
         conn.request('GET', GET_URL, None, headers)
         response = conn.getresponse()
         result = response.read()
-        print('   status={} {}; bytes={}'.format(response.status, response.reason, len(result)))
+        print('   STATUS={} {}; bytes={}'.format(response.status, response.reason, len(result)))
         result_hash = json.loads(result)
         ORIG_DATA = copy.copy(result_hash['results'][0])
         ORIG_ID = ORIG_DATA['ID']
@@ -107,7 +108,7 @@ class Test():
         conn.request('POST', POST_URL, NEW_STRING, headers)
         response = conn.getresponse()
         result = response.read()
-        print('   status={} {}; bytes={}'.format(response.status, response.reason, len(result)))
+        print('   STATUS={} {}; bytes={}'.format(response.status, response.reason, len(result)))
         result_hash = json.loads(result)
         if response.status == 201:
             result_data = result_hash['results']
@@ -122,7 +123,7 @@ class Test():
         conn.request('GET', GET_URL, None, headers)
         response = conn.getresponse()
         result = response.read()
-        print('   status={} {}; bytes={}'.format(response.status, response.reason, len(result)))
+        print('   STATUS={} {}; bytes={}'.format(response.status, response.reason, len(result)))
         result_hash = json.loads(result)
         if response.status == 200:
             result_data = result_hash['results'][0]
@@ -139,7 +140,7 @@ class Test():
         conn.request('PUT', PUT_URL, NEW_STRING, headers)
         response = conn.getresponse()
         result = response.read()
-        print('   status={} {}; bytes={}'.format(response.status, response.reason, len(result)))
+        print('   STATUS={} {}; bytes={}'.format(response.status, response.reason, len(result)))
         result_hash = json.loads(result)
         if response.status == 201:
             result_data = result_hash['results']
@@ -154,7 +155,7 @@ class Test():
         conn.request('GET', GET_URL, None, headers)
         response = conn.getresponse()
         result = response.read()
-        print('   status={} {}; bytes={}'.format(response.status, response.reason, len(result)))
+        print('   STATUS={} {}; bytes={}'.format(response.status, response.reason, len(result)))
         result_hash = json.loads(result)
         if response.status == 200:
             result_data = result_hash['results'][0]
@@ -169,7 +170,7 @@ class Test():
         conn.request('DELETE', DELETE_URL, None, headers)
         response = conn.getresponse()
         result = response.read()
-        print('   status={} {}; bytes={}'.format(response.status, response.reason, len(result)))
+        print('   STATUS={} {}; bytes={}'.format(response.status, response.reason, len(result)))
         if self.args.verbose:
             print(result)
 
@@ -177,7 +178,7 @@ class Test():
         conn.request('GET', GET_URL, None, headers)
         response = conn.getresponse()
         result = response.read()
-        print('   status={} {}; bytes={}'.format(response.status, response.reason, len(result)))
+        print('   STATUS={} {}; bytes={}'.format(response.status, response.reason, len(result)))
         result_hash = json.loads(result)
         if response.status == 200:
             result_data = result_hash['results'][0]
