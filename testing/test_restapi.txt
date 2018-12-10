@@ -1,0 +1,7 @@
+/wh1/resource-api/v1/resource/id/urn:glue2:GlobalResource:6909.uiuc.edu/
+/wh1/resource-api/v1/resource/affiliation/uiuc.edu/localid/1325/
+/wh1/resource-api/v1/providers/?format=html
+/wh1/resource-api/v1/resource_search/?search_terms=spss&format=xml
+/wh1/resource-api/v1/events/?search_terms=data&format=xml
+/wh1/resource-api/v1/events/?search_terms=data&format=json
+/wh1/rdr-db/v3/rdr-xup/
