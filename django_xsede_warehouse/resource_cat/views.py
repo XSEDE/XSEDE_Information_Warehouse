@@ -261,9 +261,16 @@ class Resource_Search(APIView):
             want_categories = set()
         
         arg_providers = request.GET.get('providers', None)
-        if arg_providers:
+        # Search in ProviderID field if possible rather than Provider in JSON
+        if arg_providers and want_affiliation and len(want_affiliation) == 1:
+            this_affiliation = next(iter(want_affiliation))
+            want_providerids = ['urn:glue2:GlobalResourceProvider:{}.{}'.format(x.strip(), this_affiliation) for x in arg_providers.split(',')]
+            want_providers = []
+        elif arg_providers:
+            want_providerids = []
             want_providers = [int(x) for x in arg_providers.split(',') if x.strip().isdigit()]
         else:
+            want_providerids = []
             want_providers = []
 
         arg_fields = request.GET.get('fields', None)
@@ -286,7 +293,9 @@ class Resource_Search(APIView):
             objects = Resource.objects.filter(EntityJSON__record_status__exact=1)
             if want_affiliation:
                 objects = objects.filter(Affiliation__in=want_affiliation)
-            if want_providers:
+            if want_providerids:
+                objects = objects.filter(ProviderID__in=want_providerids)
+            elif want_providers:
                 objects = objects.filter(EntityJSON__provider__in=want_providers)
             if not want_terms:                  # Becase terms search does its own ranked sort
                 local_global_map = {'resource_name': 'Name',

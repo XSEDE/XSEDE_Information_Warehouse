@@ -319,7 +319,7 @@ LOGGING = {
             'class': 'logging.StreamHandler',
 	    'formatter': 'simple',
         },'dbfile': {
-            'level': 'WARNING',
+            'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': CONF['DB_LOG'],
         },'g2file': {
@@ -345,7 +345,7 @@ LOGGING = {
             'propagate': True,
         },
         'django.db.backends': {
-            'level': 'WARNING',
+            'level': 'DEBUG',
             'handlers': ['dbfile'],
         },
 #        'django.db.backends.postgresql_psycopg2': {
