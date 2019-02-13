@@ -38,7 +38,7 @@ def resource_oldevents_filter(input_objects):
         if obj.Type == 'Event':
             edt = obj.EntityJSON.get('end_date_time', '')
             edt = '' if edt is None else edt
-            if edt < cur_datetime: # Skip events that ended in the past
+            if edt < cur_datetime: # True if events ended in the past or end_date_time is empty
                 continue
         filtered_objects.append(obj)
     return(filtered_objects)
