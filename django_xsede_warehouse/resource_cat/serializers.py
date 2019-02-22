@@ -11,11 +11,13 @@ class Resource_Detail_Serializer(serializers.ModelSerializer):
     def get_AssociatedResources(self, Resource):
         return(self.context.get('associated_resources'))
     def get_Provider(self, Resource):
-        provider = ResourceProvider.objects.get(pk=Resource.ProviderID)
-        if provider:
-            return({'Affiliation': provider.Affiliation, 'LocalID': provider.LocalID, 'Name': provider.Name})
-        else:
-            return(None)
+        try:
+            provider = ResourceProvider.objects.get(pk=Resource.ProviderID)
+            if provider:
+                return({'Affiliation': provider.Affiliation, 'LocalID': provider.LocalID, 'Name': provider.Name})
+        except ResourceProvider.DoesNotExist:
+            pass
+        return(None)
     def get_EntityJSON(self, Resource):
         want_fields = self.context.get('fields')
         if len(want_fields) == 0 or '__local__' in want_fields:
@@ -37,11 +39,13 @@ class Resource_Search_Serializer(serializers.ModelSerializer):
     Provider = serializers.SerializerMethodField()
     EntityJSON = serializers.SerializerMethodField()
     def get_Provider(self, Resource):
-        provider = ResourceProvider.objects.get(pk=Resource.ProviderID)
-        if provider:
-            return({'Affiliation': provider.Affiliation, 'LocalID': provider.LocalID, 'Name': provider.Name})
-        else:
-            return(None)
+        try:
+            provider = ResourceProvider.objects.get(pk=Resource.ProviderID)
+            if provider:
+                return({'Affiliation': provider.Affiliation, 'LocalID': provider.LocalID, 'Name': provider.Name})
+        except ResourceProvider.DoesNotExist:
+            pass
+        return(None)
     def get_EntityJSON(self, Resource):
         want_fields = self.context.get('fields')
         if len(want_fields) == 0 or '__local__' in want_fields:
