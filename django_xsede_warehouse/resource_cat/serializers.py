@@ -76,6 +76,12 @@ class Resource_Event_Serializer(serializers.ModelSerializer):
         model = Resource
         fields = ('__all__')
 
+class Resource_Types_Serializer(serializers.Serializer):
+    Type = serializers.CharField()
+    count = serializers.IntegerField()
+    class Meta:
+        fields = ('__all__')
+
 class ResourceProvider_Search_Serializer(serializers.ModelSerializer):
     # Adds local field selection
     EntityJSON = serializers.SerializerMethodField()

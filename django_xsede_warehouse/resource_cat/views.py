@@ -1,4 +1,5 @@
 from django.db.models.expressions import RawSQL
+from django.db.models import Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
@@ -165,7 +166,7 @@ class Resource_Detail(APIView):
         
         ### Optional response argument(s):<br>
         ```
-            fields=<local_fielda>               (return named fields)
+            fields=<local_fields>               (return named fields)
             format={json,xml,html}              (json default)
         ```
         <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
@@ -226,7 +227,7 @@ class Resource_Search(APIView):
         ```
         Optional response argument(s):
         ```
-            fields=<local_fielda>               (return named fields)
+            fields=<local_fields>               (return named fields)
             format={json,xml,html}              (json default)
             sort=<local_field>                  (default global Name)
             page=<number>
@@ -349,7 +350,7 @@ class Resource_Provider_List(APIView):
         ```
         Optional response format argument(s):
         ```
-            fields=<local_fielda>               (return named fields)
+            fields=<local_fields>               (return named fields)
             format={json,xml,html}              (json default)
             page=<number>
             results_per_page=<number>           (default=25)
@@ -401,6 +402,61 @@ class Resource_Provider_List(APIView):
         response_obj['results'] = serializer.data
         return MyAPIResponse(response_obj, template_name='resource_cat/provider_list.html')
 
+class Resource_Types_List(APIView):
+    '''
+        ### Resource Types search and list
+        
+        Optional selection argument(s):
+        ```
+            affiliation={uiuc.edu, xsede.org, etc.}
+        ```
+        Optional response format argument(s):
+        ```
+            fields=<local_fields>               (return named fields)
+            format={json,xml,html}              (json default)
+            page=<number>
+            results_per_page=<number>           (default=25)
+        ```
+        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+            target="_blank">More API documentation</a>
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    def get(self, request, format=None, **kwargs):
+        if 'affiliation' in self.kwargs:
+            arg_affiliation = kwargs['affiliation']
+        else:
+            arg_affiliation = request.GET.get('affiliation', None)
+        if arg_affiliation:
+            want_affiliation = set(arg_affiliation.split(','))
+        else:
+            want_affiliation = set()
+
+        page = request.GET.get('page', None)
+        page_size = request.GET.get('results_per_page', 25)
+        response_obj = {}
+
+        try:
+            if want_affiliation:
+                objects = Resource.objects.filter(Affiliation__in=want_affiliation).values('Type').annotate(count=
+                                                                                                            Count('Type'))
+            else:
+                objects = Resource.objects.all().values('Type').values('Type').annotate(count=Count('Type'))
+
+            response_obj['total_results'] = len(objects)
+            if page:
+                paginator = Paginator(objects, page_size)
+                final_objects = paginator.page(page)
+                response_obj['page'] = int(page)
+                response_obj['total_pages'] = paginator.num_pages
+            else:
+                final_objects = objects
+        except Exception as exc:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc.message))
+        import pdb
+        response_obj['results'] = serializer.data
+        return MyAPIResponse(response_obj, template_name='resource_cat/types_list.html')
+
 class Events_List(APIView):
     '''
         ### Event resource search and list
@@ -414,7 +470,7 @@ class Events_List(APIView):
         ```
         Optional response format argument(s):
         ```
-            fields=<local_fielda>               (return named fields)
+            fields=<local_fields>               (return named fields)
             format={json,xml,html}              (json default)
             page=<number>
             results_per_page=<number>           (default=25)
