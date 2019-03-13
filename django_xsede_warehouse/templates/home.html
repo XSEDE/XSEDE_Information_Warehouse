@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <div>
+         <br/>
+    {% if user and not user.is_anonymous %}
+        Hello {{ user.get_full_name|default:user.username }}!<br/>
+        &nbsp; Username: {{ user.username }}<br/>
+        &nbsp; Email: {{ user.email }}<br/>
+        &nbsp; First name: {{ user.first_name }}<br/>
+        &nbsp; Last name: {{ user.last_name }}<br/>
+        &nbsp; Date joined: {{ user.date_joined }}<br/>
+        &nbsp; Last login: {{ user.last_login }}<br/>
+        &nbsp; UUID: {{ uuid }}<br>
+        &nbsp; Access token: {{ access_token }}<br/>
+        &nbsp; Refresh token: {{ refresh_token }}<br/>
+        <br/>
+        <a href="{% url 'logout' %}?next={{ request.path }}">Logout</a>
+    {% else %}
+{% load staticfiles %}
+  <a href="{% url 'social:begin' 'globus' %}?next={{ request.path }}"><img src="{% static "common/login-to-xsede.jpg" %}" width="15%" border="0" alt="Login To XSEDE"></a>
+    {% endif %}
+    </p>
+    </div>
+</body>
+</html>
+{% endblock %}

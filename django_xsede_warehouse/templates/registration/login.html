@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+  <h2>Login</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Login</button>
+  </form>
+   <br>
+  <p><strong>-- OR --</strong></p>
+{% load staticfiles %}
+  <a href="{% url 'social:begin' 'globus' %}"><img src="{% static "common/login-to-xsede.jpg" %}" width="15%" border="0" alt="Login To XSEDE"></a><br>
+{% endblock %}

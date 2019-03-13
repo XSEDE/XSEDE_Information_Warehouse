@@ -15,6 +15,8 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.conf import settings
+from django.contrib.auth import views
+from . import views
 #from django.views.generic.simple import direct_to_template
 from django.views.generic import TemplateView
 
@@ -46,5 +48,8 @@ urlpatterns = [
     url(r'^xdcdb/v1/', include('xdcdb.urls')),
     url(r'^xdinfo/v1/', include('xdinfo.urls')),
     url(r'^warehouse-views/', include('warehouse_views.urls')),
-    url(r'^api-docs/', schema_view, name='swagger')
+    url(r'^api-docs/', schema_view, name='swagger'),
+    url(r'^home/', views.home, name='home'),
+    url(r'^', include ('django.contrib.auth.urls')),
+    url(r'^', include('social_django.urls', namespace='social'))
 ]

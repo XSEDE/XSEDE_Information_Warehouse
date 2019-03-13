@@ -57,6 +57,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social_django',
     'rest_framework',
     'rest_framework_swagger',
     'corsheaders',
@@ -125,6 +126,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -275,6 +278,25 @@ REST_FRAMEWORK = {
     ],
     'PAGINATE_BY': 10,
 }
+
+#
+# Social Auth 
+#
+SOCIAL_AUTH_POSTGRES_JSONFIELD = True
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+SOCIAL_AUTH_GLOBUS_KEY = '1b5eb438-f4a8-4835-9696-d8ffa53cd6b7'
+SOCIAL_AUTH_GLOBUS_SECRET = 
+SOCIAL_AUTH_GLOBUS_AUTH_EXTRA_ARGUMENTS = {
+    'access_type': 'offline',
+}
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.globus.GlobusOpenIdConnect',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
 
 import logging
 
