@@ -25,6 +25,7 @@ from rest_framework_swagger.views import get_swagger_view
 from xsede_warehouse.settings import API_BASE
 schema_view = get_swagger_view(title='XSEDE Warehouse API', url=API_BASE)
 
+#    url(r'^', include('social_django.urls', namespace='social'))
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='wh.html')),
     url(r'^admin/', include(admin.site.urls)),
@@ -50,6 +51,5 @@ urlpatterns = [
     url(r'^warehouse-views/', include('warehouse_views.urls')),
     url(r'^api-docs/', schema_view, name='swagger'),
     url(r'^home/', views.home, name='home'),
-    url(r'^', include ('django.contrib.auth.urls')),
-    url(r'^', include('social_django.urls', namespace='social'))
+    url(r'^', include ('django.contrib.auth.urls'))
 ]
