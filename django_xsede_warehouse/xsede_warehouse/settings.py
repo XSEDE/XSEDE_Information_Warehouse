@@ -50,7 +50,6 @@ API_BASE = CONF.get('API_BASE', '')
 
 # Application definition
 
-#    'social_django',
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -58,6 +57,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social_django',
     'rest_framework',
     'rest_framework_swagger',
     'corsheaders',
@@ -115,8 +115,6 @@ if 'SUB_SITE' in CONF:
 
 ROOT_URLCONF = 'xsede_warehouse.urls'
 
-#                'social_django.context_processors.backends',
-#                'social_django.context_processors.login_redirect',
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -128,6 +126,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -290,8 +290,8 @@ SOCIAL_AUTH_GLOBUS_AUTH_EXTRA_ARGUMENTS = {
     'access_type': 'offline',
 }
 
-#    'social_core.backends.globus.GlobusOpenIdConnect',
 AUTHENTICATION_BACKENDS = (
+    'social_core.backends.globus.GlobusOpenIdConnect',
     'django.contrib.auth.backends.ModelBackend',
 )
 

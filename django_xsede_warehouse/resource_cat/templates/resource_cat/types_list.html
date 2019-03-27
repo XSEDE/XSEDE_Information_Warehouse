@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Resource Types List{% endblock %}
+{% block content %}
+
+<h1 align="center">Resource Types List</h1>
+
+<table style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
+    <tr>
+        <th>Type</th>
+    </tr>
+    
+    {% for record in results %}
+    <tr>
+        <td>{{ record.Type }}</td>
+    </tr>
+    {% endfor %}
+{% endblock %}
