@@ -543,7 +543,9 @@ class Events_List(APIView):
         response_obj = {}
 
         try:
-            objects = Resource.objects.filter(Type__exact='Event').filter(EntityJSON__record_status__in=[1,2])
+            # Changed 2019-04-15 by JP per Alex Kuhl
+#            objects = Resource.objects.filter(Type__exact='Event').filter(EntityJSON__record_status__in=[1,2])
+            objects = Resource.objects.filter(Type__exact='Event').filter(EntityJSON__record_status__exact=1)
             if want_affiliation:
                 objects = objects.filter(Affiliation__in=want_affiliation)
             # resource.start_date_time <= end_date && resource.end_date_time >= start_date
