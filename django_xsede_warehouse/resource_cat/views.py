@@ -437,6 +437,12 @@ class Resource_Types_List(APIView):
         else:
             want_affiliation = set()
 
+        arg_fields = request.GET.get('fields', None)
+        if arg_fields:
+            want_fields = set(arg_fields.lower().split(','))
+        else:
+            want_fields = set()
+
         page = request.GET.get('page', None)
         page_size = request.GET.get('results_per_page', 25)
         response_obj = {}
@@ -458,7 +464,8 @@ class Resource_Types_List(APIView):
                 final_objects = objects
         except Exception as exc:
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc.message))
-        import pdb
+        context = {'fields': want_fields}
+        serializer = Resource_Types_Serializer(final_objects, context=context, many=True)
         response_obj['results'] = serializer.data
         return MyAPIResponse(response_obj, template_name='resource_cat/types_list.html')
 
