@@ -228,6 +228,7 @@ class Resource_Search(APIView):
             search_terms=<whitespace_delimited_search_terms>
             affiliation={uiuc.edu, xsede.org, ...}
             categories=<category1>[,<category2>[...]]
+            types=<type1>[,<type2>>[...]]
             providers=<provider1>[,<provider2>[...]]
         ```
         Optional response argument(s):
@@ -266,6 +267,13 @@ class Resource_Search(APIView):
             want_categories = set(arg_categories.split(','))
         else:
             want_categories = set()
+
+        arg_types = request.GET.get('types', None)
+        if arg_types:
+            want_types = set(arg_types.split(','))
+        else:
+            want_types = set()
+
         
         arg_providers = request.GET.get('providers', None)
         # Search in ProviderID field if possible rather than Provider in JSON
@@ -300,6 +308,8 @@ class Resource_Search(APIView):
             objects = Resource.objects.filter(EntityJSON__record_status__exact=1)
             if want_affiliation:
                 objects = objects.filter(Affiliation__in=want_affiliation)
+            if want_types:
+                objects = objects.filter(Type__in=want_types)
             if want_providerids:
                 objects = objects.filter(ProviderID__in=want_providerids)
             elif want_providers:
