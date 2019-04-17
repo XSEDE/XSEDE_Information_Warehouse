@@ -274,16 +274,21 @@ class Resource_Search(APIView):
         else:
             want_types = set()
 
-        
         arg_providers = request.GET.get('providers', None)
-        # Search in ProviderID field if possible rather than Provider in JSON
-        if arg_providers and want_affiliation and len(want_affiliation) == 1:
-            this_affiliation = next(iter(want_affiliation))
-            want_providerids = ['urn:glue2:GlobalResourceProvider:{}.{}'.format(x.strip(), this_affiliation) for x in arg_providers.split(',')]
-            want_providers = []
-        elif arg_providers:
-            want_providerids = []
-            want_providers = [int(x) for x in arg_providers.split(',') if x.strip().isdigit()]
+        # Search in ProviderID field if possible rather than Provider in JSONField
+        if arg_providers:
+            if set(arg_providers).issubset(set('0123456789,')):
+                # Handle numeric providers for uiuc.edu
+                if want_affiliation and len(want_affiliation) == 1:
+                    this_affiliation = next(iter(want_affiliation))
+                    want_providerids = ['urn:glue2:GlobalResourceProvider:{}.{}'.format(x.strip(), this_affiliation) for x in arg_providers.split(',')]
+                    want_providers = []
+                else:
+                    want_providerids = []
+                    want_providers = [int(x) for x in arg_providers.split(',') if x.strip().isdigit()]
+            else:
+                want_providerids = set(arg_providers.split(','))
+                want_providers = []
         else:
             want_providerids = []
             want_providers = []
