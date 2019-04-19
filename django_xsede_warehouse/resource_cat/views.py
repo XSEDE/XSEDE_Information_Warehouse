@@ -180,6 +180,10 @@ class Resource_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
+        arg_id = request.GET.get('id', kwargs.get('id', None))
+        arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
+        arg_localid = request.GET.get('localid', kwargs.get('localid', None))
+
         # Process optional arguments
         arg_fields = request.GET.get('fields', None)
         if arg_fields:
@@ -187,14 +191,14 @@ class Resource_Detail(APIView):
         else:
             want_fields = set()
 
-        if 'id' in self.kwargs:
+        if arg_id:
             try:
-                final_objects = [Resource.objects.get(pk=self.kwargs['id'])]
+                final_objects = [Resource.objects.get(pk=arg_id)]
             except Resource.DoesNotExist:
                 raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Global ID not found')
-        elif 'affiliation' in self.kwargs and 'localid' in self.kwargs:
+        elif arg_affiliation and arg_localid:
             try:
-                final_objects = Resource.objects.filter(Affiliation__exact=kwargs['affiliation']).filter(LocalID__exact=kwargs['localid'])
+                final_objects = Resource.objects.filter(Affiliation__exact=arg_affiliation).filter(LocalID__exact=arg_localid)
             except Exception as exc:
                 raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc.message))
         else:

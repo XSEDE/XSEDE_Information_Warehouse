@@ -4,6 +4,7 @@ from django.views.decorators.cache import cache_page
 
 # Define our custom URLs
 # Additionally, we include login URLs for the browseable API.
+# Special reg for resource/id/<id> in case there are slashes in the 'id'
 urlpatterns = [
     url(r'^resource_search/affiliation/(?P<affiliation>[^/]+)/?$',
         Resource_Search.as_view(),
@@ -29,7 +30,7 @@ urlpatterns = [
     url(r'^events/?$',
         cache_page(60 * 5)(Events_List.as_view()),
         name='events-list'),
-    url(r'^resource/id/(?P<id>[^/]+)/?$',
+    url(r'^resource/id/(?P<id>.+)/?$',
         Resource_Detail.as_view(),
         name='resource-detail'),
     url(r'^resource/affiliation/(?P<affiliation>[^/]+)/localid/(?P<localid>[^/]+)/?$',
