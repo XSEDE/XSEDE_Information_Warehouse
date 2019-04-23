@@ -70,7 +70,7 @@ def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'
     # This function inspects and sorts objects using an algorithm that is too complex to do using SQL
     # Sorting algorithms requirements:
     #   First prioritize resources with a tag/keyword matching at least one search term
-    #     Exampe: given search terms "frog spectrometer chuckles", resources with a "spectrometer" tag should
+    #     Example: given search terms "frog spectrometer chuckles", resources with a "spectrometer" tag should
     #     be listed before resources with no tags matching a search term
     #   Second, prioritize resources with resource_name and resource_description matching ALL of the search terms.
     #     Example: gieven search terms "frog spectrometer chuckles", resources with ALL those words in
@@ -159,6 +159,71 @@ def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'
 #    filtered_objects = [sort_array[key] for key in sorted(sort_array.keys())]
 #    return(filtered_objects)
 
+def resource_strings_filtersort(input_objects, search_strings_set, sort_field='name'):
+    # This function inspects and sorts objects using an algorithm that is too complex to do using SQL
+    # Sorting algorithms requirements:
+    #   First prioritize resources with a tag/keyword matching at least one search string
+    #     Example: given search strings "spec soft", resources with a "software" tag should
+    #     be listed before resources with no tags matching a search string
+    #   Second, prioritize resources with resource_name and resource_description matching ALL of the search strings.
+    #     Example: gieven search terms "spec soft", resources with ALL those strings in
+    #     resource_description and/or resource_name should be listed before resources matching one strings.
+    #   Third, prioritize resources with resource_name and resource_description matching SOME of the search strings.
+    #     In this case, ordering sould be based on the total number of occurances of the search strings.
+    #     For example, if the search strings is "soft", resources that have the term three times should be listed
+    #     before resources with that string happening 2 times or once.
+
+    # SORT_KEY fields:
+    #   <B_RANK>:<C_RANK>:<D_RANK>:<D_RANK>:<SORT_SUFFIX>
+    # Where:
+    #   A_RANK: all strings matched Name; RANK=999 minus how many strings matched
+    #   B_RANK: keyword match; RANK=999 minus how many keywords matched
+    #   C_RANK: all strings matched Name or Description; RANK=999 minus how many strings matched
+    #   D_RANK: some strings matched Name or Description; RANK=999 minus total number of words matching strings
+    # Where "999 minus match count" makes higher match counts sort firts alphabetically (996=999-3 before 998=999-1)
+    sort_array = {}
+    search_for_set = set([x.lower() for x in search_strings_set])
+    
+    for obj in input_objects:
+        search_in = obj.Name.lower()
+        name_rank = [search_for in search_in for search_for in search_for_set].count(True)
+        if name_rank != len(search_for_set):                                                # All terms matched Name
+            name_rank = 0
+        A_RANK = u'{:03d}'.format(999-name_rank)
+    
+        search_in_set = set((obj.Keywords or '').replace(',', ' ').lower().split())         # Empty string '' if Null
+        keyword_rank = 0
+        for search_in in search_in_set:
+            if [search_for in search_in for search_for in search_for_set].count(True) > 0:
+                keyword_rank += 1
+        B_RANK = u'{:03d}'.format(999-keyword_rank)
+
+        search_in = u' '.join((obj.Name, obj.Description)).replace(',', ' ').lower()
+        name_desc_rank = [search_for in search_in for search_for in search_for_set].count(True)
+        if name_desc_rank != len(search_for_set):                                       # All terms matched Name or Description
+            name_desc_rank = 0
+        C_RANK = u'{:03d}'.format(999-name_desc_rank)
+
+        total_matches = 0
+        for search_for in search_for_set:
+            total_matches += search_in.count(search_for)
+        D_RANK = u'{:03d}'.format(999-total_matches)
+
+        all_RANKS = u':'.join((A_RANK, B_RANK, C_RANK, D_RANK))
+        if all_RANKS == u'999:999:999:999':                                             # No matches
+            continue                                                                    # Loop to discard this object
+
+        if sort_field == 'start_date_time':
+            SORT_SUFFIX = str(obj.EntityJSON.get('start_date_time', ''))
+        else: # sort_field == 'name':
+            SORT_SUFFIX = (obj.Name or '').lower()
+
+        SORT_KEY = u':'.join((all_RANKS, SORT_SUFFIX, str(obj.ID)))
+        sort_array[SORT_KEY] = obj
+
+    filtered_objects = [sort_array[key] for key in sorted(sort_array.keys())]
+    return(filtered_objects)
+
 #
 # Create your views here.
 #
@@ -229,7 +294,8 @@ class Resource_Search(APIView):
         
         Optional selection argument(s):
         ```
-            search_terms=<whitespace_delimited_search_terms>
+            search_terms=<comma_delimited_search_terms>
+            search_strings=<comma_delimited_search_strings>
             affiliation={uiuc.edu, xsede.org, ...}
             categories=<category1>[,<category2>[...]]
             types=<type1>[,<type2>>[...]]
@@ -251,10 +317,7 @@ class Resource_Search(APIView):
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         # Process optional arguments
-        if 'affiliation' in self.kwargs:
-            arg_affiliation = kwargs['affiliation']
-        else:
-            arg_affiliation = request.GET.get('affiliation', None)
+        arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
         if arg_affiliation:
             want_affiliation = set(arg_affiliation.split(','))
         else:
@@ -265,7 +328,13 @@ class Resource_Search(APIView):
             want_terms = set(arg_terms.replace(',', ' ').lower().split())
         else:
             want_terms = set()
-        
+
+        arg_strings = request.GET.get('search_strings', None)
+        if arg_strings:
+            want_strings = set(arg_strings.replace(',', ' ').lower().split())
+        else:
+            want_strings = set()
+
         arg_categories = request.GET.get('categories', None)
         if arg_categories:
             want_categories = set(arg_categories.split(','))
@@ -338,6 +407,8 @@ class Resource_Search(APIView):
                 objects = resource_categories_filter(objects, want_categories)
             if want_terms:
                 objects = resource_terms_filtersort(objects, want_terms, sort_field='name')
+            elif want_strings:
+                objects = resource_strings_filtersort(objects, want_strings, sort_field='name')
             objects = resource_oldevents_filter(objects)
 
             response_obj['total_results'] = len(objects)
@@ -385,10 +456,7 @@ class Resource_Provider_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
-        if 'affiliation' in self.kwargs:
-            arg_affiliation = kwargs['affiliation']
-        else:
-            arg_affiliation = request.GET.get('affiliation', None)
+        arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
         if arg_affiliation:
             want_affiliation = set(arg_affiliation.split(','))
         else:
@@ -447,10 +515,7 @@ class Resource_Types_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
-        if 'affiliation' in self.kwargs:
-            arg_affiliation = kwargs['affiliation']
-        else:
-            arg_affiliation = request.GET.get('affiliation', None)
+        arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
         if arg_affiliation:
             want_affiliation = set(arg_affiliation.split(','))
         else:
@@ -512,10 +577,7 @@ class Events_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
-        if 'affiliation' in self.kwargs:
-            arg_affiliation = kwargs['affiliation']
-        else:
-            arg_affiliation = request.GET.get('affiliation', None)
+        arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
         if arg_affiliation:
             want_affiliation = set(arg_affiliation.split(','))
         else:
