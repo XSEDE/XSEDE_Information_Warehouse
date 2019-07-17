@@ -78,7 +78,6 @@ INSTALLED_APPS = (
     'resource_cat',
     'resource_status_api',
     'speedpage',
-    'usermap',
     'warehouse_views',
     'xcsr_db',
     'xdcdb',
