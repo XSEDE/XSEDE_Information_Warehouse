@@ -11,6 +11,9 @@ from glue2_db.serializers import ComputingActivity_DbSerializer
 from glue2_views_api.serializers import *
 from xsede_warehouse.responses import MyAPIResponse
 from xsede_warehouse.exceptions import MyAPIException
+from xdcdb.models import XSEDELocalUsermap
+import requests
+
 
 # Create your views here.
 class ApplicationEnvironment_List(APIView):
@@ -150,6 +153,34 @@ class Job_List(APIView):
                 objects = ComputingActivity.objects.filter(ResourceID__exact=self.kwargs['resourceid'])
             except ComputingActivity.DoesNotExist:
                 raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='ResourceID not found')
+        else:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Invalid request')
+        serializer = ComputingActivity_Expand_Serializer(objects, many=True, context={'request': request})
+        return MyAPIResponse({'result_set': serializer.data}, template_name='glue2_views_api/jobs.html')
+
+class Jobs_by_ProfileID(APIView):
+    '''
+        GLUE2 Jobs from ComputingActivity
+    '''
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    def get(self, request, format=None, **kwargs):
+        import requests
+        fullusername = None
+        username = None
+        if request.user.is_authenticated():
+            fullusername = request.user.username
+            username = fullusername[:fullusername.rfind("@")]
+
+        if 'resourceid' in self.kwargs:
+            try:
+                localaccount = XSEDELocalUsermap.objects.get(ResourceID=self.kwargs['resourceid'],portal_login=username)
+            except XSEDELocalUsermap.DoesNotExist:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='User not found in user database')
+            try:
+                    objects = ComputingActivity.objects.filter(ResourceID__exact=self.kwargs['resourceid']).filter(EntityJSON__LocalOwner__exact=localaccount.local_username)
+            except ComputingActivity.DoesNotExist:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='ResourceID and LocalAccount not found')
         else:
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Invalid request')
         serializer = ComputingActivity_Expand_Serializer(objects, many=True, context={'request': request})
