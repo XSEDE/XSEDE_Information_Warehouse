@@ -35,7 +35,8 @@ urlpatterns = [
     url(r'^jobs/ResourceID/(?P<resourceid>[^/]+)/$', Jobqueue_List.as_view(), name='jobsqueue-list'),
     url(r'^jobs2/ID/(?P<id>[^/]+)/$', Job_Detail.as_view(), name='jobs-detail'),
     url(r'^jobs2/ResourceID/(?P<resourceid>[^/]+)/$', Job_List.as_view(), name='jobs-list'),
-    url(r'^jobs3/ResourceID/(?P<resourceid>[^/]+)/$', Jobs_by_ProfileID.as_view(), name='jobs-profileid'),
+    url(r'^userjobs/ResourceID/(?P<resourceid>[^/]+)/$', Jobs_per_Resource_by_ProfileID.as_view(), name='jobs-profileid'),
+    url(r'^userjobs/$', Jobs_by_ProfileID.as_view(), name='jobs-profileid'),
     url(r'^jobs2/ResourceID/(?P<resourceid>[^/]+)/Queue/(?P<queue>[^/]+)/$', Job_List.as_view(), name='jobs-list'),
     url(r'^jobs2/ResourceID/(?P<resourceid>[^/]+)/LocalAccount/(?P<localaccount>[^/]+)/$', Job_List.as_view(), name='jobs-list'),
                

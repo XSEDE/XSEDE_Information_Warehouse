@@ -158,7 +158,7 @@ class Job_List(APIView):
         serializer = ComputingActivity_Expand_Serializer(objects, many=True, context={'request': request})
         return MyAPIResponse({'result_set': serializer.data}, template_name='glue2_views_api/jobs.html')
 
-class Jobs_by_ProfileID(APIView):
+class Jobs_per_Resource_by_ProfileID(APIView):
     '''
         GLUE2 Jobs from ComputingActivity
     '''
@@ -184,4 +184,41 @@ class Jobs_by_ProfileID(APIView):
         else:
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Invalid request')
         serializer = ComputingActivity_Expand_Serializer(objects, many=True, context={'request': request})
+        return MyAPIResponse({'result_set': serializer.data}, template_name='glue2_views_api/jobs.html')
+
+class Jobs_by_ProfileID(APIView):
+    '''
+        GLUE2 Jobs from ComputingActivity
+    '''
+    permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    def get(self, request, format=None, **kwargs):
+        import requests
+        fullusername = None
+        username = None
+        if request.user.is_authenticated():
+            fullusername = request.user.username
+            username = fullusername[:fullusername.rfind("@")]
+
+            try:
+                localaccounts = XSEDELocalUsermap.objects.filter(portal_login=username)
+            except XSEDELocalUsermap.DoesNotExist:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='User not found in user database')
+            localusernames = []
+            resourceusers = {}
+            for account in localaccounts:
+                localuser = account.local_username
+                localusernames.append(localuser)
+                resourceusers[account.ResourceID+localuser] = True
+            try:
+                    objects = ComputingActivity.objects.filter(EntityJSON__LocalOwner__in=localusernames)
+            except ComputingActivity.DoesNotExist:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='ResourceID and LocalAccount not found')
+            jobstoreturn = []
+            for job in objects:
+                if resourceusers.get(job.ResourceID+job.EntityJSON['LocalOwner'], False):
+                    jobstoreturn.append(job)
+        else:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Invalid request')
+        serializer = ComputingActivity_Expand_Serializer(jobstoreturn, many=True, context={'request': request})
         return MyAPIResponse({'result_set': serializer.data}, template_name='glue2_views_api/jobs.html')
