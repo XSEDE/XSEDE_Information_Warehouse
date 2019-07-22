@@ -66,15 +66,14 @@ class xdinfo_Cmd(APIView):
             return HttpResponse(self.get_version(), content_type="text/plain")
 
         now = timezone.now()
-        headerflag = True
         if 'slug' in self.kwargs:
             #print self.kwargs['slug']
             arglist = self.kwargs['slug'].split('/')
             #print arglist
         else:
             arglist = ()
-        if 'noheader' in arglist:
-            headerflag = False
+        noheaderflag = 'noheader' in arglist
+        if noheaderflag:
             arglist.remove('noheader')
 
         if infotype == 'outages':
@@ -240,7 +239,7 @@ class xdinfo_Cmd(APIView):
                 returnstring += "\n"
                 headerstring += "\n"
 
-        if not headerflag:
+        if noheaderflag:
             return HttpResponse(returnstring, content_type="text/plain")
         else:
             return HttpResponse(headerstring+returnstring, content_type="text/plain")

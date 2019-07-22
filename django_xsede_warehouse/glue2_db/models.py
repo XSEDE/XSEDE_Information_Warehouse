@@ -92,6 +92,7 @@ class ComputingQueue(AbstractGlue2EntityModel):
 
 class ComputingActivity(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
+    LocalOwner = models.CharField(db_index=True, max_length=40, default='unknown')
 #
 class ComputingManagerAcceleratorInfo(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
