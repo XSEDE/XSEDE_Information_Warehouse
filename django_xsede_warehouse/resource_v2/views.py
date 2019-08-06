@@ -302,7 +302,8 @@ class Resource_Search(APIView):
             search_terms=<comma_delimited_search_terms>
             search_strings=<comma_delimited_search_strings>
             affiliation={uiuc.edu, xsede.org, ...}
-            types=<type1>[,<type2>>[...]]
+            resource_groups=<group1>[, <group2>[...]]
+            types=<type1>[,<type2>[...]]
             providers=<provider1>[,<provider2>[...]]
         ```
         Optional response argument(s):
@@ -326,6 +327,11 @@ class Resource_Search(APIView):
             want_affiliation = set(arg_affiliation.split(','))
         else:
             want_affiliation = set()
+
+        if arg_resource_groups:
+            want_resource_groups = set(arg_resource_groups.split(','))
+        else:
+            want_resource_groups = set()
 
         arg_terms = request.GET.get('search_terms', None)
         if arg_terms:
@@ -390,6 +396,8 @@ class Resource_Search(APIView):
             objects = ResourceV2.objects.filter(EntityJSON__record_status__exact=1)
             if want_affiliation:
                 objects = objects.filter(Affiliation__in=want_affiliation)
+            if want_resource_groups:
+                objects = objects.filter(ResourceGroup__in=want_resource_groups)
             if want_types:
                 objects = objects.filter(Type__in=want_types)
             if want_providerids:
