@@ -37,7 +37,6 @@ urlpatterns = [
     url(r'^jobs2/ResourceID/(?P<resourceid>[^/]+)/$', Job_List.as_view(), name='jobs-list'),
     url(r'^userjobs/ResourceID/(?P<resourceid>[^/]+)/$', Jobs_per_Resource_by_ProfileID.as_view(), name='jobs-profileid'),
     url(r'^userjobs/$', Jobs_by_ProfileID.as_view(), name='jobs-profileid'),
-    url(r'^userjobspsa/$', Jobs_by_ProfileID.as_view(), {'backend': 'globus'},name='jobs-profileid'),
     url(r'^jobs2/ResourceID/(?P<resourceid>[^/]+)/Queue/(?P<queue>[^/]+)/$', Job_List.as_view(), name='jobs-list'),
     url(r'^jobs2/ResourceID/(?P<resourceid>[^/]+)/LocalAccount/(?P<localaccount>[^/]+)/$', Job_List.as_view(), name='jobs-list'),
                
