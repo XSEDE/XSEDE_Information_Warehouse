@@ -75,6 +75,7 @@ INSTALLED_APPS = (
     'projectresources',
     'rdr_db',
     'resource_cat',
+    'resource_v2',
     'resource_status_api',
     'speedpage',
     'warehouse_views',

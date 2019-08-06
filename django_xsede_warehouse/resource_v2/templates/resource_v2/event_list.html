@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Event List{% endblock %}
+{% block content %}
+
+<h1 align="center">Event List</h1>
+
+<table style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
+    <tr>
+        <th>Affiliation</th>
+        <th>Local ID</th>
+        <th>Name</th>
+        <th>Start Date</th>
+        <th>Global ID</th>
+    </tr>
+    
+    {% for record in results %}
+    <tr>
+        <td>{{ record.Affiliation }}</td>
+        <td>{{ record.LocalID }}</td>
+        <td>{{ record.Name }}</td>
+        <td>{{ record.EntityJSON.start_date_time }}</td>
+        <td>{{ record.ID }}</td>
+    </tr>
+    {% endfor %}
+{% endblock %}
