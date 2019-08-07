@@ -90,8 +90,8 @@ def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'
     # Where:
     #   A_RANK: all terms matched Name; RANK=999 minus how many keywords matched
     #   B_RANK: keyword match; RANK=999 minus how many keywords matched
-    #   C_RANK: all terms matched Name or Description; RANK=999 minus how many terms matched
-    #   D_RANK: some terms matched Name or Description; RANK=999 minus total number of words matching terms
+    #   C_RANK: all terms matched Name, Short Description, or Description; RANK=999 minus how many terms matched
+    #   D_RANK: some terms matched Name, Short Description, or Description; RANK=999 minus total number of words matching terms
     # Where "999 minus match count" makes higher match counts sort firts alphabetically (996=999-3 before 998=999-1)
     sort_array = {}
     
@@ -107,9 +107,9 @@ def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'
         keyword_rank = len(keyword_set.intersection(search_terms_set))                  # How many keyword matches
         B_RANK = u'{:03d}'.format(999-keyword_rank)
 
-        name_desc_words = u' '.join((obj.Name, obj.Description)).replace(',', ' ').lower().split()
+        name_desc_words = u' '.join((obj.Name, obj.ShortDescription, obj.Description)).replace(',', ' ').lower().split()
         name_desc_rank = len(set(name_desc_words).intersection(search_terms_set))       # How many matches
-        if name_desc_rank == len(search_terms_set):                                     # All terms matched Name or Description
+        if name_desc_rank == len(search_terms_set):                                     # All terms matched Name, Short Description or Description
             C_RANK = u'{:03d}'.format(999-name_desc_rank)
         else:
             C_RANK = u'999'
@@ -203,9 +203,9 @@ def resource_strings_filtersort(input_objects, search_strings_set, sort_field='n
                 keyword_rank += 1
         B_RANK = u'{:03d}'.format(999-keyword_rank)
 
-        search_in = u' '.join((obj.Name, obj.Description)).replace(',', ' ').lower()
+        search_in = u' '.join((obj.Name, obj.ShortDescription, obj.Description)).replace(',', ' ').lower()
         name_desc_rank = [search_for in search_in for search_for in search_for_set].count(True)
-        if name_desc_rank != len(search_for_set):                                       # All terms matched Name or Description
+        if name_desc_rank != len(search_for_set):                                       # All terms matched Name, Short Description, or Description
             name_desc_rank = 0
         C_RANK = u'{:03d}'.format(999-name_desc_rank)
 
@@ -303,6 +303,7 @@ class Resource_Search(APIView):
             search_strings=<comma_delimited_search_strings>
             affiliation={uiuc.edu, xsede.org, ...}
             resource_groups=<group1>[, <group2>[...]]
+            topics=<topic1>[,<topic2>[...]]
             types=<type1>[,<type2>[...]]
             providers=<provider1>[,<provider2>[...]]
         ```
