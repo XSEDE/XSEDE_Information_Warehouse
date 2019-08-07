@@ -70,8 +70,8 @@ class ResourceV2GuideResource(models.Model):
 #    Validity = models.DurationField(null=True)
 #    EntityJSON = JSONField()
     # Global Resource attributes
-    CuratedGuideID = models.ForeignKey('ResourceV2Guide', on_delete=models.CASCADE)
-    ResourceID = models.ForeignKey('ResourceV2', on_delete=models.CASCADE)
+    CuratedGuideID = models.CharField(db_index=True, max_length=200)
+    ResourceID = models.CharField(db_index=True, max_length=200)
     class Meta:
         db_name = 'glue2'
     def __str__(self):
