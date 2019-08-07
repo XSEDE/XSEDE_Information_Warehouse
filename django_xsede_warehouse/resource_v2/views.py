@@ -328,6 +328,7 @@ class Resource_Search(APIView):
         else:
             want_affiliation = set()
 
+        arg_resource_groups = request.GET.get('resource_groups', None)
         if arg_resource_groups:
             want_resource_groups = set(arg_resource_groups.split(','))
         else:
