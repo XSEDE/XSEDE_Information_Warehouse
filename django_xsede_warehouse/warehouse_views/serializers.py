@@ -83,10 +83,12 @@ class Software_Full_Serializer(serializers.ModelSerializer):
     Handle = serializers.SerializerMethodField('get_handle')
     Domain = serializers.SerializerMethodField('get_category')
     Keywords = serializers.SerializerMethodField('get_keywords')
+    SupportStatus = serializers.SerializerMethodField('get_supportstatus')
+    Repository = serializers.SerializerMethodField('get_repository')
     class Meta:
         model = ApplicationHandle
         fields = ('ResourceID', 'SiteID', 'AppName', 'AppVersion', 'Description', 'Handle',
-                  'Domain', 'Keywords', 'CreationTime','ID')
+                  'Domain', 'Keywords', 'SupportStatus', 'Repository', 'CreationTime','ID')
 
     def get_siteid(self, ApplicationHandle):
         try:
@@ -103,17 +105,25 @@ class Software_Full_Serializer(serializers.ModelSerializer):
                })
     
     def get_category(self, ApplicationHandle):
-#        if 'Extension' in ApplicationHandle.ApplicationEnvironment.EntityJSON.keys()
-#           and 'Category' in ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension'].keys():
         try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['Category']
         except:
             return []
 
     def get_keywords(self, ApplicationHandle):
-#        if 'Extension' in ApplicationHandle.ApplicationEnvironment.EntityJSON.keys()
-#           and 'Keywords' in ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension'].keys():
         try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Keywords']
+        except:
+            return []
+
+    def get_supportstatus(self, ApplicationHandle):
+        try:
+            return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['SupportStatus']
+        except:
+            return []
+
+    def get_repository(self, ApplicationHandle):
+        try:
+            return ApplicationHandle.ApplicationEnvironment.EntityJSON['Repository']
         except:
             return []
