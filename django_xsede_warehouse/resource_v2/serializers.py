@@ -97,3 +97,35 @@ class ResourceProvider_Search_Serializer(serializers.ModelSerializer):
     class Meta:
         model = ResourceV2Provider
         fields = ('__all__')
+
+class Guide_Detail_Serializer(serializers.ModelSerializer):
+    # Adds local field selection
+    EntityJSON = serializers.SerializerMethodField()
+    def get_EntityJSON(self, ResourceV2Guide):
+        want_fields = self.context.get('fields')
+        if len(want_fields) == 0 or '__local__' in want_fields:
+            return(ResourceV2Guide.EntityJSON)
+        filtered = {}
+        for f in want_fields.union(['id']):     # Add 'id'
+            if f in ResourceV2Guide.EntityJSON:
+                filtered[f] = ResourceV2Guide.EntityJSON.get(f)
+        return(filtered)
+    class Meta:
+        model = ResourceV2Guide
+        fields = copy.copy([f.name for f in ResourceV2Guide._meta.get_fields(include_parents=False)])
+
+class Guide_Search_Serializer(serializers.ModelSerializer):
+    # Adds local field selection
+    EntityJSON = serializers.SerializerMethodField()
+    def get_EntityJSON(self, ResourceV2Guide):
+        want_fields = self.context.get('fields')
+        if len(want_fields) == 0 or '__local__' in want_fields:
+            return(ResourceV2Guide.EntityJSON)
+        filtered = {}
+        for f in want_fields.union(['id']):     # Add 'id'
+            if f in ResourceV2Guide.EntityJSON:
+                filtered[f] = ResourceV2Guide.EntityJSON.get(f)
+        return(filtered)
+    class Meta:
+        model = ResourceV2Guide
+        fields = copy.copy([f.name for f in ResourceV2Guide._meta.get_fields(include_parents=False)])

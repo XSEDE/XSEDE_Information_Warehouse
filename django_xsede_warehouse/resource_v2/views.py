@@ -107,7 +107,7 @@ def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'
         keyword_rank = len(keyword_set.intersection(search_terms_set))                  # How many keyword matches
         B_RANK = u'{:03d}'.format(999-keyword_rank)
 
-        name_desc_words = u' '.join((obj.Name, obj.ShortDescription, obj.Description)).replace(',', ' ').lower().split()
+        name_desc_words = u' '.join((obj.Name, (obj.ShortDescription or ''), obj.Description)).replace(',', ' ').lower().split()
         name_desc_rank = len(set(name_desc_words).intersection(search_terms_set))       # How many matches
         if name_desc_rank == len(search_terms_set):                                     # All terms matched Name, Short Description or Description
             C_RANK = u'{:03d}'.format(999-name_desc_rank)
@@ -203,7 +203,7 @@ def resource_strings_filtersort(input_objects, search_strings_set, sort_field='n
                 keyword_rank += 1
         B_RANK = u'{:03d}'.format(999-keyword_rank)
 
-        search_in = u' '.join((obj.Name, obj.ShortDescription, obj.Description)).replace(',', ' ').lower()
+        search_in = u' '.join((obj.Name, (obj.ShortDescription or ''), obj.Description)).replace(',', ' ').lower()
         name_desc_rank = [search_for in search_in for search_for in search_for_set].count(True)
         if name_desc_rank != len(search_for_set):                                       # All terms matched Name, Short Description, or Description
             name_desc_rank = 0
@@ -667,3 +667,201 @@ class Events_List(APIView):
         serializer = Resource_Event_Serializer(final_objects, context=context, many=True)
         response_obj['results'] = serializer.data
         return MyAPIResponse(response_obj, template_name='resource_v2/event_list.html')
+
+class Guide_Detail(APIView):
+    '''
+        Single Guide access by Global ID or by Affiliation and Local ID
+        
+        ### Optional response argument(s):<br>
+        ```
+            fields=<local_fields>               (return named fields)
+            format={json,xml,html}              (json default)
+        ```
+        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+            target="_blank">More API documentation</a>
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    def get(self, request, format=None, **kwargs):
+        arg_id = request.GET.get('id', kwargs.get('id', None))
+        arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
+        arg_localid = request.GET.get('localid', kwargs.get('localid', None))
+
+        # Process optional arguments
+        arg_fields = request.GET.get('fields', None)
+        if arg_fields:
+            want_fields = set(arg_fields.lower().split(','))
+        else:
+            want_fields = set()
+
+        if arg_id:
+            try:
+                final_objects = [ResourceV2Guide.objects.get(pk=arg_id)]
+            except ResourceV2Guide.DoesNotExist:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Global ID not found')
+        elif arg_affiliation and arg_localid:
+            try:
+                final_objects = ResourceV2Guide.objects.filter(Affiliation__exact=arg_affiliation).filter(LocalID__exact=arg_localid)
+            except Exception as exc:
+                raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc.message))
+        else:
+            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing selection arguments')
+
+        context = {'fields': want_fields}
+        serializer = Guide_Detail_Serializer(final_objects, context=context, many=True)
+        response_obj = {'results': serializer.data}
+        return MyAPIResponse(response_obj, template_name='guide_v2/guide_detail.html')
+
+class Guide_Search(APIView):
+    '''
+        ### Guide search and list
+        
+        Optional Resource selection argument(s) to return related Guides:
+        ```
+            search_terms=<comma_delimited_search_terms>
+            search_strings=<comma_delimited_search_strings>
+            affiliation={uiuc.edu, xsede.org, ...}
+            resource_groups=<group1>[, <group2>[...]]
+            topics=<topic1>[,<topic2>[...]]
+            types=<type1>[,<type2>[...]]
+            providers=<provider1>[,<provider2>[...]]
+        ```
+        Optional response argument(s):
+        ```
+            fields=<local_fields>               (return named fields)
+            format={json,xml,html}              (json default)
+            sort=<local_field>                  (default global Name)
+            page=<number>
+            results_per_page=<number>           (default=25)
+        ```
+        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+            target="_blank">More API documentation</a>
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    def get(self, request, format=None, **kwargs):
+        # Process optional arguments
+        arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
+        if arg_affiliation:
+            want_affiliation = set(arg_affiliation.split(','))
+        else:
+            want_affiliation = set()
+
+        arg_resource_groups = request.GET.get('resource_groups', None)
+        if arg_resource_groups:
+            want_resource_groups = set(arg_resource_groups.split(','))
+        else:
+            want_resource_groups = set()
+
+        arg_terms = request.GET.get('search_terms', None)
+        if arg_terms:
+            want_terms = set(arg_terms.replace(',', ' ').lower().split())
+        else:
+            want_terms = set()
+
+        arg_strings = request.GET.get('search_strings', None)
+        if arg_strings:
+            want_strings = set(arg_strings.replace(',', ' ').lower().split())
+        else:
+            want_strings = set()
+
+        arg_topics = request.GET.get('topics', None)
+        if arg_topics:
+            want_topics = set(arg_topics.split(','))
+        else:
+            want_topics = set()
+
+        arg_types = request.GET.get('types', None)
+        if arg_types:
+            want_types = set(arg_types.split(','))
+        else:
+            want_types = set()
+
+        arg_providers = request.GET.get('providers', None)
+        # Search in ProviderID field if possible rather than Provider in JSONField
+        if arg_providers:
+            if set(arg_providers).issubset(set('0123456789,')):
+                # Handle numeric providers for uiuc.edu
+                if want_affiliation and len(want_affiliation) == 1:
+                    this_affiliation = next(iter(want_affiliation))
+                    want_providerids = ['urn:glue2:GlobalResourceProvider:{}.{}'.format(x.strip(), this_affiliation) for x in arg_providers.split(',')]
+                    want_providers = []
+                else:
+                    want_providerids = []
+                    want_providers = [int(x) for x in arg_providers.split(',') if x.strip().isdigit()]
+            else:
+                want_providerids = set(arg_providers.split(','))
+                want_providers = []
+        else:
+            want_providerids = []
+            want_providers = []
+
+        arg_fields = request.GET.get('fields', None)
+        if arg_fields:
+            want_fields = set(arg_fields.lower().split(','))
+        else:
+            want_fields = set()
+
+        sort = request.GET.get('sort', 'resource_name')
+        page = request.GET.get('page', None)
+        page_size = request.GET.get('results_per_page', 25)
+
+        response_obj = {}
+        try:
+            # These filters are handled by the database; they are first
+            RES = ResourceV2.objects.filter(EntityJSON__record_status__exact=1)
+            if want_affiliation:
+                RES = RES.filter(Affiliation__in=want_affiliation)
+            if want_resource_groups:
+                RES = RES.filter(ResourceGroup__in=want_resource_groups)
+            if want_types:
+                RES = RES.filter(Type__in=want_types)
+            if want_providerids:
+                RES = RES.filter(ProviderID__in=want_providerids)
+            elif want_providers:
+                RES = RES.filter(EntityJSON__provider__in=want_providers)
+#            if not want_terms:                  # Becase terms search does its own ranked sort
+#                local_global_map = {'resource_name': 'Name',
+#                                    'resource_type': 'Type',
+#                                    'resource_description': 'Description',
+#                                    'id': 'LocalID'}
+#                if sort in local_global_map:
+#                    RES = RES.order_by(local_global_map[sort])
+#                elif sort is not None:
+#                    RES = RES.order_by(RawSQL('"EntityJSON"->>\'{}\''.format(sort), ()))
+
+            # These filters have to be handled with code; they must be after the previous database filters
+            if want_topics:
+                RES = resource_topics_filter(RES, want_topics)
+            if want_terms:
+                RES = resource_terms_filtersort(RES, want_terms, sort_field='name')
+            elif want_strings:
+                RES = resource_strings_filtersort(RES, want_strings, sort_field='name')
+            RES = resource_oldevents_filter(RES)
+
+            want_resources = set()
+            for item in RES:
+                want_resources.add(item.ID)
+
+            want_guides = ResourceV2GuideResource.objects.filter(ResourceID__in=want_resources).order_by('CuratedGuideID').distinct('CuratedGuideID').values_list('CuratedGuideID', flat=True)
+
+            objects = ResourceV2Guide.objects.filter(pk__in=want_guides)
+            response_obj['total_results'] = len(objects)
+
+            if page:
+                paginator = Paginator(objects, page_size)
+                final_objects = paginator.page(page)
+                response_obj['page'] = int(page)
+                response_obj['total_pages'] = paginator.num_pages
+            else:
+                final_objects = objects
+        except Exception as exc:
+            if hasattr(exc, 'message'):
+                raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc.message))
+            else:
+                raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
+
+        context = {'fields': want_fields}
+        serializer = Guide_Search_Serializer(final_objects, context=context, many=True)
+        response_obj['results'] = serializer.data
+        return MyAPIResponse(response_obj, template_name='resource_v2/guide_list.html')
