@@ -575,6 +575,8 @@ class Events_List(APIView):
         ```
             search_terms=<whitespace_delimited_search_terms>
             affiliation={uiuc.edu, xsede.org, etc.}
+            topics=<topic1>[,<topic2>[...]]
+            providers=<provider1>[,<provider2>[...]]
             start_date=<yyyy-mm-dd>
             end_date=<yyyy-mm-dd>
         ```
@@ -597,6 +599,12 @@ class Events_List(APIView):
         else:
             want_affiliation = set()
 
+        arg_topics = request.GET.get('topics', None)
+        if arg_topics:
+            want_topics = set(arg_topics.split(','))
+        else:
+            want_topics = set()
+
         arg_fields = request.GET.get('fields', None)
         if arg_fields:
             want_fields = set(arg_fields.lower().split(','))
@@ -608,7 +616,26 @@ class Events_List(APIView):
             want_terms = set(arg_terms.replace(',', ' ').lower().split())
         else:
             want_terms = set()
-        
+ 
+        arg_providers = request.GET.get('providers', None)
+        # Search in ProviderID field if possible rather than Provider in JSONField
+        if arg_providers:
+            if set(arg_providers).issubset(set('0123456789,')):
+                # Handle numeric providers for uiuc.edu
+                if want_affiliation and len(want_affiliation) == 1:
+                    this_affiliation = next(iter(want_affiliation))
+                    want_providerids = ['urn:glue2:GlobalResourceProvider:{}.{}'.format(x.strip(), this_affiliation) for x in arg_providers.split(',')]
+                    want_providers = []
+                else:
+                    want_providerids = []
+                    want_providers = [int(x) for x in arg_providers.split(',') if x.strip().isdigit()]
+            else:
+                want_providerids = set(arg_providers.split(','))
+                want_providers = []
+        else:
+            want_providerids = []
+            want_providers = []
+ 
         try:
             dt = request.GET.get('start_date', None)
             pdt = parse_datetime(dt)
@@ -643,11 +670,19 @@ class Events_List(APIView):
             objects = ResourceV2.objects.filter(Type__exact='Event').filter(EntityJSON__record_status__exact=1)
             if want_affiliation:
                 objects = objects.filter(Affiliation__in=want_affiliation)
+            if want_providerids:
+                objects = objects.filter(ProviderID__in=want_providerids)
+            elif want_providers:
+                objects = objects.filter(EntityJSON__provider__in=want_providers)
             # resource.start_date_time <= end_date && resource.end_date_time >= start_date
             if arg_startdate:
                 objects = objects.filter(EntityJSON__end_date_time__gte=arg_startdate)      # String comparison
             if arg_enddate:
                 objects = objects.filter(EntityJSON__start_date_time__lt=arg_enddate)       # String comparison
+
+            # These filters have to be handled with code; they must be after the previous database filters
+            if want_topics:
+                objects = resource_topics_filter(objects, want_topics)
             if want_terms:
                 objects = resource_terms_filtersort(objects, want_terms, sort_field='start_date_time')
             else:
