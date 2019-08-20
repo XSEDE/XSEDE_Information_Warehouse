@@ -688,15 +688,12 @@ class Event_Search(APIView):
             if arg_enddate:
                 objects = objects.filter(EntityJSON__start_date_time__lt=arg_enddate)       # String comparison
 
-            # These filters have to be handled with code; they must be after the previous database filters
-            if want_topics:
-                objects = resource_topics_filter(objects, want_topics)
             if want_terms:
                 objects = resource_terms_filtersort(objects, want_terms, sort_field='start_date_time')
             else:
                 objects = objects.order_by(RawSQL('"EntityJSON"->>\'{}\''.format('start_date_time'), ()))
             
-            # These filters have to be handled with code; they must be after the previous database filters
+            # These filters have to be handled by looping thru rows; they must be after the previous database filters
             if want_topics:
                 objects = resource_topics_filter(objects, want_topics)
 
