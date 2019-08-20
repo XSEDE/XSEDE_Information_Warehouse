@@ -755,7 +755,7 @@ class Guide_Detail(APIView):
         context = {'fields': want_fields}
         serializer = Guide_Detail_Serializer(final_objects, context=context, many=True)
         response_obj = {'results': serializer.data}
-        return MyAPIResponse(response_obj, template_name='guide_v2/guide_detail.html')
+        return MyAPIResponse(response_obj, template_name='resource_v2/guide_detail.html')
 
 class Guide_Search(APIView):
     '''
