@@ -567,7 +567,7 @@ class Resource_Types_List(APIView):
         response_obj['results'] = serializer.data
         return MyAPIResponse(response_obj, template_name='resource_v2/types_list.html')
 
-class Events_List(APIView):
+class Event_Search(APIView):
     '''
         ### Event resource search and list
         
@@ -577,6 +577,7 @@ class Events_List(APIView):
             affiliation={uiuc.edu, xsede.org, etc.}
             topics=<topic1>[,<topic2>[...]]
             providers=<provider1>[,<provider2>[...]]
+            topics=<topic1>[,<topic2>[...]]
             start_date=<yyyy-mm-dd>
             end_date=<yyyy-mm-dd>
         ```
@@ -636,6 +637,13 @@ class Events_List(APIView):
             want_providerids = []
             want_providers = []
  
+
+        arg_topics = request.GET.get('topics', None)
+        if arg_topics:
+            want_topics = set(arg_topics.split(','))
+        else:
+            want_topics = set()
+
         try:
             dt = request.GET.get('start_date', None)
             pdt = parse_datetime(dt)
@@ -687,6 +695,11 @@ class Events_List(APIView):
                 objects = resource_terms_filtersort(objects, want_terms, sort_field='start_date_time')
             else:
                 objects = objects.order_by(RawSQL('"EntityJSON"->>\'{}\''.format('start_date_time'), ()))
+            
+            # These filters have to be handled with code; they must be after the previous database filters
+            if want_topics:
+                objects = resource_topics_filter(objects, want_topics)
+
             response_obj['total_results'] = len(objects)
             if page:
                 paginator = Paginator(objects, page_size)
@@ -696,7 +709,7 @@ class Events_List(APIView):
             else:
                 final_objects = objects
         except Exception as exc:
-            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc.message))
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, str(exc)))
 
         context = {'fields': want_fields}
         serializer = Resource_Event_Serializer(final_objects, context=context, many=True)
