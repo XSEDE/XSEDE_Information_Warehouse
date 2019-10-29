@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from monitoring_db.models import TestResult
 from django.utils.encoding import uri_to_iri
-from django.core.urlresolvers import reverse, get_script_prefix
+from django.urls import reverse, get_script_prefix
 
 class TestResult_Serializer(serializers.ModelSerializer):
     class Meta:

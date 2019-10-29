@@ -3,7 +3,7 @@ from xdcdb.models import *
 from glue2_db.models import *
 from glue2_db.serializers import *
 from django.utils.encoding import uri_to_iri
-from django.core.urlresolvers import reverse, get_script_prefix
+from django.urls import reverse, get_script_prefix
 import copy
 
 class XcdbResource_Serializer(serializers.ModelSerializer):

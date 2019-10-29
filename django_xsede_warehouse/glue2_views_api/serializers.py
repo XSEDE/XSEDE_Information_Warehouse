@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
 from glue2_db.models import ApplicationEnvironment, ApplicationHandle, AbstractService, ComputingActivity, ComputingQueue, Endpoint
 from glue2_db.serializers import ApplicationHandle_DbSerializer, AbstractService_DbSerializer, Endpoint_DbSerializer
-from django.core.urlresolvers import reverse, get_script_prefix
+from django.urls import reverse, get_script_prefix
 from django.utils.encoding import uri_to_iri
 import copy
 

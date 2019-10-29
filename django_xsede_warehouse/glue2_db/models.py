@@ -56,8 +56,9 @@ class ApplicationEnvironment(AbstractGlue2EntityModel):
 class ApplicationHandle(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
     ApplicationEnvironment = models.ForeignKey(ApplicationEnvironment,
-                                               related_name='applicationhandles',
-                                               null=True)
+                                                related_name='applicationhandles',
+                                                on_delete=models.CASCADE,
+                                                null=True)
     Type = models.CharField(max_length=16)
     Value = models.CharField(max_length=64)
 
@@ -70,7 +71,9 @@ class AbstractService(AbstractGlue2EntityModel):
 class Endpoint(AbstractGlue2EntityModel):
     ResourceID = models.CharField(db_index=True, max_length=40)
     AbstractService = models.ForeignKey(AbstractService,
-                                        related_name='endpoints', null=True)
+                                        related_name='endpoints',
+                                        on_delete=models.CASCADE,
+                                        null=True)
     HealthState = models.CharField(max_length=16)
     ServingState = models.CharField(max_length=16)
     URL = models.CharField(max_length=320)

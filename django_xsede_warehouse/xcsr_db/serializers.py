@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.encoding import uri_to_iri
 from xcsr_db.models import *
 from rest_framework import serializers

@@ -168,7 +168,7 @@ class Jobs_per_Resource_by_ProfileID(APIView):
         import requests
         fullusername = None
         username = None
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             fullusername = request.user.username
             username = fullusername[:fullusername.rfind("@")]
 
@@ -196,7 +196,7 @@ class Jobs_by_ProfileID(APIView):
         import requests
         fullusername = None
         username = None
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             fullusername = request.user.username
             username = fullusername[:fullusername.rfind("@")]
 

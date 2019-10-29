@@ -1,7 +1,7 @@
 from rdr_db.models import *
 from rest_framework import serializers
 from django.utils.encoding import uri_to_iri
-from django.core.urlresolvers import reverse, get_script_prefix
+from django.urls import reverse, get_script_prefix
 import copy
 
 class RDRResource_Serializer(serializers.ModelSerializer):

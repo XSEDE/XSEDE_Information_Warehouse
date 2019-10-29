@@ -2,7 +2,7 @@ from rest_framework import serializers
 from processing_status.models import *
 from django.utils.encoding import uri_to_iri
 from django.utils.http import urlquote
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 import copy
 import json
 

@@ -84,25 +84,24 @@ INSTALLED_APPS = (
     'xdinfo',
 )
 
-MIDDLEWARE_CLASSES = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
+MIDDLEWARE = (
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
 )
 
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
-    'xsede.org',
-    'www.xsede.org',
-    'portal.xsede.org',
-    'resttesttest.com',
-    'test-cors.org',
+    'https://xsede.org',
+    'https://www.xsede.org',
+    'https://portal.xsede.org',
+    'https://resttesttest.com',
+    'https://test-cors.org',
 )
 CORS_ALLOW_METHODS = (
     'GET'
@@ -276,6 +275,7 @@ REST_FRAMEWORK = {
        'rest_framework.renderers.BrowsableAPIRenderer',
        'rest_framework_xml.renderers.XMLRenderer',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'PAGINATE_BY': 10,
 }
 

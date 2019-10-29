@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='rdrresource',
             name='parent_resource',
-            field=models.ForeignKey(to='rdr_db.RDRResource', null=True, db_constraint=False),
+            field=models.ForeignKey(to='rdr_db.RDRResource', on_delete=models.CASCADE, null=True, db_constraint=False),
         ),
     ]

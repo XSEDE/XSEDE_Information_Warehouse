@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse, get_script_prefix
+from django.urls import reverse, get_script_prefix
 from django.utils.encoding import uri_to_iri
 from django.utils import timezone
 from rest_framework import serializers
