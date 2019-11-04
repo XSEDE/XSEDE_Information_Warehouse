@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "==2.2.7"
+django-cors-headers = "==3.1.1"
+django-filter = "==2.2.0"
+django-rest-swagger = "==2.2.0"
+django-secure = "==1.0.1"
+djangorestframework-xml = "==1.4.0"
+lockfile = "==0.12.2"
+markdown = "==3.1.1"
+mod-wsgi = "==4.6.8"
+python-jose = "==3.0.1"
+pyyaml = "==5.1.2"
+social-auth-app-django = "==3.1.0"
+"psycopg2" = "==2.8.4"
+amqp = "==2.5.2"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"
