@@ -107,10 +107,11 @@ CORS_ALLOW_METHODS = (
     'GET'
 )
 
-if 'SUB_SITE' in CONF:
-    SWAGGER_SETTINGS = {
-        'api_path': '/%s' % CONF['SUB_SITE']
+SWAGGER_SETTINGS = {
+    "exclude_namespaces": ["internal_apis"],    #  List URL namespaces to ignore
 }
+if 'SUB_SITE' in CONF:
+    SWAGGER_SETTINGS['api_path'] = '/%s' % CONF['SUB_SITE']
 
 ROOT_URLCONF = 'xsede_warehouse.urls'
 

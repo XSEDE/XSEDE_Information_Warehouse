@@ -119,14 +119,14 @@ class xdinfo_Cmd(APIView):
         if infotype == 'gridftp':
             if aton_string:
                 objects = Endpoint.objects.filter(AbstractService__EntityJSON__Capability__contains=['data.transfer.nonstriped']).filter(ResourceID__icontains=aton_string)
-                serializernonstriped = xdinfo_gridftpn_Serializer(objects,many=True)
+                serializernonstriped = xdinfo_gridftpn_Serializer(objects, many=True)
                 objects = Endpoint.objects.filter(AbstractService__EntityJSON__Capability__contains=['data.transfer.striped']).filter(ResourceID__icontains=aton_string)
-                serializerstriped = xdinfo_gridftps_Serializer(objects,many=True)
+                serializerstriped = xdinfo_gridftps_Serializer(objects, many=True)
             else:
                 objects = Endpoint.objects.filter(AbstractService__EntityJSON__Capability__contains=['data.transfer.nonstriped'])
-                serializernonstriped = xdinfo_gridftpn_Serializer(objects,many=True)
+                serializernonstriped = xdinfo_gridftpn_Serializer(objects, many=True)
                 objects = Endpoint.objects.filter(AbstractService__EntityJSON__Capability__contains=['data.transfer.striped'])
-                serializerstriped = xdinfo_gridftps_Serializer(objects,many=True)
+                serializerstriped = xdinfo_gridftps_Serializer(objects, many=True)
             serialized_data = serializerstriped.data+serializernonstriped.data
         else:
             casedict = {

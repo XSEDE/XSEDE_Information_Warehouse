@@ -12,39 +12,39 @@ class xdinfo_service_Serializer(serializers.Serializer):
 
 class xdinfo_gram_Serializer(serializers.Serializer):
    
-        Name = serializers.SerializerMethodField('get_jobmanager')
-        URL = serializers.CharField()
-        ResourceID = serializers.CharField()
+    Name = serializers.SerializerMethodField('get_jobmanager')
+    URL = serializers.CharField()
+    ResourceID = serializers.CharField()
 
-        def get_jobmanager(self,Endpoint):
-            try:
-                jobmanager = Endpoint.URL.rsplit('-', 1)
-            except Exception as err:
-                returnstring = u"gram5-default"
+    def get_jobmanager(self,Endpoint):
+        try:
+            jobmanager = Endpoint.URL.rsplit('-', 1)
+        except Exception as err:
+            returnstring = u"gram5-default"
+        else:
+            if len(jobmanager) == 2:
+                returnstring = u"gram5-"+jobmanager[1]
             else:
-                if len(jobmanager) == 2:
-                    returnstring = u"gram5-"+jobmanager[1]
-                else:
-                    returnstring = u"gram5-default"
-            return returnstring
+                returnstring = u"gram5-default"
+        return returnstring
 
 class xdinfo_gridftps_Serializer(serializers.Serializer):
    
-        Name = serializers.SerializerMethodField('get_striped')
-        URL = serializers.CharField()
-        ResourceID = serializers.CharField()
+    Name = serializers.SerializerMethodField('get_striped')
+    URL = serializers.CharField()
+    ResourceID = serializers.CharField()
 
-        def get_striped(self,Endpoint):
-            return u"gridftp-striped-server"
+    def get_striped(self,Endpoint):
+        return u"gridftp-striped-server"
 
 class xdinfo_gridftpn_Serializer(serializers.Serializer):
    
-        Name = serializers.SerializerMethodField('get_nonstriped')
-        URL = serializers.CharField()
-        ResourceID = serializers.CharField()
+    Name = serializers.SerializerMethodField('get_nonstriped')
+    URL = serializers.CharField()
+    ResourceID = serializers.CharField()
 
-        def get_nonstriped(self,Endpoint):
-            return u"gridftp-nonstriped-server"
+    def get_nonstriped(self,Endpoint):
+        return u"gridftp-nonstriped-server"
 
 class xdinfo_resource_Serializer(serializers.Serializer):
     
