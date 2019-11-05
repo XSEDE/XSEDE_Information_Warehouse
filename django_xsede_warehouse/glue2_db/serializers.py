@@ -80,6 +80,27 @@ class ComputingActivity_DbSerializer(serializers.ModelSerializer):
         model = ComputingActivity
         fields = ('ID', 'ResourceID', 'Name', 'CreationTime', 'Validity', 'EntityJSON')
 
+class ComputingManagerAcceleratorInfo_DbSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComputingManagerAcceleratorInfo
+        fields = ('ID', 'ResourceID', 'Name', 'CreationTime', 'Validity', 'EntityJSON')
+
+class ComputingManagerAcceleratorInfo_DbSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComputingManagerAcceleratorInfo
+        fields = ('ID', 'ResourceID', 'Name', 'CreationTime', 'Validity', 'EntityJSON')
+
+class ComputingShareAcceleratorInfo_DbSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComputingShareAcceleratorInfo
+        fields = ('ID', 'ResourceID', 'Name', 'CreationTime', 'Validity', 'EntityJSON')
+
+class AcceleratorEnvironment_DbSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcceleratorEnvironment
+        fields = ('ID', 'ResourceID', 'Name', 'CreationTime', 'Validity', 'EntityJSON', \
+                  'Type')
+
 class EntityHistory_DbSerializer(serializers.ModelSerializer):
     class Meta:
         model = EntityHistory

@@ -87,6 +87,8 @@ class ComputingQueue_Expand_Serializer(serializers.ModelSerializer):
         response = []
 #        for key in sorted(jobsort):
         for key in ComputingQueue.EntityJSON:
+            if key == 'Extension':
+                continue
             jobin = ComputingQueue.EntityJSON[key]
             jobout = {'ID': jobin['LocalIDFromManager']}
             for s in jobin['State']:

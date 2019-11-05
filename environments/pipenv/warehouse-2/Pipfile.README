@@ -4,6 +4,9 @@
 
 # Install PostgreSQL via Mac Ports or other mechanism
 
-# Install Python 3.7.x from Mac native packages at python.org
+# Install Python 3.7.x using native Mac packages from https://python.org/
 
+# LDFLAGS for Python and ssl libs
 env LDFLAGS="-I/opt/local/include -L/opt/local/lib" pipenv --python `which python3.7` --bare install
+
+pipenv shell
