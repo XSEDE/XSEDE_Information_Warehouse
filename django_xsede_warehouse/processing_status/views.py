@@ -70,8 +70,8 @@ class ProcessingRecord_Detail(APIView):
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
-            try:
-                object = ProcessingRecord.objects.get(pk=uri_to_iri(self.kwargs['id']))
+            try: #uri_to_iri(
+                object = ProcessingRecord.objects.get(pk=self.kwargs['id'])
             except ProcessingRecord.DoesNotExist:
                 raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified id not found')
         else:

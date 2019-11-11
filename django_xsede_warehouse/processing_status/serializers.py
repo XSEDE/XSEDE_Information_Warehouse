@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from processing_status.models import *
-from django.utils.encoding import uri_to_iri
+from django.utils.encoding import iri_to_uri
 from django.utils.http import urlquote
 from django.urls import reverse
 import copy
@@ -20,7 +20,7 @@ class ProcessingRecord_DetailURL_DbSerializer(serializers.ModelSerializer):
     def get_DetailURL(self, ProcessingRecord):
         http_request = self.context.get('request')
         if http_request:
-            return http_request.build_absolute_uri(uri_to_iri(reverse('processingrecord-detail', args=[urlquote(ProcessingRecord.ID, safe='')] )))
+            return http_request.build_absolute_uri(iri_to_uri(reverse('processingrecord-detail', kwargs={'id': ProcessingRecord.ID} )))
         else:
             return ''
     def get_HistoryURL(self, ProcessingRecord):
@@ -32,9 +32,9 @@ class ProcessingRecord_DetailURL_DbSerializer(serializers.ModelSerializer):
             return ''
         try:
             message_json = json.loads(ProcessingRecord.ProcessingMessage)
-            if message_json['LABEL'].startswith('EntityHistory.ID='):
-                hi = message_json['LABEL'].split('=')[1]
-                return http_request.build_absolute_uri(uri_to_iri(reverse('entityhistory-detail', args=[urlquote(hi, safe='')] )))
+            if message_json['Label'].startswith('EntityHistory.ID='):
+                historyid = message_json['Label'].split('=')[1]
+                return http_request.build_absolute_uri(iri_to_uri(reverse('entityhistory-detail', kwargs={'id': urlquote(historyid, safe='')} )))
         except:
             return ''
     class Meta:
@@ -55,7 +55,7 @@ class PublisherInfo_DetailURL_DbSerializer(serializers.ModelSerializer):
     def get_DetailURL(self, PublisherInfo):
         http_request = self.context.get('request')
         if http_request:
-            return http_request.build_absolute_uri(uri_to_iri(reverse('publisherinfo-detail', args=[urlquote(PublisherInfo.ID, safe='')] )))
+            return http_request.build_absolute_uri(iri_to_uri(reverse('publisherinfo-detail', args=[urlquote(PublisherInfo.ID, safe='')] )))
         else:
             return ''
     class Meta:
