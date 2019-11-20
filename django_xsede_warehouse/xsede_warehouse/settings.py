@@ -266,11 +266,13 @@ STATICFILES_DIRS = (
 # Other stuff added by JP
 #
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'mp_auth.backends.mp.MultiproviderAuthentication',
-    ),
+#These don't seem necessary for userjobs--and they cause everything to 
+#require auth.
+#    'DEFAULT_AUTHENTICATION_CLASSES': (
+#        'rest_framework.authentication.BasicAuthentication',
+#        'rest_framework.authentication.SessionAuthentication',
+#        'mp_auth.backends.mp.MultiproviderAuthentication',
+#    ),
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
