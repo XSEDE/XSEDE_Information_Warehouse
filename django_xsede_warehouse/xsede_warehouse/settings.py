@@ -294,6 +294,7 @@ MULTIPROVIDER_AUTH = {
             "aud": "xsede_info_servers_oauth",
         }
     },
+}
 
 #
 # Social Auth 
