@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     'monitoring_db_api.apps.MonitoringDbApiConfig',
     'monitoring_provider.apps.MonitoringProviderConfig',
     'monitoring_views_api.apps.MonitoringViewsApiConfig',
+    'mp_auth',
     'outages',
     'processing_status',
     'projectresources',
@@ -91,6 +92,7 @@ MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -265,6 +267,11 @@ STATICFILES_DIRS = (
 # Other stuff added by JP
 #
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'mp_auth.backends.mp.MultiproviderAuthentication',
+    ),
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
@@ -280,6 +287,14 @@ REST_FRAMEWORK = {
     'PAGINATE_BY': 10,
 }
 
+MULTIPROVIDER_AUTH = {
+    "BearerTokens": {
+        "globus": {
+            "scope": ["openid"],
+            "aud": "xsede_info_servers_oauth",
+        }
+    },
+
 #
 # Social Auth 
 #
@@ -290,6 +305,13 @@ SOCIAL_AUTH_GLOBUS_SECRET = CONF['SOCIAL_AUTH_GLOBUS_SECRET']
 SOCIAL_AUTH_GLOBUS_AUTH_EXTRA_ARGUMENTS = {
     'access_type': 'offline',
 }
+
+#
+#Multiprovider Auth
+#
+GLOBUS_CLIENT_ID = SOCIAL_AUTH_GLOBUS_KEY
+GLOBUS_CLIENT_SECRET = SOCIAL_AUTH_GLOBUS_SECRET
+
 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.globus.GlobusOpenIdConnect',
