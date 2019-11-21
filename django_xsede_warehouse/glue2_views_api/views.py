@@ -12,6 +12,10 @@ from glue2_views_api.serializers import *
 from xsede_warehouse.responses import MyAPIResponse
 from xsede_warehouse.exceptions import MyAPIException
 from xdcdb.models import XSEDELocalUsermap
+from social_django.utils import psa
+from mp_auth.backends.mp import MultiproviderAuthentication
+from mp_auth.backends.mp import GlobusAuthentication
+
 import requests
 
 
@@ -190,6 +194,7 @@ class Jobs_by_ProfileID(APIView):
     '''
         GLUE2 Jobs from ComputingActivity
     '''
+    authentication_classes = (GlobusAuthentication,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
