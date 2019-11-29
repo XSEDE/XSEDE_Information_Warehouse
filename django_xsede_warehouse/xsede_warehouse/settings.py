@@ -47,6 +47,7 @@ ALLOWED_HOSTS = CONF['ALLOWED_HOSTS']
 
 API_BASE = CONF.get('API_BASE', '')
 
+TEST_SERVER = CONF.get('TEST_SERVER', None)
 # Application definition
 
 INSTALLED_APPS = (
@@ -251,6 +252,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = CONF.get('STATIC_ROOT', None)
 
 STATICFILES_DIRS = (
     os.path.join( os.path.dirname(__file__),  '../static' ),

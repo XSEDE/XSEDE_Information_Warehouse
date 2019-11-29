@@ -12,7 +12,7 @@ def home(request):
         access_token = social.get(provider='globus').extra_data['access_token']
         refresh_token = social.get(provider='globus').extra_data['refresh_token']
     return render(request,
-                  'home.html',
+                  'templates/home.html',
                   {'uuid': uuid,
                   'access_token': access_token,
                   'refresh_token': refresh_token})
