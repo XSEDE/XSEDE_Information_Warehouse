@@ -61,7 +61,7 @@ urlpatterns_internal = [
     url(r'^favicon\.ico$', lambda x: HttpResponse("User-Agent: *\nDisallow:", content_type="image/ico"), name="/static/favicon.ico"),
     url(r'^robots\.txt$', lambda x: HttpResponse("User-Agent: *\nDisallow:", content_type="text/plain"), name="/static/robots.txt"),
     url(r'^$', TemplateView.as_view(template_name='index.html')),
-    url(r'^feedback(\.html)?$',TemplateView.as_view(template_name='feedback.html')),
+    url(r'^info/feedback(\.html|\/)?$',TemplateView.as_view(template_name='feedback.html')),
 ]
 
 urlpatterns = urlpatterns_internal + urlpatterns_public
