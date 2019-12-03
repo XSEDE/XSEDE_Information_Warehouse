@@ -270,7 +270,7 @@ class Resource_Detail(APIView):
             try:
                 final_objects = Resource.objects.filter(Affiliation__exact=arg_affiliation).filter(LocalID__exact=arg_localid)
             except Exception as exc:
-                raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc.message))
+                raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
         else:
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing selection arguments')
 
@@ -430,10 +430,7 @@ class Resource_Search(APIView):
             else:
                 final_objects = objects
         except Exception as exc:
-            if hasattr(exc, 'message'):
-                raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc.message))
-            else:
-                raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
         context = {'fields': want_fields}
         serializer = Resource_Search_Serializer(final_objects, context=context, many=True)
@@ -492,7 +489,7 @@ class Resource_Provider_List(APIView):
             else:
                 final_objects = objects
         except Exception as exc:
-            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc.message))
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
         context = {'fields': want_fields}
         serializer = ResourceProvider_Search_Serializer(final_objects, context=context, many=True)
@@ -552,7 +549,7 @@ class Resource_Types_List(APIView):
             else:
                 final_objects = objects
         except Exception as exc:
-            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc.message))
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
         context = {'fields': want_fields}
         serializer = Resource_Types_Serializer(final_objects, context=context, many=True)
         response_obj['results'] = serializer.data
@@ -652,7 +649,7 @@ class Events_List(APIView):
             else:
                 final_objects = objects
         except Exception as exc:
-            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc.message))
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
         context = {'fields': want_fields}
         serializer = Resource_Event_Serializer(final_objects, context=context, many=True)
