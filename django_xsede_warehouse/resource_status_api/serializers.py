@@ -3,6 +3,7 @@ from django.utils.encoding import uri_to_iri
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
+from glue2_db.models import ComputingManager, ComputingManagerAcceleratorInfo, ComputingShare
 from rdr_db.models import RDRResource
 from monitoring_db.models import TestResult
 from outages.models import Outages
@@ -354,4 +355,76 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
         fields = ('rdr_resource_id', 'rdr_type', 'info_resourceid', 'info_siteid',
                   'resource_descriptive_name', 'resource_status', 'current_statuses',
                   'latest_status', 'latest_status_begin', 'latest_status_end',
+                  'project_affiliation', 'provider_level')
+
+class Resource_Batch_Status_Serializer(serializers.Serializer):
+    # Resource identifiers and descriptions
+    ResourceID = serializers.CharField(source='info_resourceid')
+    SiteID = serializers.CharField(source='info_siteid')
+    DisplayName = serializers.CharField(source='resource_descriptive_name')
+    ProjectAffiliation = serializers.CharField(source='project_affiliation')
+    ProviderLevel = serializers.CharField(source='provider_level')
+
+    # %utilization and free CPUs if available particularly and total jobs.
+    Computing_Manager_Info = serializers.SerializerMethodField()
+
+    Computing_Manager_Accelerator_Info = serializers.SerializerMethodField()
+
+    Computing_Share_Info = serializers.SerializerMethodField()
+
+#    Computing_Share_Accelerator_Info = serializers.SerializerMethodField()
+
+#    Computing_Queue_Info = serializers.SerializerMethodField()
+
+    def get_Computing_Manager_Info(self, RDRResource):
+        managers = ComputingManager.objects.filter(ResourceID=RDRResource.info_resourceid)
+        results = {}
+        # Should only have one
+        for man in managers:
+            results['TotalSlots'] = man.EntityJSON.get('TotalSlots', None)
+            results['SlotsUsedByLocalJobs'] = man.EntityJSON.get('SlotsUsedByLocalJobs', None)
+            results['TotalLogicalCPUs'] = man.EntityJSON.get('TotalLogicalCPUs', None)
+            results['TotalPhysicalCPUs'] = man.EntityJSON.get('TotalPhysicalCPUs', None)
+            results['RefreshTime'] = man.EntityJSON.get('CreationTime', None)
+            break
+        return(results)
+
+    def get_Computing_Manager_Accelerator_Info(self, RDRResource):
+        managers = ComputingManagerAcceleratorInfo.objects.filter(ResourceID=RDRResource.info_resourceid)
+        results = {}
+        # Should only have one
+        for man in managers:
+            results['TotalPhysicalAccelerators'] = man.EntityJSON.get('TotalPhysicalAccelerators', None)
+            results['UsedAcceleratorSlots'] = man.EntityJSON.get('UsedAcceleratorSlots', None)
+            results['RefreshTime'] = man.EntityJSON.get('CreationTime', None)
+            break
+        return(results)
+
+    def get_Computing_Share_Info(self, RDRResource):
+        shares = ComputingShare.objects.filter(ResourceID=RDRResource.info_resourceid)
+        results = dict((i, 0) for i in ('TotalJobs', 'RunningJobs', 'WaitingJobs', 'SuspendedJobs'))
+        for share in shares:
+            results['TotalJobs'] += share.EntityJSON.get('TotalJobs', 0)
+            results['RunningJobs'] += share.EntityJSON.get('RunningJobs', 0)
+            results['WaitingJobs'] += share.EntityJSON.get('WaitingJobs', 0)
+            results['SuspendedJobs'] += share.EntityJSON.get('SuspendedJobs', 0)
+            try:
+                results['RefreshTime'] = min(share.EntityJSON.CreationTime, results['RefreshTime'])
+            except:
+                results['RefreshTime'] = share.EntityJSON.get('CreationTime', None)
+        if len(shares) == 0:
+            return({})
+        else:
+            return(results)
+
+    def get_Computing_Share_Accelerator_Info(self, RDRResource):
+        return({})
+
+    def get_Computing_Queue_Info(self, RDRResource):
+        return({})
+
+    class Meta:
+        model = RDRResource
+        fields = ('info_resourceid', 'info_siteid',
+                  'resource_descriptive_name',
                   'project_affiliation', 'provider_level')

@@ -33,10 +33,17 @@ urlpatterns = [
    # These are all XSEDE federate resource operational status for the XCSR
     url(r'^ops-status/$',
        Resource_Ops_Status_Detail.as_view(),
-       name='resource-status-detail'),
+       name='resource-ops-status-detail'),
     url(r'^ops-status/resourceid/(?P<resourceid>[^/]+)/$',
        Resource_Ops_Status_Detail.as_view(),
-       name='resource-status-detail'),
+       name='resource-ops-status-detail'),
+   # These are all XSEDE federate resource batch statuses
+    url(r'^batch-status/$',
+       Resource_Batch_Status_Detail.as_view(),
+       name='resource-batch-status-detail'),
+    url(r'^batch-status/resourceid/(?P<resourceid>[^/]+)/$',
+       Resource_Batch_Status_Detail.as_view(),
+       name='resource-batch-status-detail'),
 
 #    url(r'^status/active/$',
 #        Resource_Status_Detail.as_view(),

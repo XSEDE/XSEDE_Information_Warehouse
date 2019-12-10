@@ -12,6 +12,8 @@ from rdr_db.models import RDRResource
 from rdr_db.filters import *
 from monitoring_db.models import TestResult
 from resource_status_api.serializers import *
+from xsede_warehouse.exceptions import MyAPIException
+from xsede_warehouse.responses import MyAPIResponse
 
 # Create your views here.
 
@@ -56,3 +58,17 @@ class Resource_Ops_Status_Detail(APIView):
         serializer = Resource_Ops_Status_Serializer(objects, context={'request': request}, many=True)
         return Response(serializer.data)
 
+class Resource_Batch_Status_Detail(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    def get(self, request, format=None, **kwargs):
+        if 'resourceid' in self.kwargs:
+            try:
+                objects = RDRResource.objects.filter(info_resourceid__exact=uri_to_iri(self.kwargs['resourceid'])).filter(rdr_type__in=['compute','storage'])
+            except RDRResource.DoesNotExist:
+                raise MyAPIException(code=status.HTTP_400_BAD_REQUEST)
+        else:
+            objects = RDR_Active_Resources(affiliation='XSEDE', allocated=False, type='SUB', result='OBJECTS')
+        serializer = Resource_Batch_Status_Serializer(objects, context={'request': request}, many=True)
+        response_obj = {'results': serializer.data}
+        return MyAPIResponse(response_obj)
+        # template_name='resource_v2/guide_list.html')
