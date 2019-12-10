@@ -17,7 +17,7 @@ from rdr_db.serializers import *
 
 #from django.core.urlresolvers import resolve
 import logging
-logg2 = logging.getLogger('xsede.glue2')
+logg2 = logging.getLogger('xsede.logger')
 
 #Service information comes from Endpoint and the parent AbstractService
 class goServices_List(APIView):

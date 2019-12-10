@@ -1,4 +1,3 @@
-from __future__ import print_function
 import json
 from datetime import datetime, tzinfo, timedelta
 from django.utils import timezone
@@ -12,7 +11,7 @@ from processing_status.process import ProcessingActivity
 from xsede_warehouse.exceptions import ProcessingException
 
 import logging
-logg2 = logging.getLogger('xsede.glue2')
+logg2 = logging.getLogger('xsede.logger')
 
 Handled_Models = ('TestResult', )
 

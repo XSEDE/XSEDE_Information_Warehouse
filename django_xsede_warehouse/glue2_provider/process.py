@@ -12,7 +12,7 @@ from processing_status.process import ProcessingActivity
 from xsede_warehouse.exceptions import ProcessingException
 
 import logging
-logg2 = logging.getLogger('xsede.glue2')
+logg2 = logging.getLogger('xsede.logger')
 
 Handled_Models = ('ApplicationEnvironment', 'ApplicationHandle', \
                   'AbstractService', 'Endpoint',

@@ -1,4 +1,3 @@
-from __future__ import print_function
 from django.http import *
 from django.shortcuts import render
 from django.utils.encoding import uri_to_iri
@@ -13,7 +12,7 @@ from monitoring_db.models import *
 from monitoring_db.serializers import *
 
 import logging
-logg2 = logging.getLogger('xsede.glue2')
+logg2 = logging.getLogger('xsede.logger')
 
 class TestResult_DbList(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)

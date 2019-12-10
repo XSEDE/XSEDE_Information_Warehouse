@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 import logging
-logg2 = logging.getLogger('xsede.glue2')
+logg2 = logging.getLogger('xsede.logger')
 
 class ProcessingException(Exception):
     def __init__(self, response, status):

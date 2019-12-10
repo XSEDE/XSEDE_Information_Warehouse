@@ -20,7 +20,7 @@ UTC = pytz.timezone("UTC")
 
 #from django.core.urlresolvers import resolve
 import logging
-logg2 = logging.getLogger('xsede.glue2')
+logg2 = logging.getLogger('xsede.logger')
 
 class AdminDomain_DbList(APIView):
     '''

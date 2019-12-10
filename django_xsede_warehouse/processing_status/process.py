@@ -7,7 +7,7 @@ import json
 import logging
 import hashlib
 import socket
-logg2 = logging.getLogger('xsede.glue2')
+logg2 = logging.getLogger('xsede.logger')
 
 class UTC(tzinfo):
     def utcoffset(self, dt):
