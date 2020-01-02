@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 # Create your models here.
 
@@ -15,7 +16,6 @@ class TGResource(models.Model):
     ResourceDescription = models.CharField(db_index=True, max_length=40)
     Timestamp = models.DateTimeField(null=True)
     class Meta:
-        #app_label = 'RDRResource'
         db_name = 'xcsr'
     def __str__(self):
        return str(self.ResourceID)
@@ -33,3 +33,19 @@ class XSEDELocalUsermap(models.Model):
         db_name = 'xcsr'
     def __str__(self):
        return str(self.ID)
+
+class XSEDEPerson(models.Model):
+    person_id = models.IntegerField(primary_key=True, null=False)
+    portal_login = models.CharField(db_index=True, max_length=30, null=False)
+    last_name = models.CharField(max_length=100, null=False)
+    first_name = models.CharField(max_length=100, null=False)
+    middle_name = models.CharField(max_length=60, null=True)
+    is_suspended = models.BooleanField(null=False)
+    organization = models.CharField(max_length=300, null=False)
+    citizenships = models.CharField(max_length=300, null=True)
+    emails = models.CharField(max_length=300, null=True)
+    addressesJSON = JSONField()
+    class Meta:
+        db_name = 'xcsr'
+    def __str__(self):
+       return str(self.person_id)
