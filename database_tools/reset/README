@@ -1,0 +1,11 @@
+cd /soft/warehouse-1.0/PROD/database_tools/reset
+psql -U postgres warehouse
+\i reset.sql
+\q
+
+# Wherever the backups are
+cd /soft/warehouse-1.0
+psql -U postgres warehouse
+\i django.dump.1578688501 
+\i xcsr.dump.1578688501 
+\i glue2.dump.1578688501 
