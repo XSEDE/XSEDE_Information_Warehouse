@@ -9,6 +9,8 @@ from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
+from mp_auth.backends.mp import GlobusAuthentication
+
 from glue2_db.models import *
 from glue2_db.serializers import *
 
@@ -627,6 +629,7 @@ class ComputingQueue_DbList(APIView):
         GLUE2 Computing Queue entity
     '''
     permission_classes = (IsAuthenticated,)
+    authentication_classes = (GlobusAuthentication,)
     def get(self, request, format=None, **kwargs):
         if 'resourceid' in self.kwargs:
             try:
@@ -652,6 +655,7 @@ class ComputingQueue_DbDetail(APIView):
         GLUE2 Computing Queue entity
     '''
     permission_classes = (IsAuthenticated,)
+    authentication_classes = (GlobusAuthentication,)
     def get(self, request, pk, format=None):
         try:
             object = ComputingQueue.objects.get(pk=pk)
@@ -682,6 +686,7 @@ class ComputingActivity_DbList(APIView):
         GLUE2 Computing Activity entity
     '''
     permission_classes = (IsAuthenticated,)
+    authentication_classes = (GlobusAuthentication,)
     def get(self, request, format=None):
         objects = ComputingActivity.objects.all()
         serializer = ComputingActivity_DbSerializer(objects, many=True)
@@ -698,6 +703,7 @@ class ComputingActivity_DbDetail(APIView):
         GLUE2 Computing Activity entity
     '''
     permission_classes = (IsAuthenticated,)
+    authentication_classes = (GlobusAuthentication,)
     def get(self, request, pk, format=None):
         try:
             object = ComputingActivity.objects.get(pk=pk)

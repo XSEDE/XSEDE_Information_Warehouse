@@ -7,7 +7,6 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework_xml.renderers import XMLRenderer
-from mp_auth.backends.mp import MultiproviderAuthentication
 from mp_auth.backends.mp import GlobusAuthentication
 
 from xdcdb.models import *
@@ -71,7 +70,7 @@ class XSEDEPerson_Detail(APIView):
         ```
     '''
     permission_classes = (IsAuthenticated,)
-    authentication_classes = (GlobusAuthentication, BasicAuthentication)
+    authentication_classes = (GlobusAuthentication,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
@@ -100,7 +99,7 @@ class XSEDEPerson_Search(APIView):
         ```
     '''
     permission_classes = (IsAuthenticated,)
-    authentication_classes = (GlobusAuthentication, BasicAuthentication)
+    authentication_classes = (GlobusAuthentication,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         sort_by = request.GET.get('sort', 'portal_login')

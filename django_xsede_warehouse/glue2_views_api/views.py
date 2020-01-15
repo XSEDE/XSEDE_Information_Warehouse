@@ -13,7 +13,7 @@ from xsede_warehouse.responses import MyAPIResponse
 from xsede_warehouse.exceptions import MyAPIException
 from xdcdb.models import XSEDELocalUsermap
 from social_django.utils import psa
-from mp_auth.backends.mp import MultiproviderAuthentication
+
 from mp_auth.backends.mp import GlobusAuthentication
 
 import requests
@@ -97,6 +97,7 @@ class Jobqueue_List(APIView):
         GLUE2 Jobs Queue from ComputingQueue
     '''
     permission_classes = (IsAuthenticated,)
+    authentication_classes = (GlobusAuthentication,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         if 'resourceid' in self.kwargs:
@@ -118,6 +119,7 @@ class Job_Detail(APIView):
         GLUE2 Job Detail from ComputingActivity
     '''
     permission_classes = (IsAuthenticated,)
+    authentication_classes = (GlobusAuthentication,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
@@ -135,6 +137,7 @@ class Job_List(APIView):
         GLUE2 Jobs from ComputingActivity
     '''
     permission_classes = (IsAuthenticated,)
+    authentication_classes = (GlobusAuthentication,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
@@ -167,6 +170,7 @@ class Jobs_per_Resource_by_ProfileID(APIView):
         GLUE2 Jobs from ComputingActivity
     '''
     permission_classes = (IsAuthenticated,)
+    authentication_classes = (GlobusAuthentication,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         import requests
