@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}XCDB Person Detail{% endblock %}
+{% block content %}
+
+<style>
+th, td
+    {
+        padding: 15px;
+    }
+
+th
+    {
+        color: white;
+        background-color: #1E06B4;
+        text-align: left;
+        width: 10px;
+    }
+
+td
+    {
+        color: #69696B;
+    }
+
+table#data
+    {
+        border: 2px solid black;
+        border-collapse: collapse;
+    }
+</style>
+
+<h1 align="center">XCDB Person Detail</h1>
+<p><h3>As of: {% now 'Y-m-d H:i e' %}</h3></p>
+
+<table id ="data" width="98%" style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
+    
+    {% for record in results %}
+    <tr>
+        <th>Portal ID</th>
+        <td>{{ record.portal_login }} </th>
+    </tr>
+    
+    <tr>
+        <th>Person ID</th>
+        <td>{{ record.person_id }} </th>
+    </tr>
+    
+    <tr>
+        <th>Last name</th>
+        <td>{{ record.last_name }}</th>
+    </tr>
+    
+    <tr>
+        <th>First name</th>
+        <td>{{ record.first_name }}</th>
+    </tr>
+    
+    <tr>
+        <th>Middle name</th>
+        <td>{{ record.middle_name }}</th>
+    </tr>
+
+    <tr>
+        <th>Is suspended?</th>
+        <td>{{ record.is_suspended  }}</th>
+    </tr>
+
+    <tr>
+        <th>Organization</th>
+        <td>{{ record.organization }}</th>
+        </tr>
+    
+    <tr>
+        <th>Citizenship(s)</th>
+        <td>{{ record.citizenships }}</th>
+    </tr>
+    
+    <tr>
+        <th>E-mail(s)</th>
+        <td>{{ record.emails }}</th>
+    </tr>
+    
+    <tr>
+        <th>Addresses</th>
+        <td><pre>{{ record.addressesJSON | pprint }}</pre></th>
+    </tr>
+    
+    {% endfor %}
+    {% endblock %}

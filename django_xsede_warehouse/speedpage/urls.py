@@ -16,6 +16,4 @@ urlpatterns = [
     url(r'^speedpage/destid/(?P<destid>[^/]+)/$',
         speedpage_Detail.as_view(),
         name='speedpage-destid'),
-
-#    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}XCDB Detail{% endblock %}
+{% block title %}XCDB Resource Detail{% endblock %}
 {% block content %}
 
 <style>
@@ -28,50 +28,50 @@ table#data
     }
 </style>
 
-<h1 align="center">XCDB Detail</h1>
+<h1 align="center">XCDB Resource Detail</h1>
 <p><h3>As of: {% now 'Y-m-d H:i e' %}</h3></p>
 
 <table id ="data" width="98%" style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
     
-    {% for resource in resource_list %}
+    {% for record in results %}
     <tr>
         <th> ResourceID </th>
-        <td> {{ resource.ResourceID }} </th>
+        <td> {{ record.ResourceID }} </th>
     </tr>
     
     <tr>
         <th> Resource Code </th>
-        <td> {{ resource.ResourceCode }} </th>
+        <td> {{ record.ResourceCode }} </th>
     </tr>
     
     <tr>
         <th> Site ID </th>
-        <td> {{ resource.SiteID }} </th>
+        <td> {{ record.SiteID }} </th>
     </tr>
     
     <tr>
         <th> Organization Name </th>
-        <td> {{ resource.OrganizationName }} </th>
+        <td> {{ record.OrganizationName }} </th>
     </tr>
 
     <tr>
         <th> Organization Abbreviation </th>
-        <td> {{ resource.OrganizationAbbrev }} </th>
+        <td> {{ record.OrganizationAbbrev }} </th>
     </tr>
 
     <tr>
         <th> Amie Name </th>
-        <td> {{ resource.AmieName }} </th>
+        <td> {{ record.AmieName }} </th>
         </tr>
     
     <tr>
         <th> Pops Name </th>
-        <td> {{ resource.PopsName }} </th>
+        <td> {{ record.PopsName }} </th>
     </tr>
     
     <tr>
         <th> Timestamp </th>
-        <td> {{ resource.Timestamp|date:'Y-m-d H:i e' }} </th>
+        <td> {{ record.Timestamp|date:'Y-m-d H:i e' }} </th>
     </tr>
     
     {% endfor %}

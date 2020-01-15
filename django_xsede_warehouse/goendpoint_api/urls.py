@@ -20,5 +20,4 @@ urlpatterns = [
     url(r'^goservices/ServiceType/(?P<servicetype>[^/]+)/$',
         goServices_Detail.as_view(),
         name='goservices-detail'),
-
 ]

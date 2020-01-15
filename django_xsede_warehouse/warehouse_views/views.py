@@ -70,7 +70,7 @@ class Resource_List_XDCDB_Active(APIView):
             objects = objects = TGResource.objects.filter(ResourceID__in=active_resourceids).order_by('ResourceID')
         returnformat = request.query_params.get('format', None)
         objects = TGResource.objects.filter(ResourceID__in=active_resourceids).order_by('ResourceID')
-        serializer = XcdbResource_Serializer(objects, many=True)
+        serializer = XSEDEResource_Serializer(objects, many=True)
         if returnformat != 'html':
             return Response(serializer.data)
         else:

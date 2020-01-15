@@ -7,5 +7,4 @@ urlpatterns = [
     url(r'^dump.html$',
         Debug_Detail.as_view(),
         name='debug-detail')
-#    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

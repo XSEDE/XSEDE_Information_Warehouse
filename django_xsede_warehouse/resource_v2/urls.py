@@ -33,5 +33,4 @@ urlpatterns = [
     url(r'^guide/affiliation/(?P<affiliation>[^/]+)/localid/(?P<localid>[^/]+)/?$',
         Guide_Detail.as_view(),
         name='resource-detail'),
-#    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

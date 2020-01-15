@@ -16,5 +16,4 @@ urlpatterns = [
     #url(r'^xdinfo/cli/(?P<infotype>[^/]+)/at/(?P<arg1>[^/]+)/$', xdinfo_Cmd.as_view(), name='xdinfo-xtraargsat'),
     #url(r'^xdinfo/cli/(?P<infotype>[^/]+)/on/(?P<arg1>[^/]+)/$', xdinfo_Cmd.as_view(), name='xdinfo-xtraargson'),
     #url(r'^xdinfo/cli/(?P<infotype>[^/]+)/(?P<arg1>[^/]+)/(?P<arg2>[^/]+)/$', xdinfo_Cmd.as_view(), name='xdinfo-xtraargson'),
-#    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

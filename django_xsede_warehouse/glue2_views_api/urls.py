@@ -39,6 +39,4 @@ urlpatterns = [
     url(r'^userjobs/$', Jobs_by_ProfileID.as_view(), name='jobs-profileid'),
     url(r'^jobs2/ResourceID/(?P<resourceid>[^/]+)/Queue/(?P<queue>[^/]+)/$', Job_List.as_view(), name='jobs-list'),
     url(r'^jobs2/ResourceID/(?P<resourceid>[^/]+)/LocalAccount/(?P<localaccount>[^/]+)/$', Job_List.as_view(), name='jobs-list'),
-               
-#    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

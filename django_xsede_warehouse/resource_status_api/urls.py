@@ -48,6 +48,4 @@ urlpatterns = [
 #    url(r'^status/active/$',
 #        Resource_Status_Detail.as_view(),
 #        name='resource-status-detail'),
-
-#    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

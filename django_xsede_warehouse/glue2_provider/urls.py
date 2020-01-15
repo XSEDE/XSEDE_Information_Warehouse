@@ -7,5 +7,4 @@ urlpatterns = [
     url(r'^process/doctype/(?P<doctype>[^/]+)/resourceid/(?P<resourceid>[^/]+)/$',
         Glue2ProcessDoc.as_view(),
         name='glue2-process-doc'),
-#    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
