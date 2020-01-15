@@ -99,12 +99,12 @@ class XSEDEPerson_Search(APIView):
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         sort_by = request.GET.get('sort', 'portal_login')
-        search_string = kwargs.get('search_string', request.GET.get('search_string', None))
-        if search_string is None or search_string == '':
+        search_strings = kwargs.get('search_strings', request.GET.get('search_strings', None))
+        if search_strings is None or search_strings == '':
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Search string missing')
         
         try:
-            objects = XSEDEPerson.objects.filter( Q(portal_login__contains=search_string) | Q(last_name__contains=search_string) | Q(first_name__contains=search_string) | Q(emails__contains=search_string) ).order_by(sort_by)
+            objects = XSEDEPerson.objects.filter( Q(portal_login__contains=search_strings) | Q(last_name__contains=search_strings) | Q(first_name__contains=search_strings) | Q(emails__contains=search_strings) ).order_by(sort_by)
         except XSEDEPerson.DoesNotExist:
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='No persons match search string')
         serializer = XSEDEPerson_Serializer(objects, context={'request': request}, many=True)
