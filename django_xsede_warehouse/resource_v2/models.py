@@ -20,7 +20,7 @@ class ResourceV2(models.Model):
     ProviderID = models.CharField(max_length=200, null=True)
     ResourceGroup = models.CharField(max_length=64, null=True)
     Type = models.CharField(max_length=32)
-    ShortDescription = models.CharField(max_length=500, null=True)
+    ShortDescription = models.CharField(max_length=1000, null=True)
     Description = models.CharField(max_length=24000, null=True)
     QualityLevel = models.CharField(max_length=16, null=True)
     LocalID = models.CharField(db_index=True, max_length=200, null=True)
