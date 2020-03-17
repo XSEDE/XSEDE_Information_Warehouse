@@ -60,6 +60,7 @@ INSTALLED_APPS = (
     'rdr_db',
     'resource_cat',
     'resource_v2',
+    'resource_v3',
     'resource_status_api',
     'speedpage',
     'warehouse_views',
@@ -118,6 +119,12 @@ for db in DATABASES:
 
 DATABASE_ROUTERS = ['xsede_warehouse.router.ModelDatabaseRouter',]
 from xsede_warehouse.router import *
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'localhost:9200'
+    },
+}
 
 # Internationalization
 

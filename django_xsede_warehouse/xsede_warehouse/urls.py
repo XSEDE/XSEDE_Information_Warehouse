@@ -41,6 +41,7 @@ urlpatterns_public = [
     url(r'^rdr-db/', include('rdr_db.urls')),
     url(r'^resource-api/v1/', include('resource_cat.urls')),
     url(r'^resource-api/v2/', include('resource_v2.urls')),
+    url(r'^resource-api/v3/', include('resource_v3.urls')),
     url(r'^resource-status-api/v1/', include('resource_status_api.urls')),
     url(r'^speedpage/v1/', include('speedpage.urls')),
     url(r'^xcsr-db/v1/', include('xcsr_db.urls')),
