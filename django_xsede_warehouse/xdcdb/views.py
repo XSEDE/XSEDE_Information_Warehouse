@@ -91,10 +91,14 @@ class XSEDEPerson_Detail(APIView):
 
 class XSEDEPerson_Search(APIView):
     '''
-        ### Person search the Portal ID, Last Name, First Name, and e-mail addresses fields
+        ### Person search
+        * Searches for case insensitive string(s) in fields
+        * Fields: Portal ID, Last Name, First Name, and e-mail addresses
+        * If multiple space delimited strings are specific, the 'match' argument determines whether any (default) or all strings must match
         
         Optional response argument(s):
         ```
+            match={any,all}
             format={json,xml,html}              (json default)
         ```
     '''
@@ -104,11 +108,20 @@ class XSEDEPerson_Search(APIView):
     def get(self, request, format=None, **kwargs):
         sort_by = request.GET.get('sort', 'portal_login')
         search_strings = kwargs.get('search_strings', request.GET.get('search_strings', None))
+        match_mode = request.GET.get('match', 'or').lower()
         if search_strings is None or search_strings == '':
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Search string missing')
         
         try:
-            objects = XSEDEPerson.objects.filter( Q(portal_login__contains=search_strings) | Q(last_name__contains=search_strings) | Q(first_name__contains=search_strings) | Q(emails__contains=search_strings) ).order_by(sort_by)
+            query = None
+            for word in search_strings.split():
+                if not query:
+                    query = ( Q(portal_login__icontains=word) | Q(last_name__icontains=word) | Q(first_name__icontains=word) | Q(emails__icontains=word) )
+                elif match_mode == 'and':
+                    query = query & ( Q(portal_login__icontains=word) | Q(last_name__icontains=word) | Q(first_name__icontains=word) | Q(emails__icontains=word) )
+                else:
+                    query = query | ( Q(portal_login__icontains=word) | Q(last_name__icontains=word) | Q(first_name__icontains=word) | Q(emails__icontains=word) )
+            objects = XSEDEPerson.objects.filter( query ).order_by(sort_by)
         except XSEDEPerson.DoesNotExist:
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='No persons match search string')
         serializer = XSEDEPerson_Serializer(objects, context={'request': request}, many=True)
