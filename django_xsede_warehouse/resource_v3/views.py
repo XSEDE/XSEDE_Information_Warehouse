@@ -1,5 +1,6 @@
 from django.db.models.expressions import RawSQL
 from django.db.models import Count
+from django.conf import settings as django_settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
@@ -13,6 +14,7 @@ from .models import *
 from .serializers import *
 from xsede_warehouse.exceptions import MyAPIException
 from xsede_warehouse.responses import MyAPIResponse
+from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 import datetime
 from datetime import datetime, timedelta
@@ -236,7 +238,7 @@ class Provider_Search(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
-        arg_affiliations = request.GET.get('affiliation', kwargs.get('affiliation', None))
+        arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
         if arg_affiliations:
             want_affiliations = set(arg_affiliations.split(','))
         else:
@@ -291,9 +293,9 @@ class Resource_Types_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
-        arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
-        if arg_affiliation:
-            want_affiliations = set(arg_affiliation.split(','))
+        arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
+        if arg_affiliations:
+            want_affiliations = set(arg_affiliations.split(','))
         else:
             want_affiliations = set()
 
@@ -528,20 +530,22 @@ class Resource_Detail(APIView):
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Global ID not found')
 
         assoc_resources = []                   # Retrieve associated resources
-        for each_object in final_objects:      # Loop forces evaluation, required in order to execute another Resources query
-            assoc_ids = (each_object.Associations or '').split(',')
-            assoc_res = ResourceV3.objects.filter(Affiliation__exact=each_object.Affiliation).filter(LocalID__in=assoc_ids)
-            for res in assoc_res:
-                assoc_hash = {
-                    'id': res.LocalID,
-                    'resource_name': res.Name,
-                    'resource_desc': res.Description,
-                    'topics': res.Topics,
-                }
-                assoc_resources.append(assoc_hash)
-            break # breaking because we should have only have one item processed by this loop
+        # TODO: convert to RelationRelation
+#        for each_object in final_objects:      # Loop forces evaluation, required in order to execute another Resources query
+#            assoc_ids = (each_object.Associations or '').split(',')
+#            assoc_res = ResourceV3.objects.filter(Affiliation__exact=each_object.Affiliation).filter(LocalID__in=assoc_ids)
+#            for res in assoc_res:
+#                assoc_hash = {
+#                    'id': res.LocalID,
+#                    'resource_name': res.Name,
+#                    'resource_desc': res.Description,
+#                    'topics': res.Topics,
+#                }
+#                assoc_resources.append(assoc_hash)
+#            break # breaking because we should have only have one item processed by this loop
 
-        context = {'associated_resources': assoc_resources}
+#        context = {'associated_resources': assoc_resources}
+        context = {}
         serializer = Resource_Detail_Serializer(final_objects, context=context, many=True)
         response_obj = {'results': serializer.data}
         return MyAPIResponse(response_obj, template_name='resource_v3/resource_detail.html')
@@ -576,9 +580,9 @@ class Resource_Search(APIView):
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         # Process optional arguments
-        arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
-        if arg_affiliation:
-            want_affiliations = set(arg_affiliation.split(','))
+        arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
+        if arg_affiliations:
+            want_affiliations = set(arg_affiliations.split(','))
         else:
             want_affiliations = set()
 
@@ -637,7 +641,7 @@ class Resource_Search(APIView):
         else:
             want_fields = set()
 
-        sort = request.GET.get('sort', 'resource_name')
+        sort = request.GET.get('sort', 'Name')
         page = request.GET.get('page', None)
         page_size = request.GET.get('results_per_page', 25)
 
@@ -648,7 +652,7 @@ class Resource_Search(APIView):
         response_obj = {}
         try:
             # These filters are handled by the database; they are first
-            objects = ResourceV3.objects.filter(QualityLevel__exact='production')
+            objects = ResourceV3.objects.filter(QualityLevel__exact='Production')
             if want_affiliations:
                 objects = objects.filter(Affiliation__in=want_affiliations)
             if want_resource_groups:
@@ -660,7 +664,7 @@ class Resource_Search(APIView):
 #            elif want_providers:
 #                objects = objects.filter(EntityJSON__provider__in=want_providers)
             if not want_terms and sort is not None: # Becase terms search does its own ranked sort
-                objects = objects.order_by(soft)
+                objects = objects.order_by(sort)
 
             # These filters have to be handled with code; they must be after the previous database filters
             if want_topics:
@@ -689,6 +693,136 @@ class Resource_Search(APIView):
 
         context = {'fields': want_fields}
         serializer = Resource_Search_Serializer(final_objects, context=context, many=True)
+        response_obj['results'] = serializer.data
+        return MyAPIResponse(response_obj, template_name='resource_v3/resource_list.html')
+class Resource_ESearch(APIView):
+    '''
+        ### Resource Elastic search and list
+        
+        Optional selection argument(s):
+        ```
+            search_terms=<comma_delimited_search_terms>
+            affiliations=<comma-delimited-list>
+            resource_groups=<group1>[, <group2>[...]]
+            topics=<topic1>[,<topic2>[...]]
+            types=<type1>[,<type2>[...]]
+            providers=<provider1>[,<provider2>[...]]
+        ```
+        Optional response argument(s):
+        ```
+            fields=<fields>               (return named fields)
+            format={json,xml,html}              (json default)
+            sort=<field>                  (default Name.Keyword)
+            page=<number>
+            results_per_page=<number>           (default=25)
+            subtotals={only,include}            (default no totals)
+        ```
+        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+            target="_blank">More API documentation</a>
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    def get(self, request, format=None, **kwargs):
+        if not django_settings.ESCON:
+            raise MyAPIException(code=status.HTTP_503_SERVICE_UNAVAILABLE, detail='Elasticsearch not configured')
+        ESCON = django_settings.ESCON
+        
+        # Process optional arguments
+        arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
+        if arg_affiliations:
+            want_affiliations = list(arg_affiliations.split(','))
+        else:
+            want_affiliations = list()
+
+        arg_resource_groups = request.GET.get('resource_groups', None)
+        if arg_resource_groups:
+            want_resource_groups = list(arg_resource_groups.split(','))
+        else:
+            want_resource_groups = list()
+
+        arg_terms = request.GET.get('search_terms', None)
+        if arg_terms:
+            want_terms = list(arg_terms.replace(',', ' ').lower().split())
+        else:
+            want_terms = list()
+
+        arg_topics = request.GET.get('topics', None)
+        if arg_topics:
+            want_topics = list(arg_topics.split(','))
+        else:
+            want_topics = list()
+
+        arg_types = request.GET.get('types', None)
+        if arg_types:
+            want_types = list(arg_types.split(','))
+        else:
+            want_types = list()
+
+        arg_providers = request.GET.get('providers', None)
+        # Search in ProviderID field if possible rather than Provider in JSONField
+        if arg_providers:
+            want_providerids = list(arg_providers.split(','))
+        else:
+            want_providerids = list()
+
+        arg_fields = request.GET.get('fields', None)
+        if arg_fields:
+            want_fields = list(arg_fields.lower().split(','))
+        else:
+            want_fields = list()
+
+        sort = request.GET.get('sort', None)
+        page = request.GET.get('page', None)
+        page_size = request.GET.get('results_per_page', 25)
+
+        arg_subtotals = request.GET.get('subtotals', None)
+        if arg_subtotals:
+            arg_subtotals = arg_subtotals.lower()
+
+        response_obj = {}
+
+        try:
+            # These filters are handled by the database; they are first
+            ES = Search(index=ResourceV3Index.Index.name).using(ESCON)
+            ES = ES.query("match", QualityLevel='Production')
+            if want_affiliations:
+                ES = ES.query("terms", Affiliation=want_affiliations)
+            if want_resource_groups:
+                ES = ES.query("terms", ResourceGroup=want_resource_groups)
+            if want_types:
+                ES = ES.query("terms", Type=want_types)
+            if want_providerids:
+                ES = ES.query("terms", ProviderID=want_providerids)
+            if want_topics:
+                ES = ES.query("terms", Topics=want_topics)
+            if want_terms:
+                ES = ES.query("multi_match", query=' '.join(want_terms), fields=['Name', 'Keywords', 'ShortDescription', 'Description'])
+            if sort:
+                ES = ES.sort(sort)
+
+            response = ES.execute()
+
+# TODO: Pagination, Subtotals, Serializer
+#
+            objects = ES
+            response_obj['total_results'] = ES.count()
+            if arg_subtotals in ('only', 'include'):
+                response_obj['subtotals'] = resource_subtotals(objects)
+                if arg_subtotals == 'only':
+                    return MyAPIResponse(response_obj, template_name='resource_v3/resource_list.html')
+
+            if page:
+                paginator = Paginator(objects, page_size)
+                final_objects = paginator.page(page)
+                response_obj['page'] = int(page)
+                response_obj['total_pages'] = paginator.num_pages
+            else:
+                final_objects = objects
+        except Exception as exc:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
+
+        context = {'fields': want_fields}
+        serializer = Resource_ESearch_Serializer(final_objects, context=context, many=True)
         response_obj['results'] = serializer.data
         return MyAPIResponse(response_obj, template_name='resource_v3/resource_list.html')
 #
@@ -737,9 +871,9 @@ class Event_Search(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
-        arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
-        if arg_affiliation:
-            want_affiliations = set(arg_affiliation.split(','))
+        arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
+        if arg_affiliations:
+            want_affiliations = set(arg_affiliations.split(','))
         else:
             want_affiliations = set()
 
@@ -820,7 +954,7 @@ class Event_Search(APIView):
         response_obj = {}
 
         try:
-            objects = ResourceV3.objects.filter(ResourceGroup__exact='Live Events').filter(QualityLevel__exact='production')
+            objects = ResourceV3.objects.filter(ResourceGroup__exact='Live Events').filter(QualityLevel__exact='Production')
             if want_affiliations:
                 objects = objects.filter(Affiliation__in=want_affiliations)
             if want_providerids:
@@ -925,9 +1059,9 @@ class Guide_Search(APIView):
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         # Process optional arguments
-        arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
-        if arg_affiliation:
-            want_affiliations = set(arg_affiliation.split(','))
+        arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
+        if arg_affiliations:
+            want_affiliations = set(arg_affiliations.split(','))
         else:
             want_affiliations = set()
 
@@ -986,14 +1120,14 @@ class Guide_Search(APIView):
         else:
             want_fields = set()
 
-        sort = request.GET.get('sort', 'resource_name')
+        sort = request.GET.get('sort', 'Name')
         page = request.GET.get('page', None)
         page_size = request.GET.get('results_per_page', 25)
 
         response_obj = {}
         try:
             # These filters are handled by the database; they are first
-            RES = ResourceV3.objects.filter(QualityLevel__exact='production')
+            RES = ResourceV3.objects.filter(QualityLevel__exact='Production')
             if want_affiliations:
                 RES = RES.filter(Affiliation__in=want_affiliations)
             if want_resource_groups:

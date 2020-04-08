@@ -24,6 +24,8 @@ urlpatterns = [
         Resource_Detail.as_view(), name='resource-detail'),
     url(r'^resource_search/?$',
         Resource_Search.as_view(), name='resource-search'),
+    url(r'^resource_esearch/?$',
+        Resource_ESearch.as_view(), name='resource-esearch'),
     url(r'^event/id/(?P<id>.+)/$',
         Event_Detail.as_view(), name='event-detail'),
     url(r'^event_search/?$',

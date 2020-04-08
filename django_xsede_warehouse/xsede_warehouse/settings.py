@@ -120,11 +120,20 @@ for db in DATABASES:
 DATABASE_ROUTERS = ['xsede_warehouse.router.ModelDatabaseRouter',]
 from xsede_warehouse.router import *
 
-ELASTICSEARCH_DSL = {
-    'default': {
-        'hosts': 'localhost:9200'
-    },
-}
+if CONF.get('ELASTIC_HOSTS'):
+    import elasticsearch_dsl.connections
+    from elasticsearch import Elasticsearch, RequestsHttpConnection
+    ELASTICSEARCH_DSL = {
+        'default': {
+            'hosts': CONF.get('ELASTIC_HOSTS', None)
+        },
+    }
+    ESCON = elasticsearch_dsl.connections.create_connection( \
+        hosts = CONF['ELASTIC_HOSTS'], \
+        connection_class = RequestsHttpConnection, \
+        timeout = 10)
+else:
+    ESCON = None
 
 # Internationalization
 

@@ -5,13 +5,14 @@ from .models import *
 class ResourceV3Catalog_Admin(admin.ModelAdmin):
     list_display = ('Affiliation', 'Name', 'ID')
     list_display_links = ['ID']
+    readonly_fields = ('created_at', 'updated_at')
 
 class ResourceV3Local_Admin(admin.ModelAdmin):
     list_display = ('Affiliation', 'LocalID', 'CreationTime', 'ID')
     list_display_links = ['ID']
 
 class ResourceV3_Admin(admin.ModelAdmin):
-    list_display = ('Affiliation', 'Name', 'Type', 'ID')
+    list_display = ('Affiliation', 'Name', 'ResourceGroup', 'Type', 'ID')
     list_display_links = ['ID']
 
 class ResourceV3Relation_Admin(admin.ModelAdmin):

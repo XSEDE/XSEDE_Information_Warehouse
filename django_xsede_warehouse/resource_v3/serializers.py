@@ -47,34 +47,25 @@ class Local_Detail_Serializer(serializers.ModelSerializer):
 #
 
 class Resource_Detail_Serializer(serializers.ModelSerializer):
-    # Adds AssociatedResource, Provider fields
-    # Adds local field selection
+    # Adds AssociatedResource
+    # Adds local raw EntityJSON
     RelatedResources = serializers.SerializerMethodField()
-    Provider = serializers.SerializerMethodField()
     EntityJSON = serializers.SerializerMethodField()
     def get_RelatedResources(self, ResourceV3):
         relations = []
         try:
-            related = ResourceV3Related.objects.filter(FirstResourceID=ResourceV3.ID)
+            related = ResourceV3Relation.objects.filter(FirstResourceID=ResourceV3.ID)
             for ri in related:
-                relations.append({"Type": ri.RelationType, "To.ID": ri.ID})
-        except ResourceV3Related.DoesNotExist:
+                relations.append({"Type": ri.RelationType, "To.ID": ri.SecondResourceID})
+        except ResourceV3Relation.DoesNotExist:
             pass
         try:
-            related = ResourceV3Related.objects.filter(SecondResourceID=ResourceV3.ID)
+            related = ResourceV3Relation.objects.filter(SecondResourceID=ResourceV3.ID)
             for ri in related:
-                relations.append({"Type": ri.RelationType, "From.ID": ri.ID})
-        except ResourceV3Related.DoesNotExist:
+                relations.append({"Type": ri.RelationType, "From.ID": ri.SecondResourceID})
+        except ResourceV3Relation.DoesNotExist:
             pass
-        return(related)
-    def get_Provider(self, ResourceV3):
-        try:
-            provider = ResourceV3.objects.get(pk=ResourceV3.ProviderID)
-            if provider:
-                return({'Affiliation': provider.Affiliation, 'LocalID': provider.LocalID, 'Name': provider.Name})
-        except ResourceV3.DoesNotExist:
-            pass
-        return(None)
+        return(relations)
     def get_EntityJSON(self, ResourceV3):
         try:
             local = ResourceV3Local.objects.get(pk=ResourceV3.ID)
@@ -86,14 +77,12 @@ class Resource_Detail_Serializer(serializers.ModelSerializer):
         model = ResourceV3
         fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])
         fields.append('RelatedResources')
-        fields.append('Provider')
         fields.append('EntityJSON')
 
 class Resource_Search_Serializer(serializers.ModelSerializer):
     # Adds Provider field
     # Adds local field selection
     Provider = serializers.SerializerMethodField()
-    EntityJSON = serializers.SerializerMethodField()
     def get_Provider(self, ResourceV3):
 #        try:
 #            provider = ResourceV3Provider.objects.get(pk=ResourceV3.ProviderID)
@@ -102,19 +91,19 @@ class Resource_Search_Serializer(serializers.ModelSerializer):
 #        except ResourceV3Provider.DoesNotExist:
 #            pass
         return(None)
-    def get_EntityJSON(self, ResourceV3):
-        want_fields = self.context.get('fields')
-        if len(want_fields) == 0 or '__local__' in want_fields:
-            return(ResourceV3.EntityJSON)
-        filtered = {}
-        for f in want_fields.union(['id']):     # Add 'id'
-            if f in ResourceV3.EntityJSON:
-                filtered[f] = ResourceV3.EntityJSON.get(f)
-        return(filtered)
     class Meta:
         model = ResourceV3
         fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])
         fields.append('Provider')
+
+class Resource_ESearch_Serializer(serializers.ModelSerializer):
+    score = serializers.SerializerMethodField()
+    def get_score(self, ResourceV3):
+        return(ResourceV3.meta.score)
+    class Meta:
+        model = ResourceV3
+        fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])
+        fields.append('score')
 
 class Resource_Event_Serializer(serializers.ModelSerializer):
     # Adds local field selection
