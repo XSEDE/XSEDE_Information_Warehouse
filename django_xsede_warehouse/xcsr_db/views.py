@@ -38,7 +38,7 @@ class SupportContacts_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None):
-        objects = AdminDomain.objects.all()
+        objects = AdminDomain.objects.all().order_by('Name')
         serializer = SupportContacts_Serializer(objects, context={'request': request}, many=True)
         response_obj = {'results': serializer.data}
         return MyAPIResponse(response_obj, template_name='xcsr_db/supportcontact_list.html')

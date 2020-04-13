@@ -24,3 +24,26 @@ class RDRResource_Serializer_Plus(serializers.ModelSerializer):
         model = RDRResource
         fields = copy.copy([f.name for f in RDRResource._meta.get_fields(include_parents=False)])
         fields.append('DetailURL')
+
+class RDR_CSA_Serializer(serializers.ModelSerializer):
+    csa_feature_user_description = serializers.SerializerMethodField()
+    csa_email = serializers.SerializerMethodField()
+    gateway_recommended_use = serializers.SerializerMethodField()
+    gateway_support_attributes = serializers.SerializerMethodField()
+    
+    def get_csa_feature_user_description(self, RDRResource):
+        return RDRResource.other_attributes['community_software_area_feature_user_description']
+    def get_csa_email(self, RDRResource):
+        return RDRResource.other_attributes['community_software_area_email']
+    def get_gateway_recommended_use(self, RDRResource):
+        return RDRResource.other_attributes['gateway_recommended_use']
+    def get_gateway_support_attributes(self, RDRResource):
+        try:
+            return ', '.join(RDRResource.other_attributes['gateway_support']['gateway_support_attributes'])
+        except:
+            return None
+    
+    class Meta:
+        model = RDRResource
+        fields = ['info_resourceid', 'resource_descriptive_name', 'resource_description', 'gateway_recommended_use', 'gateway_support_attributes',
+            'csa_feature_user_description', 'csa_email' ]

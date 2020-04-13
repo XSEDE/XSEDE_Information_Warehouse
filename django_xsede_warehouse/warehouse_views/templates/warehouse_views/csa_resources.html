@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Resources that support Community Software Areas (CSA){% endblock %}
+{% block content %}
+
+  <table width="98%" border=0 cellspacing=0 cellpadding=0>
+    <tr height="50">
+      <td width="10%" align="left"></td>
+      <td width="80%" align="center" valign="center">
+          <h1>Resources that support Community Software Areas (CSA)</h1>
+      </td>
+      <td width="10%" align="right" valign="top"><td>
+    </tr>
+  </table>
+  <table style="margin-left:2px" border=0 cellspacing=0 cellpadding=3>
+  <tr>
+      <th align="left"><h2>Resource</h2></th>
+      <th align="left"><h2>CSA Description</h2></th>
+  </tr>
+  {% for record in results %}
+    <tr><td colspan="2"><hr size="1"></td></tr>
+    <td colspan="2">
+        <h3>{{ record.resource_descriptive_name }} - {{ record.info_resourceid }}</h3>
+    </td>
+    </tr>
+    <tr>
+    <td width="25%" align="right" valign="top"><font color="#69696B;">CSA Feature Description:</font></td>
+    <td width="75%">{{ record.csa_feature_user_description | default_if_none:"n/a" | default:"n/a" }}</td>
+    </tr>
+    <tr>
+    <td width="25%" align="right" valign="top"><font color="#69696B;">CSA Support E-mail:</font></td>
+    <td width="75%">{{ record.csa_email | default:"help@xsede.org" }}</td>
+    </tr>
+    <tr>
+    <td width="25%" align="right" valign="top"><font color="#69696B;">Gateway Recommended Use:</font></td>
+    <td width="75%">{{ record.gateway_recommended_use | default_if_none:"n/a" | default:"n/a" }}</td>
+    </tr>
+    <tr>
+    <td width="25%" align="right" valign="top"><font color="#69696B;">Gateway Support Attributes:</font></td>
+    <td width="75%">{{ record.gateway_support_attributes | default_if_none:"n/a" | default:"n/a" }}</td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+  {% endfor %}
+  </table>
+{% endblock %}

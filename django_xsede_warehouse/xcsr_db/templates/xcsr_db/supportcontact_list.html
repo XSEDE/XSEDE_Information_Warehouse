@@ -6,20 +6,18 @@
 
 <table style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
     <tr>
-        <th>GlobalID</th>
         <th>Name</th>
         <th>ContactEmail</th>
         <th>ContactPhone</th>
-        <th>Detail</th>
+        <th>Contact Detail Link</th>
     </tr>
     
     {% for record in results %}
     <tr>
-        <td>{{ record.GlobalID }}</td>
         <td>{{ record.Name }}</td>
         <td>{{ record.ContactEmail }}</td>
         <td>{{ record.ContactPhone }}</td>
-        <td><a href="{{ record.DetailURL }}?format=html">Detail</a></td>
+        <td><a href="{{ record.DetailURL }}?format=html">{{ record.GlobalID }}</a></td>
     </tr>
     {% endfor %}
 {% endblock %}

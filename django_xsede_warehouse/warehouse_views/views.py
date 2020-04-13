@@ -3,9 +3,12 @@ from django.core.serializers import serialize
 from django.shortcuts import render
 from django.template.loader import get_template
 from django.utils.encoding import uri_to_iri
+from django.urls import reverse, get_script_prefix
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
+from rest_framework_xml.renderers import XMLRenderer
 from rest_framework.response import Response
 from rest_framework import status
 from rdr_db.models import RDRResource
@@ -15,6 +18,7 @@ from xdcdb.models import *
 from xdcdb.serializers import *
 from rdr_db.serializers import *
 from warehouse_views.serializers import Generic_Resource_Serializer, Software_Full_Serializer
+from xsede_warehouse.responses import MyAPIResponse
 
 # Create your views here.
 class Resource_List(APIView):
@@ -76,6 +80,19 @@ class Resource_List_XDCDB_Active(APIView):
         else:
             context = {'xdcdb_list': serializer.data}
             return render(request, 'warehouse_views/xdcdb_resources.html', context)
+
+class Resource_List_CSA_Active(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    def get(self, request, format=None):
+        csa_resources = RDR_Active_Resources(affiliation='XSEDE', allocated=False, type='SUB', result='OBJECTS')
+        objects = []
+        for res in csa_resources:
+            if str(res.other_attributes.get('community_software_area', '')).lower() == 'true':
+                objects.append(res)
+        serializer = RDR_CSA_Serializer(objects, many=True)
+        response_obj = {'results': serializer.data}
+        return MyAPIResponse(response_obj, template_name='warehouse_views/csa_resources.html')
 
 class Resource_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
