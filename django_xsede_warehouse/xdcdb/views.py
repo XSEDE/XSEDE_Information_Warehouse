@@ -102,22 +102,27 @@ class XSEDEPerson_Search(APIView):
             format={json,xml,html}              (json default)
         ```
     '''
+#    permission_classes = (IsAuthenticatedOrReadOnly,)
     permission_classes = (IsAuthenticated,)
     authentication_classes = (GlobusAuthentication,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
-        sort_by = request.GET.get('sort', 'portal_login')
         search_strings = kwargs.get('search_strings', request.GET.get('search_strings', None))
-        match_mode = request.GET.get('match', 'or').lower()
         if search_strings is None or search_strings == '':
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Search string missing')
+        sort_by = request.GET.get('sort', 'portal_login')
+        match_mode = request.GET.get('match', 'any').lower()
+        if match_mode == 'and':
+            match_mode = 'all'
+        elif match_mode == 'or':
+            match_mode = 'any'
         
         try:
             query = None
             for word in search_strings.split():
                 if not query:
                     query = ( Q(portal_login__icontains=word) | Q(last_name__icontains=word) | Q(first_name__icontains=word) | Q(emails__icontains=word) )
-                elif match_mode == 'and':
+                elif match_mode == 'all':
                     query = query & ( Q(portal_login__icontains=word) | Q(last_name__icontains=word) | Q(first_name__icontains=word) | Q(emails__icontains=word) )
                 else:
                     query = query | ( Q(portal_login__icontains=word) | Q(last_name__icontains=word) | Q(first_name__icontains=word) | Q(emails__icontains=word) )
