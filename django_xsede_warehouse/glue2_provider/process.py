@@ -158,6 +158,8 @@ class Glue2NewDocument():
                 for k in ['ID', 'Name', 'CreationTime', 'Description', 'AppName', 'AppVersion']:
                     other_json.pop(k, None)
                 self.tag_from_application(other_json)
+                if self.resourceid.endswith('.xsede.org'):
+                    self.tag_xsede_support_contact(other_json)
                 desc = self.new[me][ID].get('Description')
                 if desc is not None:
                     desc = desc[:512]
@@ -873,6 +875,23 @@ class Glue2NewDocument():
             obj['Extension'] = {'From_Application': self.application}
         else:
             obj['Extension']['From_Application'] = self.application
+
+    def tag_xsede_support_contact(self, obj):
+        # Apply XSEDE ApplicationEnvironment->Extension->SupportContact default and fix invalid value
+        if not isinstance(obj, dict):
+            return
+        invalid_xsede_contact = 'https://software.xsede.org/xcsr-db/v1/support-contacts/1553'
+        default_xsede_contact = 'https://info.xsede.org/wh1/xcsr-db/v1/supportcontacts/globalid/helpdesk.xsede.org/'
+        if 'Extension' not in obj:                          # No Extension then create it
+            obj['Extension'] = {'SupportContact': default_xsede_contact}
+        elif 'SupportContact' not in obj['Extension']:      # Extension but no SupportContact then set it
+            obj['Extension']['SupportContact'] = default_xsede_contact
+        elif len(obj['Extension'].get('SupportContact', '')) < 1: # SupportContact is None or empty then set it
+            obj['Extension']['SupportContact'] = default_xsede_contact
+        elif obj['Extension']['SupportContact'] == invalid_xsede_contact: # Invalid then fix it
+            obj['Extension']['SupportContact'] = default_xsede_contact
+#        else: # SupportContact already set to something
+#            pass
 
 ###############################################################################################
 # Main code to Load New JSON objects and Process each class of objects
