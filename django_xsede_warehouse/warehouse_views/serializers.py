@@ -87,8 +87,8 @@ class Software_Full_Serializer(serializers.ModelSerializer):
     Repository = serializers.SerializerMethodField('get_repository')
     class Meta:
         model = ApplicationHandle
-        fields = ('ResourceID', 'SiteID', 'AppName', 'AppVersion', 'Description', 'Handle',
-                  'Domain', 'Keywords', 'SupportStatus', 'Repository', 'CreationTime','ID')
+        fields = ('ResourceID', 'SiteID', 'AppName', 'AppVersion', 'Description', 'Handle', 'Domain',
+                  'Keywords', 'SupportStatus', 'Repository', 'CreationTime','ID')
 
     def get_siteid(self, ApplicationHandle):
         try:
@@ -119,6 +119,67 @@ class Software_Full_Serializer(serializers.ModelSerializer):
     def get_supportstatus(self, ApplicationHandle):
         try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['SupportStatus']
+        except:
+            return []
+
+    def get_repository(self, ApplicationHandle):
+        try:
+            return ApplicationHandle.ApplicationEnvironment.EntityJSON['Repository']
+        except:
+            return []
+            
+            
+class Software_Community_Serializer(serializers.ModelSerializer):
+    SiteID = serializers.SerializerMethodField('get_siteid')
+    AppName = serializers.CharField(source='ApplicationEnvironment.AppName')
+    AppVersion = serializers.CharField(source='ApplicationEnvironment.AppVersion')
+    Description = serializers.CharField(source='ApplicationEnvironment.Description')
+    Handle = serializers.SerializerMethodField('get_handle')
+    Domain = serializers.SerializerMethodField('get_category')
+    Keywords = serializers.SerializerMethodField('get_keywords')
+    SupportStatus = serializers.SerializerMethodField('get_supportstatus')
+    SupportContact = serializers.SerializerMethodField('get_supportcontact')
+    Repository = serializers.SerializerMethodField('get_repository')
+    class Meta:
+        model = ApplicationHandle
+        fields = ('ResourceID', 'SiteID', 'AppName', 'AppVersion', 'Description', 'Handle', 'Domain',
+                  'Keywords', 'SupportStatus', 'SupportContact', 'Repository', 'CreationTime','ID')
+
+    def get_siteid(self, ApplicationHandle):
+        try:
+            RDR_object = RDRResource.objects.filter(rdr_type='resource').filter(info_resourceid=ApplicationHandle.ResourceID)
+            if RDR_object and RDR_object[0] and RDR_object[0].info_siteid:
+                return RDR_object[0].info_siteid
+        except RDRResource.DoesNotExist:
+            pass
+        return None
+
+    def get_handle(self, ApplicationHandle):
+        return({'HandleType': ApplicationHandle.Type,
+                'HandleKey': ApplicationHandle.Value
+               })
+    
+    def get_category(self, ApplicationHandle):
+        try:
+            return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['Category']
+        except:
+            return []
+
+    def get_keywords(self, ApplicationHandle):
+        try:
+            return ApplicationHandle.ApplicationEnvironment.EntityJSON['Keywords']
+        except:
+            return []
+
+    def get_supportstatus(self, ApplicationHandle):
+        try:
+            return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['SupportStatus']
+        except:
+            return []
+
+    def get_supportcontact(self, ApplicationHandle):
+        try:
+            return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['SupportContact']
         except:
             return []
 

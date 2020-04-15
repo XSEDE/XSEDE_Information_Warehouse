@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^v1/software/ResourceID/(?P<resourceid>[^/]+)/$', Software_Full.as_view(), name='software-detail'),
     url(r'^v1/software/AppName/(?P<appname>[^/]+)/$', Software_Full.as_view(), name='software-detail'),
     url(r'^v1/software-xup/$', Software_XUP_v1_List.as_view(), name='software-xup-list'),
+    url(r'^v1/community-software-xup/$', Community_Software_XUP_v1_List.as_view(), name='community-software-xup-list'),
     # 120 minutes
     url(r'^v1/software-cached/$', cache_page(60 * 120)(Software_Full.as_view()), name='software-cache-list'),
 ]

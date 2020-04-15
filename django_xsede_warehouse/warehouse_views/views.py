@@ -17,11 +17,26 @@ from glue2_db.models import ApplicationHandle
 from xdcdb.models import *
 from xdcdb.serializers import *
 from rdr_db.serializers import *
-from warehouse_views.serializers import Generic_Resource_Serializer, Software_Full_Serializer
+from warehouse_views.serializers import Generic_Resource_Serializer, Software_Full_Serializer, Software_Community_Serializer
 from xsede_warehouse.responses import MyAPIResponse
 
 # Create your views here.
 class Resource_List(APIView):
+    '''
+        ### RDR resource list
+        
+        Optional selection argument(s):
+        ```
+            info_siteid=<siteid>
+        ```
+        Optional response argument(s):
+        ```
+            format={json,xml,html}              (json default)
+            sort=<field>
+        ```
+        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+            target="_blank">More API documentation</a>
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None, **kwargs):
         returnformat = request.query_params.get('format', None)
@@ -47,6 +62,25 @@ class Resource_List(APIView):
             return render(request, 'warehouse_views/warehouse_resources.html', {'resource_list': serializer.data})
 
 class Resource_List_Active(APIView):
+    '''
+        ### RDR information about ACTIVE XSEDE resources, meaning:
+            Provider level is: Level 1 or Level 2
+            Status is: friendly, coming soon, pre-production, production, post-production
+            
+        Excludes: Non-XSEDE, Provider Level 3, Status Decomissioned
+        
+        Optional selection argument(s):
+        ```
+            info_siteid=<siteid>
+        ```
+        Optional response argument(s):
+        ```
+            format={json,xml,html}              (json default)
+            sort=<field>
+        ```
+        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+            target="_blank">More API documentation</a>
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         returnformat = request.query_params.get('format', None)
@@ -64,6 +98,20 @@ class Resource_List_Active(APIView):
             return render(request, 'warehouse_views/warehouse_resources.html', {'resource_list': serializer.data})
 
 class Resource_List_XDCDB_Active(APIView):
+    '''
+        ### XDCDB resource information about ACTIVE XSEDE resources, meaning:
+            Provider level is: Level 1 or Level 2
+            Status is: friendly, coming soon, pre-production, production, post-production
+            
+        Excludes: Non-XSEDE, Provider Level 3, Status Decomissioned
+        
+        Optional response argument(s):
+        ```
+            format={json,xml,html}              (json default)
+        ```
+        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+            target="_blank">More API documentation</a>
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         active_resourceids = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='ALL', result='RESOURCEID')
@@ -82,6 +130,21 @@ class Resource_List_XDCDB_Active(APIView):
             return render(request, 'warehouse_views/xdcdb_resources.html', context)
 
 class Resource_List_CSA_Active(APIView):
+    '''
+        ### RDR Community Software Area (CSA) information about ACTIVE XSEDE resources, meaning:
+            Provider level is: Level 1 or Level 2
+            Status is: friendly, coming soon, pre-production, production, post-production
+            Community Software Area Support is: True
+            
+        Excludes: Non-XSEDE, Provider Level 3, Status Decomissioned, no CSA Support
+        
+        Optional response argument(s):
+        ```
+            format={json,xml,html}              (json default)
+        ```
+        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+            target="_blank">More API documentation</a>
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None):
@@ -95,6 +158,20 @@ class Resource_List_CSA_Active(APIView):
         return MyAPIResponse(response_obj, template_name='warehouse_views/csa_resources.html')
 
 class Resource_Detail(APIView):
+    '''
+        ### RDR detailed information
+        
+        Required selection argument(s):
+        ```
+            resourceid=<info_resourceid>
+        ```
+        Optional response argument(s):
+        ```
+            format={json,xml,html}              (json default)
+        ```
+        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+            target="_blank">More API documentation</a>
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
 #    renderer_classes = (JSONRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
@@ -116,6 +193,22 @@ class Resource_Detail(APIView):
             return render(request, 'warehouse_views/resource_details.html', context)
 
 class Software_Full(APIView):
+    '''
+        ### Software detailed information
+        
+        Optional selection argument(s):
+        ```
+            AppName=<appname>
+            resourceid=<info_resourceid>
+            ID=<id>
+        ```
+        Optional response argument(s):
+        ```
+            format={json,xml,html}              (json default)
+        ```
+        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+            target="_blank">More API documentation</a>
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
@@ -139,9 +232,38 @@ class Software_Full(APIView):
         return Response(serializer.data)
 
 class Software_XUP_v1_List(APIView):
+    '''
+        ### XUP Software Detail of XSEDE SP Supported Software
+        
+        Optional response argument(s):
+        ```
+            format={json,xml}                   (json default)
+        ```
+        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+            target="_blank">More API documentation</a>
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         active_resourceids = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='SUB', result='RESOURCEID')
-        objects = ApplicationHandle.objects.filter(ResourceID__in=active_resourceids)
+        xsede_contact = 'https://info.xsede.org/wh1/xcsr-db/v1/supportcontacts/globalid/helpdesk.xsede.org/'
+        objects = ApplicationHandle.objects.filter(ResourceID__in=active_resourceids).filter(ApplicationEnvironment__EntityJSON__Extension__SupportContact__exact=xsede_contact)
         serializer = Software_Full_Serializer(objects, many=True)
+        return Response(serializer.data)
+
+class Community_Software_XUP_v1_List(APIView):
+    '''
+        ### XUP Software Detail of Community Software Area (CSA) software
+        
+        Optional response argument(s):
+        ```
+            format={json,xml}                   (json default)
+        ```
+        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+            target="_blank">More API documentation</a>
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    def get(self, request, format=None):
+        xsede_contact = 'https://info.xsede.org/wh1/xcsr-db/v1/supportcontacts/globalid/helpdesk.xsede.org/'
+        objects = ApplicationHandle.objects.exclude(ApplicationEnvironment__EntityJSON__Extension__SupportContact__exact=xsede_contact)
+        serializer = Software_Community_Serializer(objects, many=True)
         return Response(serializer.data)
