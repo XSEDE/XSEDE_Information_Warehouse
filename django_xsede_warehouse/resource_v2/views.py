@@ -890,7 +890,7 @@ class Guide_Search(APIView):
 
             want_guides = ResourceV2GuideResource.objects.filter(ResourceID__in=want_resources).order_by('CuratedGuideID').distinct('CuratedGuideID').values_list('CuratedGuideID', flat=True)
 
-            objects = ResourceV2Guide.objects.filter(pk__in=want_guides)
+            objects = ResourceV2Guide.objects.filter(pk__in=want_guides).order_by('Name')
             response_obj['total_results'] = len(objects)
 
             if page:
