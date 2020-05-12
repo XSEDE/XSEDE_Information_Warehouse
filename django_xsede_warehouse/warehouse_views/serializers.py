@@ -128,7 +128,7 @@ class Software_Full_Serializer(serializers.ModelSerializer):
         except:
             return []
             
-            
+# Same as Software_Full_Serializer but adds SupportContact
 class Software_Community_Serializer(serializers.ModelSerializer):
     SiteID = serializers.SerializerMethodField('get_siteid')
     AppName = serializers.CharField(source='ApplicationEnvironment.AppName')

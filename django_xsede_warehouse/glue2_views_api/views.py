@@ -66,7 +66,7 @@ class Services_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         objects = Endpoint.objects.all()
-        serializer = EndpointServices_Serializer(objects, many=True)
+        serializer = EndpointServices_Support_Serializer(objects, many=True)
         return Response(serializer.data)
 
 class Services_Detail(APIView):

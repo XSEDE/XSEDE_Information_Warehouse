@@ -216,19 +216,19 @@ class Software_Full(APIView):
                 object = ApplicationHandle.objects.get(pk=uri_to_iri(self.kwargs['id'])) # uri_to_iri translates %xx
             except ApplicationHandle.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-            serializer = Software_Full_Serializer(object)
+            serializer = Software_Community_Serializer(object)
         elif 'resourceid' in self.kwargs:
             objects = ApplicationHandle.objects.filter(ResourceID__exact=self.kwargs['resourceid'])
-            serializer = Software_Full_Serializer(objects, many=True)
+            serializer = Software_Community_Serializer(objects, many=True)
 #        elif 'siteid' in self.kwargs:
 #            objects = ApplicationHandle.objects.filter(ResourceID__exact=self.kwargs['siteid'])
-#            serializer = Software_Full_Serializer(objects, many=True)
+#            serializer = Software_Community_Serializer(objects, many=True)
         elif 'appname' in self.kwargs:
             objects = ApplicationHandle.objects.filter(ApplicationEnvironment__AppName__exact=uri_to_iri(self.kwargs['appname']))
-            serializer = Software_Full_Serializer(objects, many=True)
+            serializer = Software_Community_Serializer(objects, many=True)
         else:
             objects = ApplicationHandle.objects.all()
-            serializer = Software_Full_Serializer(objects, many=True)
+            serializer = Software_Community_Serializer(objects, many=True)
         return Response(serializer.data)
 
 class Software_XUP_v1_List(APIView):

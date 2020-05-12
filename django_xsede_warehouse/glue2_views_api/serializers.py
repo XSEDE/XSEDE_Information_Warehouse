@@ -41,6 +41,21 @@ class EndpointServices_Serializer(serializers.ModelSerializer):
                   'CreationTime', 'ID')
 #                  'Name', 'AbstractService')
 
+# Same as EndpointServices_Serializer but adds AbstractService Extension SupportContact
+class EndpointServices_Support_Serializer(serializers.ModelSerializer):
+    ServiceType = serializers.CharField(source='AbstractService.ServiceType')
+    SupportContact = serializers.SerializerMethodField('get_supportcontact')
+    class Meta:
+        model = Endpoint
+        fields = ('ResourceID', 'InterfaceName', 'InterfaceVersion', 'URL',
+                  'QualityLevel', 'ServingState', 'HealthState', 'ServiceType',
+                  'CreationTime', 'ID', 'SupportContact')
+    def get_supportcontact(self, Endpoint):
+        try:
+            return Endpoint.AbstractService.EntityJSON['Extension']['SupportContact']
+        except:
+            return []
+
 class ComputingActivity_Expand_Serializer(serializers.ModelSerializer):
     DetailURL = serializers.SerializerMethodField()
     StandardState = serializers.SerializerMethodField()
