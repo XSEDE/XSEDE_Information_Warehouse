@@ -295,6 +295,8 @@ class Glue2NewDocument():
                 for k in ['ID', 'Name', 'CreationTime', 'Type', 'QualityLevel']:
                     other_json.pop(k, None)
                 self.tag_from_application(other_json)
+                if self.resourceid.endswith('.xsede.org'):
+                    self.tag_xsede_support_contact(other_json)
                 model = AbstractService(ID=self.new[me][ID]['ID'],
                                         ResourceID=self.resourceid,
                                         Name=self.new[me][ID]['Name'],
