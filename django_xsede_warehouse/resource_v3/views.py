@@ -783,9 +783,6 @@ class Resource_ESearch(APIView):
 
         response_obj = {}
 
-        import pdb
-        pdb.set_trace()
-        
         try:
             # These filters are handled by the database; they are first
             ES = Search(index=ResourceV3Index.Index.name).using(ESCON)
