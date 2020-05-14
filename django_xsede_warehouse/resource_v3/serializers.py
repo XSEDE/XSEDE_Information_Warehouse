@@ -62,7 +62,7 @@ class Resource_Detail_Serializer(serializers.ModelSerializer):
         try:
             related = ResourceV3Relation.objects.filter(SecondResourceID=ResourceV3.ID)
             for ri in related:
-                relations.append({"Type": ri.RelationType, "From.ID": ri.SecondResourceID})
+                relations.append({"Type": ri.RelationType, "From.ID": ri.FirstResourceID})
         except ResourceV3Relation.DoesNotExist:
             pass
         return(relations)
@@ -97,13 +97,14 @@ class Resource_Search_Serializer(serializers.ModelSerializer):
         fields.append('Provider')
 
 class Resource_ESearch_Serializer(serializers.ModelSerializer):
-    score = serializers.SerializerMethodField()
-    def get_score(self, ResourceV3):
-        return(ResourceV3.meta.score)
+#    score = serializers.SerializerMethodField()
+#    def get_score(self, ResourceV3):
+#        return(ResourceV3.meta.score)
     class Meta:
-        model = ResourceV3
-        fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])
-        fields.append('score')
+        model = ResourceV3Index
+        fields = ('__all__')
+#        fields = copy.copy([f.name for f in ResourceV3Index._meta.get_fields(include_parents=False)])
+#        fields.append('score')
 
 class Resource_Event_Serializer(serializers.ModelSerializer):
     # Adds local field selection

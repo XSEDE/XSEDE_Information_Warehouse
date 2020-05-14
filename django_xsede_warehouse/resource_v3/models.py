@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 
-from elasticsearch_dsl import Document, Text, Keyword, Date
+from elasticsearch_dsl import Document, Text, Keyword, Date, InnerDoc, Nested
 
 ################################################################################
 # GLUE2 identifiers (AbstraceGlue2Entity)
@@ -89,7 +89,11 @@ class AbstractResourceV3Model(models.Model):
         return str(self.ID)
         
 class ResourceV3(AbstractResourceV3Model):
-    def indexing(self):
+    def indexing(self, relations=None):
+        newRels = []
+        if relations:
+            for i in relations:
+                newRels.append({'RelatedID': i, 'RelationType': relations[i]})
         obj = ResourceV3Index(
                 meta={'id': self.ID},
                 ID = self.ID,
@@ -105,6 +109,7 @@ class ResourceV3(AbstractResourceV3Model):
                 Topics = self.Topics,
                 Keywords = self.Keywords,
                 Audience = self.Audience,
+                Relations = newRels,
                 StartDateTime = self.StartDateTime,
                 EndDateTime = self.EndDateTime
             )
@@ -113,6 +118,10 @@ class ResourceV3(AbstractResourceV3Model):
 #    def delete(self):
 #        obj = ResourceV3Index.get(self.ID).delete()
 #        return
+
+class ResourceV3IndexRelation(InnerDoc):
+    RelatedID: Keyword()
+    RelationType: Keyword()
 
 class ResourceV3Index(Document):
     ID = Keyword()
@@ -128,6 +137,7 @@ class ResourceV3Index(Document):
     Topics = Keyword()
     Keywords = Keyword()
     Audience = Keyword()
+    Relations = Nested(ResourceV3IndexRelation)
     StartDateTime = Date()
     EndDateTime = Date()
     class Index:

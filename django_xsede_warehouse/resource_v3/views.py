@@ -15,12 +15,14 @@ from .serializers import *
 from xsede_warehouse.exceptions import MyAPIException
 from xsede_warehouse.responses import MyAPIResponse
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Search
+from elasticsearch_dsl import Search, Q
 import datetime
 from datetime import datetime, timedelta
 import pytz
 Central = pytz.timezone("US/Central")
 UTC = pytz.timezone("UTC")
+import logging
+logg2 = logging.getLogger('xsede.logger')
 #
 # Catalog Views
 #
@@ -348,11 +350,12 @@ def resource_topics_filter(input_objects, search_topics_set):
 
 def resource_oldevents_filter(input_objects):
     # Inspect objects because we can't push this filter to the database
-    cur_datetime = timezone.now().astimezone(UTC).strftime('%Y-%m-%dT%H:%M:%S%z')
+    cur_datetime = timezone.now().astimezone(UTC).replace(second=0, microsecond=0)
     filtered_objects = []
     for obj in input_objects:
-        if obj.ResourceGroup == 'Live Events' and obj.EndDateTime < cur_datetime:
-            continue
+        if obj.ResourceGroup == 'Live Events' and obj.EndDateTime is not None:
+            if obj.EndDateTime.replace(second=0, microsecond=0) < cur_datetime:
+                continue # Filter out old events
         filtered_objects.append(obj)
     return(filtered_objects)
 
@@ -405,8 +408,8 @@ def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'
     sort_array = {}
     
     for obj in input_objects:
-        name_words = obj.Name.replace(',', ' ').lower().split()
-        name_rank = len(set(name_words).intersection(search_terms_set))                 # How many matches
+        name_words_set = set(obj.Name.replace(',', ' ').lower().split())
+        name_rank = len(name_words_set.intersection(search_terms_set))                  # How many matches
         if name_rank == len(search_terms_set):                                          # All terms matched Name
             A_RANK = u'{:03d}'.format(999-name_rank)
         else:
@@ -416,7 +419,7 @@ def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'
         keyword_rank = len(keyword_set.intersection(search_terms_set))                  # How many keyword matches
         B_RANK = u'{:03d}'.format(999-keyword_rank)
 
-        name_desc_words = u' '.join((obj.Name, (obj.ShortDescription or ''), obj.Description)).replace(',', ' ').lower().split()
+        name_desc_words = u' '.join((obj.Name, (obj.ShortDescription or ''), (obj.Description or ''))).replace(',', ' ').lower().split()
         name_desc_rank = len(set(name_desc_words).intersection(search_terms_set))       # How many matches
         if name_desc_rank == len(search_terms_set):                                     # All terms matched Name, Short Description or Description
             C_RANK = u'{:03d}'.format(999-name_desc_rank)
@@ -689,6 +692,7 @@ class Resource_Search(APIView):
             else:
                 final_objects = objects
         except Exception as exc:
+            logg2.info(exc, exc_info=True)
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
         context = {'fields': want_fields}
@@ -707,15 +711,14 @@ class Resource_ESearch(APIView):
             topics=<topic1>[,<topic2>[...]]
             types=<type1>[,<type2>[...]]
             providers=<provider1>[,<provider2>[...]]
+            relation=[!]<type>:<id>
         ```
         Optional response argument(s):
         ```
-            fields=<fields>               (return named fields)
             format={json,xml,html}              (json default)
             sort=<field>                  (default Name.Keyword)
             page=<number>
             results_per_page=<number>           (default=25)
-            subtotals={only,include}            (default no totals)
         ```
         <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
             target="_blank">More API documentation</a>
@@ -765,65 +768,74 @@ class Resource_ESearch(APIView):
         else:
             want_providerids = list()
 
-        arg_fields = request.GET.get('fields', None)
-        if arg_fields:
-            want_fields = list(arg_fields.lower().split(','))
+        arg_relation = request.GET.get('relation', None)
+        if arg_relation:
+            want_relationinvert = (arg_relation[0] == '!')
+            if want_relationinvert:
+                arg_relation = arg_relation[1:]
+            want_relationid = arg_relation
         else:
-            want_fields = list()
+            want_relationid = False
 
         sort = request.GET.get('sort', None)
-        page = request.GET.get('page', None)
-        page_size = request.GET.get('results_per_page', 25)
-
-        arg_subtotals = request.GET.get('subtotals', None)
-        if arg_subtotals:
-            arg_subtotals = arg_subtotals.lower()
+        page = request.GET.get('page', 0)
+        page_size = int(request.GET.get('results_per_page', 25))
 
         response_obj = {}
 
+        import pdb
+        pdb.set_trace()
+        
         try:
             # These filters are handled by the database; they are first
             ES = Search(index=ResourceV3Index.Index.name).using(ESCON)
-            ES = ES.query("match", QualityLevel='Production')
+            ES = ES.query('match', QualityLevel='Production')
             if want_affiliations:
-                ES = ES.query("terms", Affiliation=want_affiliations)
+                ES = ES.query('terms', Affiliation=want_affiliations)
             if want_resource_groups:
-                ES = ES.query("terms", ResourceGroup=want_resource_groups)
+                ES = ES.query('terms', ResourceGroup=want_resource_groups)
             if want_types:
-                ES = ES.query("terms", Type=want_types)
+                ES = ES.query('terms', Type=want_types)
             if want_providerids:
-                ES = ES.query("terms", ProviderID=want_providerids)
+                ES = ES.query('terms', ProviderID=want_providerids)
             if want_topics:
-                ES = ES.query("terms", Topics=want_topics)
+                ES = ES.query('terms', Topics=want_topics)
             if want_terms:
-                ES = ES.query("multi_match", query=' '.join(want_terms), fields=['Name', 'Keywords', 'ShortDescription', 'Description'])
+                ES = ES.query('multi_match', query=' '.join(want_terms), fields=['Name', 'Keywords', 'ShortDescription', 'Description'])
+            if want_relationid:
+                if want_relationinvert:
+                    ES = ES.query('nested', path='Relations',
+                            query=~Q('match', Relations__RelatedID=want_relationid)
+                        )
+                else:
+                    ES = ES.query('nested', path='Relations',
+                            query=Q('match', Relations__RelatedID=want_relationid)
+                        )
+#                    ES = ES.query('match', Relations__RelationID=want_relationid)
+
             if sort:
                 ES = ES.sort(sort)
 
+            if page:
+                page_start = page_size * int(page)
+                page_end = page_start + page_size
+                ES = ES[page_start:page_end]
+
             response = ES.execute()
 
-# TODO: Pagination, Subtotals, Serializer
-#
-            objects = ES
-            response_obj['total_results'] = ES.count()
-            if arg_subtotals in ('only', 'include'):
-                response_obj['subtotals'] = resource_subtotals(objects)
-                if arg_subtotals == 'only':
-                    return MyAPIResponse(response_obj, template_name='resource_v3/resource_list.html')
+            objects = []
+            for row in response.to_dict()['hits']['hits']:
+                objects.append(row['_source'])
 
-            if page:
-                paginator = Paginator(objects, page_size)
-                final_objects = paginator.page(page)
-                response_obj['page'] = int(page)
-                response_obj['total_pages'] = paginator.num_pages
-            else:
-                final_objects = objects
+            response_obj['total_results'] = ES.count()
+
         except Exception as exc:
+            logg2.info(exc, exc_info=True)
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
-        context = {'fields': want_fields}
-        serializer = Resource_ESearch_Serializer(final_objects, context=context, many=True)
-        response_obj['results'] = serializer.data
+#        context = {'fields': want_fields}
+#        serializer = Resource_ESearch_Serializer(final_objects, context=context, many=True)
+        response_obj['results'] = objects
         return MyAPIResponse(response_obj, template_name='resource_v3/resource_list.html')
 #
 # Event Views
