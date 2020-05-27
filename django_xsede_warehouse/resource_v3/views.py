@@ -695,10 +695,11 @@ class Resource_Search(APIView):
             logg2.info(exc, exc_info=True)
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
-        context = {'fields': want_fields}
+        context = {'fields': want_fields, 'request': request}
         serializer = Resource_Search_Serializer(final_objects, context=context, many=True)
         response_obj['results'] = serializer.data
         return MyAPIResponse(response_obj, template_name='resource_v3/resource_list.html')
+        
 class Resource_ESearch(APIView):
     '''
         ### Resource Elastic search and list

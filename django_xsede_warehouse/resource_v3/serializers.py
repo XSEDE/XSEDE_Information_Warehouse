@@ -83,6 +83,13 @@ class Resource_Search_Serializer(serializers.ModelSerializer):
     # Adds Provider field
     # Adds local field selection
     Provider = serializers.SerializerMethodField()
+    DetailURL = serializers.SerializerMethodField()
+    def get_DetailURL(self, ResourceV3):
+        http_request = self.context.get('request')
+        if http_request:
+            return http_request.build_absolute_uri(uri_to_iri(reverse('resource-detail', args=[ResourceV3.ID])))
+        else:
+            return ''
     def get_Provider(self, ResourceV3):
 #        try:
 #            provider = ResourceV3Provider.objects.get(pk=ResourceV3.ProviderID)
@@ -95,6 +102,7 @@ class Resource_Search_Serializer(serializers.ModelSerializer):
         model = ResourceV3
         fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])
         fields.append('Provider')
+        fields.append('DetailURL')
 
 class Resource_ESearch_Serializer(serializers.ModelSerializer):
 #    score = serializers.SerializerMethodField()

@@ -7,19 +7,19 @@
 <table style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
     <tr>
         <th>Affiliation</th>
-        <th>Local ID</th>
-        <th>Name</th>
+        <th>Resource Group</th>
         <th>Type</th>
-        <th>Global ID</th>
+        <th>Name</th>
+        <th>Detail</th>
     </tr>
     
     {% for record in results %}
     <tr>
         <td>{{ record.Affiliation }}</td>
-        <td>{{ record.LocalID }}</td>
-        <td>{{ record.Name }}</td>
+        <td>{{ record.ResourceGroup }}</td>
         <td>{{ record.Type }}</td>
-        <td>{{ record.ID }}</td>
+        <td>{{ record.Name }}</td>
+        <td><a href="{{ record.DetailURL }}?format=html">View</a></td>
     </tr>
     {% endfor %}
 {% endblock %}

@@ -21,7 +21,7 @@ from warehouse_views.serializers import Generic_Resource_Serializer, Software_Fu
 from xsede_warehouse.responses import MyAPIResponse
 
 # Create your views here.
-class Resource_List(APIView):
+class RDR_List(APIView):
     '''
         ### RDR resource list
         
@@ -61,7 +61,7 @@ class Resource_List(APIView):
         else:
             return render(request, 'warehouse_views/warehouse_resources.html', {'resource_list': serializer.data})
 
-class Resource_List_Active(APIView):
+class RDR_List_Active(APIView):
     '''
         ### RDR information about ACTIVE XSEDE resources, meaning:
             Provider level is: Level 1 or Level 2
@@ -157,7 +157,7 @@ class Resource_List_CSA_Active(APIView):
         response_obj = {'results': serializer.data}
         return MyAPIResponse(response_obj, template_name='warehouse_views/csa_resources.html')
 
-class Resource_Detail(APIView):
+class RDR_Detail(APIView):
     '''
         ### RDR detailed information
         
