@@ -802,14 +802,17 @@ class Resource_ESearch(APIView):
                 ES = ES.query('multi_match', query=' '.join(want_terms), fields=['Name', 'Keywords', 'ShortDescription', 'Description'])
             if want_relationid:
                 if want_relationinvert:
-                    ES = ES.query('nested', path='Relations',
-                            query=~Q('match', Relations__RelatedID=want_relationid)
+                    ES = ES.query(
+                        'bool', must_not=
+                        Q('nested', path='Relations', query=
+                            Q('bool', must=
+                            Q('match', Relations__RelatedID=want_relationid)))
                         )
                 else:
-                    ES = ES.query('nested', path='Relations',
-                            query=Q('match', Relations__RelatedID=want_relationid)
-                        )
-#                    ES = ES.query('match', Relations__RelationID=want_relationid)
+                    ES = ES.query(
+                        'nested', path='Relations', query=
+                            Q('bool', must=
+                            Q('match', Relations__RelatedID=want_relationid)))
 
             if sort:
                 ES = ES.sort(sort)
@@ -831,8 +834,6 @@ class Resource_ESearch(APIView):
             logg2.info(exc, exc_info=True)
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
-#        context = {'fields': want_fields}
-#        serializer = Resource_ESearch_Serializer(final_objects, context=context, many=True)
         response_obj['results'] = objects
         return MyAPIResponse(response_obj, template_name='resource_v3/resource_list.html')
 #
