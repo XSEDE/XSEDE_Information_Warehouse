@@ -712,7 +712,7 @@ class Resource_ESearch(APIView):
             topics=<topic1>[,<topic2>[...]]
             types=<type1>[,<type2>[...]]
             providers=<provider1>[,<provider2>[...]]
-            relation=[!]<type>:<id>
+            relation=[!]<relatedid>
         ```
         Optional response argument(s):
         ```
@@ -787,32 +787,34 @@ class Resource_ESearch(APIView):
         try:
             # These filters are handled by the database; they are first
             ES = Search(index=ResourceV3Index.Index.name).using(ESCON)
-            ES = ES.query('match', QualityLevel='Production')
+            ES = ES.filter('term', QualityLevel='Production')
             if want_affiliations:
-                ES = ES.query('terms', Affiliation=want_affiliations)
+                ES = ES.filter('terms', Affiliation=want_affiliations)
             if want_resource_groups:
-                ES = ES.query('terms', ResourceGroup=want_resource_groups)
+                ES = ES.filter('terms', ResourceGroup=want_resource_groups)
             if want_types:
-                ES = ES.query('terms', Type=want_types)
+                ES = ES.filter('terms', Type=want_types)
             if want_providerids:
-                ES = ES.query('terms', ProviderID=want_providerids)
+                ES = ES.filter('terms', ProviderID=want_providerids)
             if want_topics:
                 ES = ES.query('terms', Topics=want_topics)
             if want_terms:
                 ES = ES.query('multi_match', query=' '.join(want_terms), fields=['Name', 'Keywords', 'ShortDescription', 'Description'])
             if want_relationid:
                 if want_relationinvert:
-                    ES = ES.query(
+                    ES = ES.filter(
                         'bool', must_not=
                         Q('nested', path='Relations', query=
-                            Q('bool', must=
-                            Q('match', Relations__RelatedID=want_relationid)))
+                            Q('bool', filter=
+                            Q('term', Relations__RelatedID__keyword=want_relationid)))
                         )
                 else:
-                    ES = ES.query(
-                        'nested', path='Relations', query=
-                            Q('bool', must=
-                            Q('match', Relations__RelatedID=want_relationid)))
+                    ES = ES.filter(
+                        'bool', must=
+                        Q('nested', path='Relations', query=
+                            Q('bool', filter=
+                            Q('term', Relations__RelatedID__keyword=want_relationid)))
+                        )
 
             if sort:
                 ES = ES.sort(sort)
@@ -823,7 +825,7 @@ class Resource_ESearch(APIView):
                 ES = ES[page_start:page_end]
 
             response = ES.execute()
-
+            
             objects = []
             for row in response.to_dict()['hits']['hits']:
                 objects.append(row['_source'])
