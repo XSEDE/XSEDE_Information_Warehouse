@@ -1,0 +1,2 @@
+#!/bin/bash -x
+curl -XDELETE localhost:9200/resourcev3-index
