@@ -392,7 +392,6 @@ if SETTINGS_MODE == 'SERVER':
     GLOBUS_CLIENT_ID = SOCIAL_AUTH_GLOBUS_KEY
     GLOBUS_CLIENT_SECRET = SOCIAL_AUTH_GLOBUS_SECRET
 
-
     AUTHENTICATION_BACKENDS = (
         'social_core.backends.globus.GlobusOpenIdConnect',
         'django.contrib.auth.backends.ModelBackend',

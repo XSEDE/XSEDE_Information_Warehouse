@@ -115,34 +115,6 @@ class Resource_ESearch_Serializer(serializers.ModelSerializer):
 #        fields.append('score')
 
 class Resource_Event_Serializer(serializers.ModelSerializer):
-    # Adds local field selection
-    EntityJSON = serializers.SerializerMethodField()
-    def get_EntityJSON(self, ResourceV3):
-        want_fields = self.context.get('fields')
-        if len(want_fields) == 0 or '__local__' in want_fields:
-            return(ResourceV3.EntityJSON)
-        filtered = {}
-        for f in want_fields.union(['id']):     # Add 'id'
-            if f in ResourceV3.EntityJSON:
-                filtered[f] = ResourceV3.EntityJSON.get(f)
-        return(filtered)
-    class Meta:
-        model = ResourceV3
-        fields = ('__all__')
-
-class Resource_Types_Serializer(serializers.Serializer):
-    ResourceGroup = serializers.CharField()
-    Type = serializers.CharField()
-    count = serializers.IntegerField()
-    class Meta:
-        fields = ('__all__')
-
-class Provider_Detail_Serializer(serializers.ModelSerializer):
-    class Meta:
-        model = ResourceV3
-        fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])
-
-class Provider_List_Serializer(serializers.ModelSerializer):
 #    # Adds local field selection
 #    EntityJSON = serializers.SerializerMethodField()
 #    def get_EntityJSON(self, ResourceV3):
@@ -158,34 +130,40 @@ class Provider_List_Serializer(serializers.ModelSerializer):
         model = ResourceV3
         fields = ('__all__')
 
+class Resource_Types_Serializer(serializers.Serializer):
+    ResourceGroup = serializers.CharField()
+    Type = serializers.CharField()
+    count = serializers.IntegerField()
+    class Meta:
+        fields = ('__all__')
+
+#class Provider_Detail_Serializer(serializers.ModelSerializer):
+#    class Meta:
+#        model = ResourceV3
+#        fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])
+
+#class Provider_List_Serializer(serializers.ModelSerializer):
+##    # Adds local field selection
+##    EntityJSON = serializers.SerializerMethodField()
+##    def get_EntityJSON(self, ResourceV3):
+##        want_fields = self.context.get('fields')
+##        if len(want_fields) == 0 or '__local__' in want_fields:
+##            return(ResourceV3.EntityJSON)
+##        filtered = {}
+##        for f in want_fields.union(['id']):     # Add 'id'
+##            if f in ResourceV3.EntityJSON:
+##                filtered[f] = ResourceV3.EntityJSON.get(f)
+##        return(filtered)
+#    class Meta:
+#        model = ResourceV3
+#        fields = ('__all__')
+
 class Guide_Detail_Serializer(serializers.ModelSerializer):
-    # Adds local field selection
-    EntityJSON = serializers.SerializerMethodField()
-    def get_EntityJSON(self, ResourceV3):
-        want_fields = self.context.get('fields')
-        if len(want_fields) == 0 or '__local__' in want_fields:
-            return(ResourceV3.EntityJSON)
-        filtered = {}
-        for f in want_fields.union(['id']):     # Add 'id'
-            if f in ResourceV3.EntityJSON:
-                filtered[f] = ResourceV3.EntityJSON.get(f)
-        return(filtered)
     class Meta:
         model = ResourceV3
         fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])
 
 class Guide_Search_Serializer(serializers.ModelSerializer):
-    # Adds local field selection
-    EntityJSON = serializers.SerializerMethodField()
-    def get_EntityJSON(self, ResourceV3):
-        want_fields = self.context.get('fields')
-        if len(want_fields) == 0 or '__local__' in want_fields:
-            return(ResourceV3.EntityJSON)
-        filtered = {}
-        for f in want_fields.union(['id']):     # Add 'id'
-            if f in ResourceV3.EntityJSON:
-                filtered[f] = ResourceV3.EntityJSON.get(f)
-        return(filtered)
     class Meta:
         model = ResourceV3
         fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])

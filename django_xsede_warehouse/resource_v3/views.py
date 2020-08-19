@@ -23,6 +23,7 @@ Central = pytz.timezone("US/Central")
 UTC = pytz.timezone("UTC")
 import logging
 logg2 = logging.getLogger('xsede.logger')
+
 #
 # Catalog Views
 #
@@ -90,6 +91,7 @@ class Catalog_Detail(APIView):
         serializer = Catalog_Detail_Serializer(final_objects, context=context, many=True)
         response_obj = {'results': serializer.data}
         return MyAPIResponse(response_obj, template_name='resource_v3/catalog_detail.html')
+
 #
 # Local Views
 #
@@ -183,94 +185,96 @@ class Local_Detail(APIView):
         serializer = Local_Detail_Serializer(final_objects, context=context, many=True)
         response_obj = {'results': serializer.data}
         return MyAPIResponse(response_obj, template_name='resource_v3/local_detail.html')
+
 #
 # Provider Views
 #
-class Provider_Detail(APIView):
-    '''
-        Single Provider access by Global ID (TODO: or by Affiliation and Local ID)
-        
-        ### Optional response argument(s):<br>
-        ```
-            format={json,xml,html}              (json default)
-        ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
-    '''
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
-    def get(self, request, format=None, **kwargs):
-        arg_id = request.GET.get('id', kwargs.get('id', None))
-        if not arg_id:
-            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing Global ID argument')
+#class Provider_Detail(APIView):
+#    '''
+#        Single Provider access by Global ID (TODO: or by Affiliation and Local ID)
+#
+#        ### Optional response argument(s):<br>
+#        ```
+#            format={json,xml,html}              (json default)
+#        ```
+#        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+#            target="_blank">More API documentation</a>
+#    '''
+#    permission_classes = (IsAuthenticatedOrReadOnly,)
+#    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+#    def get(self, request, format=None, **kwargs):
+#        arg_id = request.GET.get('id', kwargs.get('id', None))
+#        if not arg_id:
+#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing Global ID argument')
+#
+#        try:
+#            final_objects = [ResourceV3.objects.get(pk=arg_id)]
+#        except ResourceV3.DoesNotExist:
+#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Global ID not found')
+#
+#        if len(final_objects) != 1:
+#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Too many providers found')
+#
+#        obj = final_objects[0]
+#        if obj.ResourceGroup != 'Organizations':
+#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Selected item is not a Provider')
+#
+#        serializer = Provider_Detail_Serializer(final_objects, many=True)
+#        response_obj = {'results': serializer.data}
+#        return MyAPIResponse(response_obj, template_name='resource_v3/provider_detail.html')
 
-        try:
-            final_objects = [ResourceV3.objects.get(pk=arg_id)]
-        except ResourceV3.DoesNotExist:
-            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Global ID not found')
-            
-        if len(final_objects) != 1:
-            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Too many providers found')
+#class Provider_Search(APIView):
+#    '''
+#        ### Resource Provider search and list
+#
+#        Optional selection argument(s):
+#        ```
+#            affiliations=<comma-delimited-list>
+#        ```
+#        Optional response format argument(s):
+#        ```
+#            format={json,xml,html}              (json default)
+#            page=<number>
+#            results_per_page=<number>           (default=25)
+#        ```
+#        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+#            target="_blank">More API documentation</a>
+#    '''
+#    permission_classes = (IsAuthenticatedOrReadOnly,)
+#    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+#    def get(self, request, format=None, **kwargs):
+#        arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
+#        if arg_affiliations and arg_affiliations not in ['_all_', '*']:
+#            want_affiliations = set(arg_affiliations.split(','))
+#        else:
+#            want_affiliations = set()
+#
+#        page = request.GET.get('page', None)
+#        page_size = request.GET.get('results_per_page', 25)
+#        response_obj = {}
+#
+#        Base_Filter = ResourceV3.objects.filter(ResourceGroup__exact='Organizations')
+#        try:
+#            if want_affiliations:
+#                objects = Base_Filter.filter(Affiliation__in=want_affiliations).order_by('Name')
+#            else:
+#                objects = Base_Filter.order_by('Name')
+#            response_obj['total_results'] = len(objects)
+#            if page:
+#                paginator = Paginator(objects, page_size)
+#                final_objects = paginator.page(page)
+#                response_obj['page'] = int(page)
+#                response_obj['total_pages'] = paginator.num_pages
+#            else:
+#                final_objects = objects
+#        except Exception as exc:
+#            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
+#
+#        context = {}
+#        serializer = Provider_List_Serializer(final_objects, context=context, many=True)
+#        response_obj['results'] = serializer.data
+#        return MyAPIResponse(response_obj, template_name='resource_v3/provider_list.html')
 
-        obj = final_objects[0]
-        if obj.ResourceGroup != 'Organizations' or obj.Type != 'Resource Provider':
-            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Selected item is not a Provider')
-        
-        serializer = Provider_Detail_Serializer(final_objects, many=True)
-        response_obj = {'results': serializer.data}
-        return MyAPIResponse(response_obj, template_name='resource_v3/provider_detail.html')
-
-class Provider_Search(APIView):
-    '''
-        ### Resource Provider search and list
-        
-        Optional selection argument(s):
-        ```
-            affiliations=<comma-delimited-list>
-        ```
-        Optional response format argument(s):
-        ```
-            format={json,xml,html}              (json default)
-            page=<number>
-            results_per_page=<number>           (default=25)
-        ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
-    '''
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
-    def get(self, request, format=None, **kwargs):
-        arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
-        if arg_affiliations:
-            want_affiliations = set(arg_affiliations.split(','))
-        else:
-            want_affiliations = set()
-
-        page = request.GET.get('page', None)
-        page_size = request.GET.get('results_per_page', 25)
-        response_obj = {}
-
-        Base_Filter = ResourceV3.objects.filter(ResourceGroup__exact='Organizations').filter(Type__exact='Resource Provider')
-        try:
-            if want_affiliations:
-                objects = Base_Filter.filter(Affiliation__in=want_affiliations).order_by('Name')
-            else:
-                objects = Base_Filter.order_by('Name')
-            response_obj['total_results'] = len(objects)
-            if page:
-                paginator = Paginator(objects, page_size)
-                final_objects = paginator.page(page)
-                response_obj['page'] = int(page)
-                response_obj['total_pages'] = paginator.num_pages
-            else:
-                final_objects = objects
-        except Exception as exc:
-            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
-
-        context = {}
-        serializer = Provider_List_Serializer(final_objects, context=context, many=True)
-        response_obj['results'] = serializer.data
-        return MyAPIResponse(response_obj, template_name='resource_v3/provider_list.html')
 #
 # List Resource Groups, Types, and counts in each combination
 #
@@ -284,7 +288,6 @@ class Resource_Types_List(APIView):
         ```
         Optional response format argument(s):
         ```
-            fields=<local_fields>               (return named fields)
             format={json,xml,html}              (json default)
             page=<number>
             results_per_page=<number>           (default=25)
@@ -296,16 +299,10 @@ class Resource_Types_List(APIView):
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
-        if arg_affiliations:
+        if arg_affiliations and arg_affiliations not in ['_all_', '*']:
             want_affiliations = set(arg_affiliations.split(','))
         else:
             want_affiliations = set()
-
-        arg_fields = request.GET.get('fields', None)
-        if arg_fields:
-            want_fields = set(arg_fields.lower().split(','))
-        else:
-            want_fields = set()
 
         page = request.GET.get('page', None)
         page_size = request.GET.get('results_per_page', 25)
@@ -318,7 +315,7 @@ class Resource_Types_List(APIView):
             else:
                 objects = ResourceV3.objects.all().\
                     values('ResourceGroup','Type').annotate(count=Count(['ResourceGroup','Type']))
-
+            objects = objects.order_by('ResourceGroup', 'Type')
             response_obj['total_results'] = len(objects)
             if page:
                 paginator = Paginator(objects, page_size)
@@ -329,10 +326,11 @@ class Resource_Types_List(APIView):
                 final_objects = objects
         except Exception as exc:
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
-        context = {'fields': want_fields}
+        context = {}
         serializer = Resource_Types_Serializer(final_objects, context=context, many=True)
         response_obj['results'] = serializer.data
         return MyAPIResponse(response_obj, template_name='resource_v3/types_list.html')
+
 #
 # Resource Views and supporting functions
 #
@@ -396,7 +394,7 @@ def resource_terms_filtersort(input_objects, search_terms_set, sort_field='name'
     #     In this case, ordering sould be based on the total number of occurances of the search terms.
     #     For example, if the search term is "python", resources that have the term three times should be listed
     #     before resources with that term happening 2 times or once.
-
+    #
     # SORT_KEY fields:
     #   <B_RANK>:<C_RANK>:<D_RANK>:<D_RANK>:<SORT_SUFFIX>
     # Where:
@@ -472,11 +470,11 @@ def resource_strings_filtersort(input_objects, search_strings_set, sort_field='n
     for obj in input_objects:
         search_in = obj.Name.lower()
         name_rank = [search_for in search_in for search_for in search_for_set].count(True)
-        if name_rank != len(search_for_set):                                                # All terms matched Name
+        if name_rank != len(search_for_set):                                         # All terms matched Name
             name_rank = 0
         A_RANK = u'{:03d}'.format(999-name_rank)
     
-        search_in_set = set((obj.Keywords or '').replace(',', ' ').lower().split())         # Empty string '' if Null
+        search_in_set = set((obj.Keywords or '').replace(',', ' ').lower().split())  # Empty string '' if Null
         keyword_rank = 0
         for search_in in search_in_set:
             if [search_for in search_in for search_for in search_for_set].count(True) > 0:
@@ -485,7 +483,7 @@ def resource_strings_filtersort(input_objects, search_strings_set, sort_field='n
 
         search_in = u' '.join((obj.Name, (obj.ShortDescription or ''), obj.Description)).replace(',', ' ').lower()
         name_desc_rank = [search_for in search_in for search_for in search_for_set].count(True)
-        if name_desc_rank != len(search_for_set):                                       # All terms matched Name, Short Description, or Description
+        if name_desc_rank != len(search_for_set):                                    # All terms matched Name, Short Description, or Description
             name_desc_rank = 0
         C_RANK = u'{:03d}'.format(999-name_desc_rank)
 
@@ -495,8 +493,8 @@ def resource_strings_filtersort(input_objects, search_strings_set, sort_field='n
         D_RANK = u'{:03d}'.format(999-total_matches)
 
         all_RANKS = u':'.join((A_RANK, B_RANK, C_RANK, D_RANK))
-        if all_RANKS == u'999:999:999:999':                                             # No matches
-            continue                                                                    # Loop to discard this object
+        if all_RANKS == u'999:999:999:999':                                          # No matches
+            continue                                                                 # Loop to discard this object
 
         if sort_field == 'StartDateTime':
             SORT_SUFFIX = obj.StartDateTime.strftime('%Y-%m-%dT%H:%M:%S%z')
@@ -569,7 +567,6 @@ class Resource_Search(APIView):
         ```
         Optional response argument(s):
         ```
-            fields=<local_fields>               (return named fields)
             format={json,xml,html}              (json default)
             sort=<local_field>                  (default global Name)
             page=<number>
@@ -584,7 +581,7 @@ class Resource_Search(APIView):
     def get(self, request, format=None, **kwargs):
         # Process optional arguments
         arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
-        if arg_affiliations:
+        if arg_affiliations and arg_affiliations not in ['_all_', '*']:
             want_affiliations = set(arg_affiliations.split(','))
         else:
             want_affiliations = set()
@@ -638,12 +635,6 @@ class Resource_Search(APIView):
             want_providerids = []
             want_providers = []
 
-        arg_fields = request.GET.get('fields', None)
-        if arg_fields:
-            want_fields = set(arg_fields.lower().split(','))
-        else:
-            want_fields = set()
-
         sort = request.GET.get('sort', 'Name')
         page = request.GET.get('page', None)
         page_size = request.GET.get('results_per_page', 25)
@@ -695,7 +686,7 @@ class Resource_Search(APIView):
             logg2.info(exc, exc_info=True)
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
-        context = {'fields': want_fields, 'request': request}
+        context = {'request': request}
         serializer = Resource_Search_Serializer(final_objects, context=context, many=True)
         response_obj['results'] = serializer.data
         return MyAPIResponse(response_obj, template_name='resource_v3/resource_list.html')
@@ -733,7 +724,7 @@ class Resource_ESearch(APIView):
         
         # Process optional arguments
         arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
-        if arg_affiliations:
+        if arg_affiliations and arg_affiliations not in ['_all_', '*']:
             want_affiliations = list(arg_affiliations.split(','))
         else:
             want_affiliations = list()
@@ -843,7 +834,7 @@ class Resource_ESearch(APIView):
 #
 class Event_Detail(APIView):
     '''
-        Single Catalog access by Global ID
+        Single Event access by Global ID
         
         ### Optional response argument(s):<br>
         ```
@@ -855,7 +846,23 @@ class Event_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
-        return
+        arg_id = request.GET.get('id', kwargs.get('id', None))
+        if not arg_id:
+            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing Global ID argument')
+
+        try:
+            final_objects = [ResourceV3.objects.get(pk=arg_id)]
+        except ResourceV3.DoesNotExist:
+            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Global ID not found')
+
+        want_resource_groups = set(['Live Events', 'Streamed Events'])
+        if final_objects[0].ResourceGroup not in want_resource_groups:
+            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Event not found')
+
+        context = {}
+        serializer = Resource_Detail_Serializer(final_objects, context=context, many=True)
+        response_obj = {'results': serializer.data}
+        return MyAPIResponse(response_obj, template_name='resource_v3/resource_detail.html')
 
 class Event_Search(APIView):
     '''
@@ -873,7 +880,6 @@ class Event_Search(APIView):
         ```
         Optional response format argument(s):
         ```
-            fields=<local_fields>               (return named fields)
             format={json,xml,html}              (json default)
             page=<number>
             results_per_page=<number>           (default=25)
@@ -885,7 +891,7 @@ class Event_Search(APIView):
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
-        if arg_affiliations:
+        if arg_affiliations and arg_affiliations not in ['_all_', '*']:
             want_affiliations = set(arg_affiliations.split(','))
         else:
             want_affiliations = set()
@@ -895,12 +901,6 @@ class Event_Search(APIView):
             want_topics = set(arg_topics.split(','))
         else:
             want_topics = set()
-
-        arg_fields = request.GET.get('fields', None)
-        if arg_fields:
-            want_fields = set(arg_fields.lower().split(','))
-        else:
-            want_fields = set()
 
         arg_terms = request.GET.get('search_terms', None)
         if arg_terms:
@@ -927,6 +927,7 @@ class Event_Search(APIView):
             want_providerids = []
             want_providers = []
  
+        want_resource_groups = set(['Live Events', 'Streamed Events'])
 
         arg_topics = request.GET.get('topics', None)
         if arg_topics:
@@ -967,7 +968,7 @@ class Event_Search(APIView):
         response_obj = {}
 
         try:
-            objects = ResourceV3.objects.filter(ResourceGroup__exact='Live Events').filter(QualityLevel__exact='Production')
+            objects = ResourceV3.objects.filter(ResourceGroup__in=want_resource_groups).filter(QualityLevel__exact='Production')
             if want_affiliations:
                 objects = objects.filter(Affiliation__in=want_affiliations)
             if want_providerids:
@@ -983,7 +984,7 @@ class Event_Search(APIView):
             if want_terms:
                 objects = resource_terms_filtersort(objects, want_terms, sort_field='StartDateTime')
             else:
-                objects = objects.order_by(StartDateTime)
+                objects = objects.order_by('StartDateTime')
             
             # These filters have to be handled by looping thru rows; they must be after the previous database filters
             if want_topics:
@@ -1000,10 +1001,11 @@ class Event_Search(APIView):
         except Exception as exc:
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, str(exc)))
 
-        context = {'fields': want_fields}
+        context = {}
         serializer = Resource_Event_Serializer(final_objects, context=context, many=True)
         response_obj['results'] = serializer.data
         return MyAPIResponse(response_obj, template_name='resource_v3/event_list.html')
+
 #
 # Guide Views
 #
@@ -1026,22 +1028,20 @@ class Guide_Detail(APIView):
         if not arg_id:
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing Global ID argument')
 
-        # Process optional arguments
-        arg_fields = request.GET.get('fields', None)
-        if arg_fields:
-            want_fields = set(arg_fields.lower().split(','))
-        else:
-            want_fields = set()
-
         try:
-            final_objects = [ResourceV3Guide.objects.get(pk=arg_id)]
-        except ResourceV3Guide.DoesNotExist:
+            final_objects = [ResourceV3.objects.get(pk=arg_id)]
+        except ResourceV3.DoesNotExist:
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Global ID not found')
 
-        context = {'fields': want_fields}
-        serializer = Guide_Detail_Serializer(final_objects, context=context, many=True)
+        want_resource_groups = set(['Guides'])
+        if final_objects[0].ResourceGroup not in want_resource_groups:
+            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Guide not found')
+
+        context = {}
+        serializer = Resource_Detail_Serializer(final_objects, context=context, many=True)
         response_obj = {'results': serializer.data}
-        return MyAPIResponse(response_obj, template_name='resource_v3/guide_detail.html')
+        return MyAPIResponse(response_obj, template_name='resource_v3/resource_detail.html')
+
 
 class Guide_Search(APIView):
     '''
@@ -1052,14 +1052,12 @@ class Guide_Search(APIView):
             search_terms=<comma_delimited_search_terms>
             search_strings=<comma_delimited_search_strings>
             affiliations=<comma-delimited-list>
-            resource_groups=<group1>[, <group2>[...]]
             topics=<topic1>[,<topic2>[...]]
             types=<type1>[,<type2>[...]]
             providers=<provider1>[,<provider2>[...]]
         ```
         Optional response argument(s):
         ```
-            fields=<local_fields>               (return named fields)
             format={json,xml,html}              (json default)
             sort=<local_field>                  (default global Name)
             page=<number>
@@ -1073,16 +1071,12 @@ class Guide_Search(APIView):
     def get(self, request, format=None, **kwargs):
         # Process optional arguments
         arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
-        if arg_affiliations:
+        if arg_affiliations and arg_affiliations not in ['_all_', '*']:
             want_affiliations = set(arg_affiliations.split(','))
         else:
             want_affiliations = set()
 
-        arg_resource_groups = request.GET.get('resource_groups', None)
-        if arg_resource_groups:
-            want_resource_groups = set(arg_resource_groups.split(','))
-        else:
-            want_resource_groups = set()
+        want_resource_groups = set(['Guides'])
 
         arg_terms = request.GET.get('search_terms', None)
         if arg_terms:
@@ -1127,12 +1121,6 @@ class Guide_Search(APIView):
             want_providerids = []
             want_providers = []
 
-        arg_fields = request.GET.get('fields', None)
-        if arg_fields:
-            want_fields = set(arg_fields.lower().split(','))
-        else:
-            want_fields = set()
-
         sort = request.GET.get('sort', 'Name')
         page = request.GET.get('page', None)
         page_size = request.GET.get('results_per_page', 25)
@@ -1174,9 +1162,9 @@ class Guide_Search(APIView):
             for item in RES:
                 want_resources.add(item.ID)
 
-            want_guides = ResourceV3GuideResource.objects.filter(ResourceID__in=want_resources).order_by('CuratedGuideID').distinct('CuratedGuideID').values_list('CuratedGuideID', flat=True)
+            want_guides = ResourceV3.objects.filter(ID__in=want_resources).order_by('ID').distinct('ID').values_list('ID', flat=True)
 
-            objects = ResourceV3Guide.objects.filter(pk__in=want_guides).order_by('Name')
+            objects = ResourceV3.objects.filter(pk__in=want_guides).order_by('Name')
             response_obj['total_results'] = len(objects)
 
             if page:
@@ -1189,7 +1177,7 @@ class Guide_Search(APIView):
         except Exception as exc:
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
-        context = {'fields': want_fields}
+        context = {}
         serializer = Guide_Search_Serializer(final_objects, context=context, many=True)
         response_obj['results'] = serializer.data
         return MyAPIResponse(response_obj, template_name='resource_v3/guide_list.html')
