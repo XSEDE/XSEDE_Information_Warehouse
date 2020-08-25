@@ -39,8 +39,8 @@ class Catalog_Search(APIView):
         ```
             format={json,xml,html}              (json default)
         ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
+        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+            target="_blank">More V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -72,8 +72,8 @@ class Catalog_Detail(APIView):
         ```
             format={json,xml,html}              (json default)
         ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
+        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+            target="_blank">More V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -115,8 +115,8 @@ class Local_Search(APIView):
             page=<number>
             results_per_page=<number>           (default=25)
         ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
+        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+            target="_blank">More V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -166,8 +166,8 @@ class Local_Detail(APIView):
         ```
             format={json,xml,html}              (json default)
         ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
+        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+            target="_blank">More V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -197,8 +197,8 @@ class Local_Detail(APIView):
 #        ```
 #            format={json,xml,html}              (json default)
 #        ```
-#        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-#            target="_blank">More API documentation</a>
+#        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+#            target="_blank">More V3 API documentation</a>
 #    '''
 #    permission_classes = (IsAuthenticatedOrReadOnly,)
 #    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -237,8 +237,8 @@ class Local_Detail(APIView):
 #            page=<number>
 #            results_per_page=<number>           (default=25)
 #        ```
-#        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-#            target="_blank">More API documentation</a>
+#        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+#            target="_blank">More V3 API documentation</a>
 #    '''
 #    permission_classes = (IsAuthenticatedOrReadOnly,)
 #    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -292,8 +292,8 @@ class Resource_Types_List(APIView):
             page=<number>
             results_per_page=<number>           (default=25)
         ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
+        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+            target="_blank">More V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -515,8 +515,8 @@ class Resource_Detail(APIView):
         ```
             format={json,xml,html}              (json default)
         ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
+        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+            target="_blank">More V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -573,8 +573,8 @@ class Resource_Search(APIView):
             results_per_page=<number>           (default=25)
             subtotals={only,include}            (default no totals)
         ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
+        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+            target="_blank">More V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -701,6 +701,7 @@ class Resource_ESearch(APIView):
             affiliations=<comma-delimited-list>
             resource_groups=<group1>[, <group2>[...]]
             topics=<topic1>[,<topic2>[...]]
+            keywords=<keyword1>[,<keyword2>[...]]
             types=<type1>[,<type2>[...]]
             providers=<provider1>[,<provider2>[...]]
             relation=[!]<relatedid>
@@ -712,8 +713,8 @@ class Resource_ESearch(APIView):
             page=<number>
             results_per_page=<number>           (default=25)
         ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
+        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+            target="_blank">More V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -746,6 +747,12 @@ class Resource_ESearch(APIView):
             want_topics = list(arg_topics.split(','))
         else:
             want_topics = list()
+
+        arg_keywords = request.GET.get('keywords', None)
+        if arg_keywords:
+            want_keywords = list(arg_keywords.split(','))
+        else:
+            want_keywords = list()
 
         arg_types = request.GET.get('types', None)
         if arg_types:
@@ -788,9 +795,11 @@ class Resource_ESearch(APIView):
             if want_providerids:
                 ES = ES.filter('terms', ProviderID=want_providerids)
             if want_topics:
-                ES = ES.query('terms', Topics=want_topics)
+                ES = ES.query('match', Topics=arg_topics)
+            if want_keywords:
+                ES = ES.query('match', Keywords=arg_keywords)
             if want_terms:
-                ES = ES.query('multi_match', query=' '.join(want_terms), fields=['Name', 'Keywords', 'ShortDescription', 'Description'])
+                ES = ES.query('multi_match', query=' '.join(want_terms), fields=['Name', 'Topics', 'grepKeywords', 'ShortDescription', 'Description'])
             if want_relationid:
                 if want_relationinvert:
                     ES = ES.filter(
@@ -840,8 +849,8 @@ class Event_Detail(APIView):
         ```
             format={json,xml,html}              (json default)
         ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
+        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+            target="_blank">More V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -884,8 +893,8 @@ class Event_Search(APIView):
             page=<number>
             results_per_page=<number>           (default=25)
         ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
+        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+            target="_blank">More V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -1018,8 +1027,8 @@ class Guide_Detail(APIView):
             fields=<local_fields>               (return named fields)
             format={json,xml,html}              (json default)
         ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
+        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+            target="_blank">More V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -1063,8 +1072,8 @@ class Guide_Search(APIView):
             page=<number>
             results_per_page=<number>           (default=25)
         ```
-        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
-            target="_blank">More API documentation</a>
+        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+            target="_blank">More V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
