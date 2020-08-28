@@ -10,6 +10,7 @@ class ProcessingRecordAdmin(admin.ModelAdmin):
 class ProcessingErrorAdmin(admin.ModelAdmin):
     list_display = ('Topic', 'About', 'ErrorTime', 'ID')
     list_display_links = ['ID']
+    search_fields = ['Topic__iexact', 'About__iexact', 'ID__iexact']    
 
 class PublisherInfoAdmin(admin.ModelAdmin):
     list_display = ('ResourceID', 'Type', 'Hostname', 'ID')
