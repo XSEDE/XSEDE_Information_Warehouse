@@ -46,13 +46,13 @@ class ResourceV3Local(models.Model):
     CreationTime = models.DateTimeField()
     Validity = models.DurationField(null=True)
     Affiliation = models.CharField(db_index=True, max_length=32)
-    LocalID = models.CharField(db_index=True, max_length=200, null=True)
-    LocalType = models.CharField(max_length=32, null=True)
-    LocalURL = models.CharField(max_length=200, null=True)
+    LocalID = models.CharField(db_index=True, max_length=200, null=True, blank=True)
+    LocalType = models.CharField(max_length=32, null=True, blank=True)
+    LocalURL = models.CharField(max_length=200, null=True, blank=True)
     # The catalog API metadata access URL (from the ResourceV3Catalog record)
-    CatalogMetaURL = models.CharField(max_length=200, null=True)
+    CatalogMetaURL = models.CharField(max_length=200, null=True, blank=True)
     # Local unmodified record, should conform to CatalogMetaURL -> CatalogSchemaURL
-    EntityJSON = JSONField()
+    EntityJSON = JSONField(null=True, blank=True)
     class Meta:
         db_name = 'glue2'
     def __str__(self):
@@ -66,21 +66,21 @@ class AbstractResourceV3Model(models.Model):
     # Identical to the corresponding ResourceV3Local->ID
     ID = models.CharField(primary_key=True, max_length=200)
     Affiliation = models.CharField(max_length=32)
-    LocalID = models.CharField(max_length=200, null=True)
+    LocalID = models.CharField(max_length=200, null=True, blank=True)
     QualityLevel = models.CharField(max_length=16, null=True)
     # Base content fields
     Name = models.CharField(max_length=255)
     ResourceGroup = models.CharField(max_length=64)
     Type = models.CharField(max_length=64)
-    ShortDescription = models.CharField(max_length=1200, null=True)
-    ProviderID = models.CharField(max_length=200, null=True)
-    Description = models.CharField(max_length=24000, null=True)
-    Topics = models.CharField(max_length=1000, null=True)
-    Keywords = models.CharField(max_length=1000, null=True)
-    Audience = models.CharField(max_length=200, null=True)
+    ShortDescription = models.CharField(max_length=1200, null=True, blank=True)
+    ProviderID = models.CharField(max_length=200, null=True, blank=True)
+    Description = models.CharField(max_length=24000, null=True, blank=True)
+    Topics = models.CharField(max_length=1000, null=True, blank=True)
+    Keywords = models.CharField(max_length=1000, null=True, blank=True)
+    Audience = models.CharField(max_length=200, null=True, blank=True)
     # Event content fields
-    StartDateTime = models.DateTimeField(null=True)
-    EndDateTime = models.DateTimeField(null=True)
+    StartDateTime = models.DateTimeField(null=True, blank=True)
+    EndDateTime = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         abstract = True
