@@ -15,7 +15,7 @@ from .serializers import *
 from xsede_warehouse.exceptions import MyAPIException
 from xsede_warehouse.responses import MyAPIResponse
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Search, Q
+from elasticsearch_dsl import Search, Q, A
 import datetime
 from datetime import datetime, timedelta
 import pytz
@@ -705,6 +705,7 @@ class Resource_ESearch(APIView):
             types=<type1>[,<type2>[...]]
             providers=<provider1>[,<provider2>[...]]
             relation=[!]<relatedid>
+            aggregations=[Affiliation|ResourceGroup|Type|QualityLevel]
         ```
         Optional response argument(s):
         ```
@@ -776,7 +777,15 @@ class Resource_ESearch(APIView):
         else:
             want_relationid = False
 
-        sort = request.GET.get('sort', None)
+        arg_aggregations = request.GET.get('aggregations', None)
+        # Return Elasticsearch aggregations
+        if arg_aggregations:
+            want_aggregations = list(x.lower() for x in arg_aggregations.split(','))
+        else:
+            want_aggregations = list()
+        
+#       Elasticsearch results are ordered by _score making sorting un-useful
+#        sort = request.GET.get('sort', None)
         page = request.GET.get('page', 0)
         page_size = int(request.GET.get('results_per_page', 25))
 
@@ -798,8 +807,11 @@ class Resource_ESearch(APIView):
                 ES = ES.query('match', Topics=arg_topics)
             if want_keywords:
                 ES = ES.query('match', Keywords=arg_keywords)
+#            import pdb
+#            pdb.set_trace()
             if want_terms:
-                ES = ES.query('multi_match', query=' '.join(want_terms), fields=['Name', 'Topics', 'grepKeywords', 'ShortDescription', 'Description'])
+                ES = ES.query('multi_match', query=' '.join(want_terms), fields=['Name', 'Topics', 'Keywords', 'ShortDescription', 'Description'])
+#                , operator='AND'
             if want_relationid:
                 if want_relationinvert:
                     ES = ES.filter(
@@ -816,27 +828,47 @@ class Resource_ESearch(APIView):
                             Q('term', Relations__RelatedID__keyword=want_relationid)))
                         )
 
-            if sort:
-                ES = ES.sort(sort)
+#       Elasticsearch results are ordered by _score making sorting un-useful
+#            if sort:
+#                ES = ES.sort(sort)
+#            import pdb
+#            pdb.set_trace()
+            if want_aggregations:
+                field_map = {'affiliation': 'Affiliation',
+                        'resourcegroup': 'ResourceGroup',
+                        'type': 'Type',
+                        'qualitylevel': 'QualityLevel' }
+                for field in want_aggregations:
+                    if field in field_map:
+                        realfield = field_map[field]
+                        ES.aggs.bucket(realfield, A('terms', field=realfield))
 
             if page:
                 page_start = page_size * int(page)
                 page_end = page_start + page_size
                 ES = ES[page_start:page_end]
-
+#            ES = ES.extra(explain=True)
             response = ES.execute()
             
-            objects = []
-            for row in response.to_dict()['hits']['hits']:
-                objects.append(row['_source'])
+            response_obj['results'] = []
+            for row in response.hits.hits:
+                response_obj['results'].append(row['_source'].to_dict())
 
             response_obj['total_results'] = ES.count()
+
+            if 'aggregations' in response:
+                response_obj['aggregations'] = {}
+                for aggkey in dir(response.aggregations):
+                    buckets = {}
+                    for item in response.aggregations[aggkey].buckets:
+                        itemdict = item.to_dict()
+                        buckets[itemdict['key']] = itemdict['doc_count']
+                    response_obj['aggregations'][aggkey] = buckets
 
         except Exception as exc:
             logg2.info(exc, exc_info=True)
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
-        response_obj['results'] = objects
         return MyAPIResponse(response_obj, template_name='resource_v3/resource_list.html')
 #
 # Event Views
