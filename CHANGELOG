@@ -1,0 +1,7 @@
+tag-2.2-20200904 JP
+  - New CHANGELOG to detail changes in each tag
+  - To support Web Apps set CORS_ORIGIN_ALLOW_ALL = True
+  - Disable guide/ and guide_search/ APIs since regular resources APIs provide all the functionality
+  - Implement Elasticsearch search_fields to select which fields are searched by search_terms
+  - Make resource_groups, types, and qualitylevels argument not case sensitive
+  - Return Elasticsearch _score

@@ -158,12 +158,12 @@ class Resource_Types_Serializer(serializers.Serializer):
 #        model = ResourceV3
 #        fields = ('__all__')
 
-class Guide_Detail_Serializer(serializers.ModelSerializer):
-    class Meta:
-        model = ResourceV3
-        fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])
-
-class Guide_Search_Serializer(serializers.ModelSerializer):
-    class Meta:
-        model = ResourceV3
-        fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])
+#class Guide_Detail_Serializer(serializers.ModelSerializer):
+#    class Meta:
+#        model = ResourceV3
+#        fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])
+#
+#class Guide_Search_Serializer(serializers.ModelSerializer):
+#    class Meta:
+#        model = ResourceV3
+#        fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])

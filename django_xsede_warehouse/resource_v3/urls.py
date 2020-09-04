@@ -31,8 +31,8 @@ urlpatterns = [
         Event_Detail.as_view(), name='event-detail'),
     url(r'^event_search/?$',
         cache_page(60 * 5)(Event_Search.as_view()), name='event-search'),
-    url(r'^guide/id/(?P<id>.+)/$',
-        Guide_Detail.as_view(), name='guide-detail'),
-    url(r'^guide_search/?$',
-        Guide_Search.as_view(), name='guide-search'),
+#    url(r'^guide/id/(?P<id>.+)/$',
+#        Guide_Detail.as_view(), name='guide-detail'),
+#    url(r'^guide_search/?$',
+#        Guide_Search.as_view(), name='guide-search'),
 ]

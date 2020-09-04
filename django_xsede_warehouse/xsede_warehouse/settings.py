@@ -276,7 +276,8 @@ if SETTINGS_MODE == 'SERVER':
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
     )
 
-    CORS_ORIGIN_ALLOW_ALL = False
+# Switched to True on 09-03-2020 by JP, making whitelist no longer relevant
+    CORS_ORIGIN_ALLOW_ALL = True
     CORS_ORIGIN_WHITELIST = (
         'https://xsede.org',
         'https://www.xsede.org',

@@ -40,7 +40,7 @@ class Catalog_Search(APIView):
             format={json,xml,html}              (json default)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-            target="_blank">More V3 API documentation</a>
+            target="_blank">More Resource V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -52,10 +52,10 @@ class Catalog_Search(APIView):
             want_affiliations = set()
 
         try:
-            if len(want_affiliations) == 0:
-                final_objects = ResourceV3Catalog.objects.all()
-            else:
+            if want_affiliations:
                 final_objects = ResourceV3Catalog.objects.filter(Affiliation__in=want_affiliations)
+            else:
+                final_objects = ResourceV3Catalog.objects.all()
         except Exception as exc:
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
@@ -73,7 +73,7 @@ class Catalog_Detail(APIView):
             format={json,xml,html}              (json default)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-            target="_blank">More V3 API documentation</a>
+            target="_blank">More Resource V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -116,7 +116,7 @@ class Local_Search(APIView):
             results_per_page=<number>           (default=25)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-            target="_blank">More V3 API documentation</a>
+            target="_blank">More Resource V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -124,16 +124,19 @@ class Local_Search(APIView):
         arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
         if not arg_affiliation:
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Required affiliation not specified')
+
         arg_localids = request.GET.get('localids', kwargs.get('localids', None))
         if arg_localids:
             want_localids = set(arg_localids.split(','))
         else:
             want_localids = set()
+
         arg_localtypes = request.GET.get('localtypes', kwargs.get('localtypes', None))
         if arg_localtypes:
             want_localtypes = set(arg_localtypes.split(','))
         else:
             want_localtypes = set()
+
         page = request.GET.get('page', None)
         page_size = request.GET.get('results_per_page', 25)
 
@@ -143,6 +146,7 @@ class Local_Search(APIView):
                 objects = objects.filter(LocalID__in=want_localids)
             if want_localtypes:
                 objects = objects.filter(LocalType__in=want_localtypes)
+
             if page:
                 paginator = Paginator(objects, page_size)
                 final_objects = paginator.page(page)
@@ -167,7 +171,7 @@ class Local_Detail(APIView):
             format={json,xml,html}              (json default)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-            target="_blank">More V3 API documentation</a>
+            target="_blank">More Resource V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -187,95 +191,6 @@ class Local_Detail(APIView):
         return MyAPIResponse(response_obj, template_name='resource_v3/local_detail.html')
 
 #
-# Provider Views
-#
-#class Provider_Detail(APIView):
-#    '''
-#        Single Provider access by Global ID (TODO: or by Affiliation and Local ID)
-#
-#        ### Optional response argument(s):<br>
-#        ```
-#            format={json,xml,html}              (json default)
-#        ```
-#        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-#            target="_blank">More V3 API documentation</a>
-#    '''
-#    permission_classes = (IsAuthenticatedOrReadOnly,)
-#    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
-#    def get(self, request, format=None, **kwargs):
-#        arg_id = request.GET.get('id', kwargs.get('id', None))
-#        if not arg_id:
-#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing Global ID argument')
-#
-#        try:
-#            final_objects = [ResourceV3.objects.get(pk=arg_id)]
-#        except ResourceV3.DoesNotExist:
-#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Global ID not found')
-#
-#        if len(final_objects) != 1:
-#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Too many providers found')
-#
-#        obj = final_objects[0]
-#        if obj.ResourceGroup != 'Organizations':
-#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Selected item is not a Provider')
-#
-#        serializer = Provider_Detail_Serializer(final_objects, many=True)
-#        response_obj = {'results': serializer.data}
-#        return MyAPIResponse(response_obj, template_name='resource_v3/provider_detail.html')
-
-#class Provider_Search(APIView):
-#    '''
-#        ### Resource Provider search and list
-#
-#        Optional selection argument(s):
-#        ```
-#            affiliations=<comma-delimited-list>
-#        ```
-#        Optional response format argument(s):
-#        ```
-#            format={json,xml,html}              (json default)
-#            page=<number>
-#            results_per_page=<number>           (default=25)
-#        ```
-#        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-#            target="_blank">More V3 API documentation</a>
-#    '''
-#    permission_classes = (IsAuthenticatedOrReadOnly,)
-#    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
-#    def get(self, request, format=None, **kwargs):
-#        arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
-#        if arg_affiliations and arg_affiliations not in ['_all_', '*']:
-#            want_affiliations = set(arg_affiliations.split(','))
-#        else:
-#            want_affiliations = set()
-#
-#        page = request.GET.get('page', None)
-#        page_size = request.GET.get('results_per_page', 25)
-#        response_obj = {}
-#
-#        Base_Filter = ResourceV3.objects.filter(ResourceGroup__exact='Organizations')
-#        try:
-#            if want_affiliations:
-#                objects = Base_Filter.filter(Affiliation__in=want_affiliations).order_by('Name')
-#            else:
-#                objects = Base_Filter.order_by('Name')
-#            response_obj['total_results'] = len(objects)
-#            if page:
-#                paginator = Paginator(objects, page_size)
-#                final_objects = paginator.page(page)
-#                response_obj['page'] = int(page)
-#                response_obj['total_pages'] = paginator.num_pages
-#            else:
-#                final_objects = objects
-#        except Exception as exc:
-#            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
-#
-#        context = {}
-#        serializer = Provider_List_Serializer(final_objects, context=context, many=True)
-#        response_obj['results'] = serializer.data
-#        return MyAPIResponse(response_obj, template_name='resource_v3/provider_list.html')
-
-#
 # List Resource Groups, Types, and counts in each combination
 #
 class Resource_Types_List(APIView):
@@ -293,7 +208,7 @@ class Resource_Types_List(APIView):
             results_per_page=<number>           (default=25)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-            target="_blank">More V3 API documentation</a>
+            target="_blank">More Resource V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -516,7 +431,7 @@ class Resource_Detail(APIView):
             format={json,xml,html}              (json default)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-            target="_blank">More V3 API documentation</a>
+            target="_blank">More Resource V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -530,22 +445,6 @@ class Resource_Detail(APIView):
         except ResourceV3.DoesNotExist:
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Global ID not found')
 
-        assoc_resources = []                   # Retrieve associated resources
-        # TODO: convert to RelationRelation
-#        for each_object in final_objects:      # Loop forces evaluation, required in order to execute another Resources query
-#            assoc_ids = (each_object.Associations or '').split(',')
-#            assoc_res = ResourceV3.objects.filter(Affiliation__exact=each_object.Affiliation).filter(LocalID__in=assoc_ids)
-#            for res in assoc_res:
-#                assoc_hash = {
-#                    'id': res.LocalID,
-#                    'resource_name': res.Name,
-#                    'resource_desc': res.Description,
-#                    'topics': res.Topics,
-#                }
-#                assoc_resources.append(assoc_hash)
-#            break # breaking because we should have only have one item processed by this loop
-
-#        context = {'associated_resources': assoc_resources}
         context = {}
         serializer = Resource_Detail_Serializer(final_objects, context=context, many=True)
         response_obj = {'results': serializer.data}
@@ -557,12 +456,13 @@ class Resource_Search(APIView):
         
         Optional selection argument(s):
         ```
-            search_terms=<comma_delimited_search_terms>
-            search_strings=<comma_delimited_search_strings>
             affiliations=<comma-delimited-list>
             resource_groups=<group1>[, <group2>[...]]
-            topics=<topic1>[,<topic2>[...]]
             types=<type1>[,<type2>[...]]
+            qualitylevels=[_all_|<level1>[,<level2>[...]]]       (default=production)
+            search_terms=<comma_delimited_search_terms>
+            search_strings=<comma_delimited_search_strings>
+            topics=<topic1>[,<topic2>[...]]
             providers=<provider1>[,<provider2>[...]]
         ```
         Optional response argument(s):
@@ -574,7 +474,7 @@ class Resource_Search(APIView):
             subtotals={only,include}            (default no totals)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-            target="_blank">More V3 API documentation</a>
+            target="_blank">More Resource V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -586,11 +486,28 @@ class Resource_Search(APIView):
         else:
             want_affiliations = set()
 
-        arg_resource_groups = request.GET.get('resource_groups', None)
+        want_resource_groups = list()
         if arg_resource_groups:
-            want_resource_groups = set(arg_resource_groups.split(','))
+            # We normalize case if lower of what was entered is in our map, otherwise we leave what was entered
+            rg_map = { item.lower(): item for item in
+                ['Computing Tools and Services', 'Data Resources', 'Guides', 'Live Events', 'Organizations', 'Software', 'Streamed Events'] }
+            for item in arg_resource_groups.split(','):
+                want_resource_groups.append(rg_map.get(item.lower(), item))
+
+        arg_types = request.GET.get('types', None)
+        if arg_types:
+            want_types = set(arg_types.split(','))
         else:
-            want_resource_groups = set()
+            want_types = set()
+
+        arg_qualitylevels = request.GET.get('qualitylevels', kwargs.get('qualitylevels', 'production'))
+        want_qualitylevels = list()
+        if arg_qualitylevels and arg_qualitylevels not in ['_all_', '*']:
+            # We normalize case if the lower of what was entered is in our map, otherwise we leave the case
+            quality_map = { item.lower(): item for item in
+                    ['Decommissioned', 'Preliminary', 'Pre-production', 'Production', 'Testing', 'Unsupported'] }
+            for item in arg_qualitylevels.split(','):
+                want_qualitylevels.append(quality_map.get(item.lower(), item))
 
         arg_terms = request.GET.get('search_terms', None)
         if arg_terms:
@@ -609,12 +526,6 @@ class Resource_Search(APIView):
             want_topics = set(arg_topics.split(','))
         else:
             want_topics = set()
-
-        arg_types = request.GET.get('types', None)
-        if arg_types:
-            want_types = set(arg_types.split(','))
-        else:
-            want_types = set()
 
         arg_providers = request.GET.get('providers', None)
         # Search in ProviderID field if possible rather than Provider in JSONField
@@ -698,30 +609,31 @@ class Resource_ESearch(APIView):
         Optional selection argument(s):
         ```
             search_terms=<comma_delimited_search_terms>
+            search_fields=<any-combination-of: Name,Topics,Keywords,ShortDescription,Description
             affiliations=<comma-delimited-list>
-            resource_groups=<group1>[, <group2>[...]]
-            topics=<topic1>[,<topic2>[...]]
-            keywords=<keyword1>[,<keyword2>[...]]
-            types=<type1>[,<type2>[...]]
-            providers=<provider1>[,<provider2>[...]]
+            resource_groups=<comma-delimited-list>
+            types=<comma-delimited-list>
+            qualitylevels=*|<level1>[,<level2>[...]]            (default=production)
+            topics=<comma-delimited-list>
+            keywords=<comma-delimited-list>
+            providers=<comma-delimited-providerid-list>
             relation=[!]<relatedid>
-            aggregations=[Affiliation|ResourceGroup|Type|QualityLevel]
+            aggregations=[affiliation|resourcegroup|type|qualitylevel]
         ```
         Optional response argument(s):
         ```
-            format={json,xml,html}              (json default)
-            sort=<field>                  (default Name.Keyword)
-            page=<number>
-            results_per_page=<number>           (default=25)
+            format={json,xml,html}                              (json default)
+            page=<number>                                       (default=0)
+            results_per_page=<number>                           (default=25)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-            target="_blank">More V3 API documentation</a>
+            target="_blank">More Resource V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         if not django_settings.ESCON:
-            raise MyAPIException(code=status.HTTP_503_SERVICE_UNAVAILABLE, detail='Elasticsearch not configured')
+            raise MyAPIException(code=status.HTTP_503_SERVICE_UNAVAILABLE, detail='Elasticsearch not available')
         ESCON = django_settings.ESCON
         
         # Process optional arguments
@@ -732,16 +644,45 @@ class Resource_ESearch(APIView):
             want_affiliations = list()
 
         arg_resource_groups = request.GET.get('resource_groups', None)
+        want_resource_groups = list()
         if arg_resource_groups:
-            want_resource_groups = list(arg_resource_groups.split(','))
+            # We normalize case if lower of what was entered is in our map, otherwise we leave what was entered
+            rg_map = { item.lower(): item for item in
+                ['Computing Tools and Services', 'Data Resources', 'Guides', 'Live Events', 'Organizations', 'Software', 'Streamed Events'] }
+            for item in arg_resource_groups.split(','):
+                want_resource_groups.append(rg_map.get(item.lower(), item))
+
+        arg_types = request.GET.get('types', None)
+        if arg_types:
+            want_types = list(arg_types.split(','))
         else:
-            want_resource_groups = list()
+            want_types = list()
+
+        arg_qualitylevels = request.GET.get('qualitylevels', kwargs.get('qualitylevels', 'production'))
+        want_qualitylevels = list()
+        if arg_qualitylevels and arg_qualitylevels not in ['_all_', '*']:
+            # We normalize case if lower of what was entered is in our map, otherwise we leave what was entered
+            quality_map = { item.lower(): item for item in
+                    ['Decommissioned', 'Preliminary', 'Pre-production', 'Production', 'Testing', 'Unsupported'] }
+            for item in arg_qualitylevels.split(','):
+                want_qualitylevels.append(quality_map.get(item.lower(), item))
 
         arg_terms = request.GET.get('search_terms', None)
         if arg_terms:
             want_terms = list(arg_terms.replace(',', ' ').lower().split())
         else:
             want_terms = list()
+
+        # Search any valid subset of fields_all passed in search_fields, otherwise search all of them
+        arg_fields = request.GET.get('search_fields', None)
+        fields_all = ['Name', 'Topics', 'Keywords', 'ShortDescription', 'Description']
+        fields_map = { item.lower(): item for item in fields_all }
+        want_fields = list()
+        if arg_fields and arg_fields not in ['_all_', '*']:
+            for item in arg_fields.replace(',', ' ').lower().split():
+                want_fields.append(fields_map.get(item.lower(), item))
+        if not want_fields:
+            want_fields = fields_all
 
         arg_topics = request.GET.get('topics', None)
         if arg_topics:
@@ -754,12 +695,6 @@ class Resource_ESearch(APIView):
             want_keywords = list(arg_keywords.split(','))
         else:
             want_keywords = list()
-
-        arg_types = request.GET.get('types', None)
-        if arg_types:
-            want_types = list(arg_types.split(','))
-        else:
-            want_types = list()
 
         arg_providers = request.GET.get('providers', None)
         # Search in ProviderID field if possible rather than Provider in JSONField
@@ -789,28 +724,25 @@ class Resource_ESearch(APIView):
         page = request.GET.get('page', 0)
         page_size = int(request.GET.get('results_per_page', 25))
 
-        response_obj = {}
-
         try:
             # These filters are handled by the database; they are first
             ES = Search(index=ResourceV3Index.Index.name).using(ESCON)
-            ES = ES.filter('term', QualityLevel='Production')
             if want_affiliations:
                 ES = ES.filter('terms', Affiliation=want_affiliations)
             if want_resource_groups:
                 ES = ES.filter('terms', ResourceGroup=want_resource_groups)
             if want_types:
                 ES = ES.filter('terms', Type=want_types)
+            if want_qualitylevels:
+                ES = ES.filter('terms', QualityLevel=want_qualitylevels)
             if want_providerids:
                 ES = ES.filter('terms', ProviderID=want_providerids)
             if want_topics:
                 ES = ES.query('match', Topics=arg_topics)
             if want_keywords:
                 ES = ES.query('match', Keywords=arg_keywords)
-#            import pdb
-#            pdb.set_trace()
             if want_terms:
-                ES = ES.query('multi_match', query=' '.join(want_terms), fields=['Name', 'Topics', 'Keywords', 'ShortDescription', 'Description'])
+                ES = ES.query('multi_match', query=' '.join(want_terms), fields=want_fields)
 #                , operator='AND'
             if want_relationid:
                 if want_relationinvert:
@@ -834,10 +766,8 @@ class Resource_ESearch(APIView):
 #            import pdb
 #            pdb.set_trace()
             if want_aggregations:
-                field_map = {'affiliation': 'Affiliation',
-                        'resourcegroup': 'ResourceGroup',
-                        'type': 'Type',
-                        'qualitylevel': 'QualityLevel' }
+                field_map = { item.lower(): item for item in
+                    ['Affiliation', 'ResourceGroup', 'Type', 'QualityLevel'] }
                 for field in want_aggregations:
                     if field in field_map:
                         realfield = field_map[field]
@@ -848,11 +778,15 @@ class Resource_ESearch(APIView):
                 page_end = page_start + page_size
                 ES = ES[page_start:page_end]
 #            ES = ES.extra(explain=True)
+
             response = ES.execute()
             
+            response_obj = {}
             response_obj['results'] = []
             for row in response.hits.hits:
-                response_obj['results'].append(row['_source'].to_dict())
+                row_dict = row['_source'].to_dict()
+                row_dict['_score'] = row['_score']
+                response_obj['results'].append(row_dict)
 
             response_obj['total_results'] = ES.count()
 
@@ -882,7 +816,7 @@ class Event_Detail(APIView):
             format={json,xml,html}              (json default)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-            target="_blank">More V3 API documentation</a>
+            target="_blank">More Resource V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -926,7 +860,7 @@ class Event_Search(APIView):
             results_per_page=<number>           (default=25)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-            target="_blank">More V3 API documentation</a>
+            target="_blank">More Resource V3 API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
@@ -1050,175 +984,164 @@ class Event_Search(APIView):
 #
 # Guide Views
 #
-class Guide_Detail(APIView):
-    '''
-        Single Guide access by Global ID or by Affiliation and Local ID
-        
-        ### Optional response argument(s):<br>
-        ```
-            fields=<local_fields>               (return named fields)
-            format={json,xml,html}              (json default)
-        ```
-        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-            target="_blank">More V3 API documentation</a>
-    '''
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
-    def get(self, request, format=None, **kwargs):
-        arg_id = request.GET.get('id', kwargs.get('id', None))
-        if not arg_id:
-            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing Global ID argument')
+#class Guide_Detail(APIView):
+#    '''
+#        Single Guide access by Global ID or by Affiliation and Local ID
+#
+#        ### Optional response argument(s):<br>
+#        ```
+#            fields=<local_fields>               (return named fields)
+#            format={json,xml,html}              (json default)
+#        ```
+#        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+#            target="_blank">More Resource V3 API documentation</a>
+#    '''
+#    permission_classes = (IsAuthenticatedOrReadOnly,)
+#    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+#    def get(self, request, format=None, **kwargs):
+#        arg_id = request.GET.get('id', kwargs.get('id', None))
+#        if not arg_id:
+#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing Global ID argument')
+#
+#        try:
+#            final_objects = [ResourceV3.objects.get(pk=arg_id)]
+#        except ResourceV3.DoesNotExist:
+#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Global ID not found')
+#
+#        want_resource_groups = set(['Guides'])
+#        if final_objects[0].ResourceGroup not in want_resource_groups:
+#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Guide not found')
+#
+#        context = {}
+#        serializer = Resource_Detail_Serializer(final_objects, context=context, many=True)
+#        response_obj = {'results': serializer.data}
+#        return MyAPIResponse(response_obj, template_name='resource_v3/resource_detail.html')
 
-        try:
-            final_objects = [ResourceV3.objects.get(pk=arg_id)]
-        except ResourceV3.DoesNotExist:
-            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Global ID not found')
 
-        want_resource_groups = set(['Guides'])
-        if final_objects[0].ResourceGroup not in want_resource_groups:
-            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Guide not found')
-
-        context = {}
-        serializer = Resource_Detail_Serializer(final_objects, context=context, many=True)
-        response_obj = {'results': serializer.data}
-        return MyAPIResponse(response_obj, template_name='resource_v3/resource_detail.html')
-
-
-class Guide_Search(APIView):
-    '''
-        ### Guide search and list
-        
-        Optional Resource selection argument(s) to return related Guides:
-        ```
-            search_terms=<comma_delimited_search_terms>
-            search_strings=<comma_delimited_search_strings>
-            affiliations=<comma-delimited-list>
-            topics=<topic1>[,<topic2>[...]]
-            types=<type1>[,<type2>[...]]
-            providers=<provider1>[,<provider2>[...]]
-        ```
-        Optional response argument(s):
-        ```
-            format={json,xml,html}              (json default)
-            sort=<local_field>                  (default global Name)
-            page=<number>
-            results_per_page=<number>           (default=25)
-        ```
-        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-            target="_blank">More V3 API documentation</a>
-    '''
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
-    def get(self, request, format=None, **kwargs):
-        # Process optional arguments
-        arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
-        if arg_affiliations and arg_affiliations not in ['_all_', '*']:
-            want_affiliations = set(arg_affiliations.split(','))
-        else:
-            want_affiliations = set()
-
-        want_resource_groups = set(['Guides'])
-
-        arg_terms = request.GET.get('search_terms', None)
-        if arg_terms:
-            want_terms = set(arg_terms.replace(',', ' ').lower().split())
-        else:
-            want_terms = set()
-
-        arg_strings = request.GET.get('search_strings', None)
-        if arg_strings:
-            want_strings = set(arg_strings.replace(',', ' ').lower().split())
-        else:
-            want_strings = set()
-
-        arg_topics = request.GET.get('topics', None)
-        if arg_topics:
-            want_topics = set(arg_topics.split(','))
-        else:
-            want_topics = set()
-
-        arg_types = request.GET.get('types', None)
-        if arg_types:
-            want_types = set(arg_types.split(','))
-        else:
-            want_types = set()
-
-        arg_providers = request.GET.get('providers', None)
-        # Search in ProviderID field if possible rather than Provider in JSONField
-        if arg_providers:
-            if set(arg_providers).issubset(set('0123456789,')):
-                # Handle numeric providers for uiuc.edu
-                if want_affiliations and len(want_affiliations) == 1:
-                    this_affiliation = next(iter(want_affiliations))
-                    want_providerids = ['urn:glue2:GlobalResourceProvider:{}.{}'.format(x.strip(), this_affiliation) for x in arg_providers.split(',')]
-                    want_providers = []
-                else:
-                    want_providerids = []
-                    want_providers = [int(x) for x in arg_providers.split(',') if x.strip().isdigit()]
-            else:
-                want_providerids = set(arg_providers.split(','))
-                want_providers = []
-        else:
-            want_providerids = []
-            want_providers = []
-
-        sort = request.GET.get('sort', 'Name')
-        page = request.GET.get('page', None)
-        page_size = request.GET.get('results_per_page', 25)
-
-        response_obj = {}
-        try:
-            # These filters are handled by the database; they are first
-            RES = ResourceV3.objects.filter(QualityLevel__exact='Production')
-            if want_affiliations:
-                RES = RES.filter(Affiliation__in=want_affiliations)
-            if want_resource_groups:
-                RES = RES.filter(ResourceGroup__in=want_resource_groups)
-            if want_types:
-                RES = RES.filter(Type__in=want_types)
-            if want_providerids:
-                RES = RES.filter(ProviderID__in=want_providerids)
-#            elif want_providers:
-#                RES = RES.filter(EntityJSON__provider__in=want_providers)
-#            if not want_terms:                  # Becase terms search does its own ranked sort
-#                local_global_map = {'resource_name': 'Name',
-#                                    'resource_type': 'Type',
-#                                    'resource_description': 'Description',
-#                                    'id': 'LocalID'}
-#                if sort in local_global_map:
-#                    RES = RES.order_by(local_global_map[sort])
-#                elif sort is not None:
-#                    RES = RES.order_by(RawSQL('"EntityJSON"->>\'{}\''.format(sort), ()))
-
-            # These filters have to be handled with code; they must be after the previous database filters
-            if want_topics:
-                RES = resource_topics_filter(RES, want_topics)
-            if want_terms:
-                RES = resource_terms_filtersort(RES, want_terms, sort_field='name')
-            elif want_strings:
-                RES = resource_strings_filtersort(RES, want_strings, sort_field='name')
-            RES = resource_oldevents_filter(RES)
-
-            want_resources = set()
-            for item in RES:
-                want_resources.add(item.ID)
-
-            want_guides = ResourceV3.objects.filter(ID__in=want_resources).order_by('ID').distinct('ID').values_list('ID', flat=True)
-
-            objects = ResourceV3.objects.filter(pk__in=want_guides).order_by('Name')
-            response_obj['total_results'] = len(objects)
-
-            if page:
-                paginator = Paginator(objects, page_size)
-                final_objects = paginator.page(page)
-                response_obj['page'] = int(page)
-                response_obj['total_pages'] = paginator.num_pages
-            else:
-                final_objects = objects
-        except Exception as exc:
-            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
-
-        context = {}
-        serializer = Guide_Search_Serializer(final_objects, context=context, many=True)
-        response_obj['results'] = serializer.data
-        return MyAPIResponse(response_obj, template_name='resource_v3/guide_list.html')
+#class Guide_Search(APIView):
+#    '''
+#        ### Guide search and list
+#        
+#        Optional Resource selection argument(s) to return related Guides:
+#        ```
+#            search_terms=<comma_delimited_search_terms>
+#            search_strings=<comma_delimited_search_strings>
+#            affiliations=<comma-delimited-list>
+#            topics=<topic1>[,<topic2>[...]]
+#            types=<type1>[,<type2>[...]]
+#            providers=<provider1>[,<provider2>[...]]
+#        ```
+#        Optional response argument(s):
+#        ```
+#            format={json,xml,html}              (json default)
+#            sort=<local_field>                  (default global Name)
+#            page=<number>
+#            results_per_page=<number>           (default=25)
+#        ```
+#        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+#            target="_blank">More Resource V3 API documentation</a>
+#    '''
+#    permission_classes = (IsAuthenticatedOrReadOnly,)
+#    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+#    def get(self, request, format=None, **kwargs):
+#        # Process optional arguments
+#        arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
+#        if arg_affiliations and arg_affiliations not in ['_all_', '*']:
+#            want_affiliations = set(arg_affiliations.split(','))
+#        else:
+#            want_affiliations = set()
+#
+#        want_resource_groups = set(['Guides'])
+#
+#        arg_terms = request.GET.get('search_terms', None)
+#        if arg_terms:
+#            want_terms = set(arg_terms.replace(',', ' ').lower().split())
+#        else:
+#            want_terms = set()
+#
+#        arg_strings = request.GET.get('search_strings', None)
+#        if arg_strings:
+#            want_strings = set(arg_strings.replace(',', ' ').lower().split())
+#        else:
+#            want_strings = set()
+#
+#        arg_topics = request.GET.get('topics', None)
+#        if arg_topics:
+#            want_topics = set(arg_topics.split(','))
+#        else:
+#            want_topics = set()
+#
+#        arg_types = request.GET.get('types', None)
+#        if arg_types:
+#            want_types = set(arg_types.split(','))
+#        else:
+#            want_types = set()
+#
+#        arg_providers = request.GET.get('providers', None)
+#        # Search in ProviderID field if possible rather than Provider in JSONField
+#        if arg_providers:
+#            if set(arg_providers).issubset(set('0123456789,')):
+#                # Handle numeric providers for uiuc.edu
+#                if want_affiliations and len(want_affiliations) == 1:
+#                    this_affiliation = next(iter(want_affiliations))
+#                    want_providerids = ['urn:glue2:GlobalResourceProvider:{}.{}'.format(x.strip(), this_affiliation) for x in arg_providers.split(',')]
+#                    want_providers = []
+#                else:
+#                    want_providerids = []
+#                    want_providers = [int(x) for x in arg_providers.split(',') if x.strip().isdigit()]
+#            else:
+#                want_providerids = set(arg_providers.split(','))
+#                want_providers = []
+#        else:
+#            want_providerids = []
+#            want_providers = []
+#
+#        sort = request.GET.get('sort', 'Name')
+#        page = request.GET.get('page', None)
+#        page_size = request.GET.get('results_per_page', 25)
+#
+#        response_obj = {}
+#        try:
+#            # These filters are handled by the database; they are first
+#            RES = ResourceV3.objects.filter(QualityLevel__exact='Production')
+#            if want_affiliations:
+#                RES = RES.filter(Affiliation__in=want_affiliations)
+#            if want_resource_groups:
+#                RES = RES.filter(ResourceGroup__in=want_resource_groups)
+#            if want_types:
+#                RES = RES.filter(Type__in=want_types)
+#            if want_providerids:
+#                RES = RES.filter(ProviderID__in=want_providerids)
+#
+#            # These filters have to be handled with code; they must be after the previous database filters
+#            if want_topics:
+#                RES = resource_topics_filter(RES, want_topics)
+#            if want_terms:
+#                RES = resource_terms_filtersort(RES, want_terms, sort_field='name')
+#            elif want_strings:
+#                RES = resource_strings_filtersort(RES, want_strings, sort_field='name')
+#            RES = resource_oldevents_filter(RES)
+#
+#            want_resources = set()
+#            for item in RES:
+#                want_resources.add(item.ID)
+#
+#            want_guides = ResourceV3.objects.filter(ID__in=want_resources).order_by('ID').distinct('ID').values_list('ID', flat=True)
+#
+#            objects = ResourceV3.objects.filter(pk__in=want_guides).order_by('Name')
+#            response_obj['total_results'] = len(objects)
+#
+#            if page:
+#                paginator = Paginator(objects, page_size)
+#                final_objects = paginator.page(page)
+#                response_obj['page'] = int(page)
+#                response_obj['total_pages'] = paginator.num_pages
+#            else:
+#                final_objects = objects
+#        except Exception as exc:
+#            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
+#
+#        context = {}
+#        serializer = Guide_Search_Serializer(final_objects, context=context, many=True)
+#        response_obj['results'] = serializer.data
+#        return MyAPIResponse(response_obj, template_name='resource_v3/guide_list.html')
