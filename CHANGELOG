@@ -1,3 +1,9 @@
+tag-2.3-20200918 JP
+  - Implement Resource V3 relation caching which includes ProviderID relationship
+  - Add ProviderID aggregation/facetting
+  - Implement Resource V3 internal API (not visible in Swagger) to load the entire relation cache using urls_internal.py
+  - Use django_xsede_warehouse.conf CACHE_SERVER = True to use python-memcached
+
 tag-2.2-20200904 JP
   - New CHANGELOG to detail changes in each tag
   - To support Web Apps set CORS_ORIGIN_ALLOW_ALL = True

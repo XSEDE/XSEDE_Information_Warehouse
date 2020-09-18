@@ -56,7 +56,11 @@ class Resource_Detail_Serializer(serializers.ModelSerializer):
         try:
             related = ResourceV3Relation.objects.filter(FirstResourceID=ResourceV3.ID)
             for ri in related:
-                relations.append({"Type": ri.RelationType, "To.ID": ri.SecondResourceID})
+                related = {"Type": ri.RelationType, "To.ID": ri.SecondResourceID}
+                provider = ResourceV3Index.Lookup_Relation(ri.SecondResourceID)
+                if provider and provider.get("Name"):
+                    related["To.Name"] = provider.get("Name")
+                relations.append(related)
         except ResourceV3Relation.DoesNotExist:
             pass
         try:

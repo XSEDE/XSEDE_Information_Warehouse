@@ -265,6 +265,8 @@ if SETTINGS_MODE == 'SERVER':
         'social_django',
     )
 
+#        'django.middleware.cache.UpdateCacheMiddleware',
+#        'django.middleware.cache.FetchFromCacheMiddleware',
     MIDDLEWARE = (
         'corsheaders.middleware.CorsMiddleware',
         'django.middleware.security.SecurityMiddleware',
@@ -337,9 +339,19 @@ if SETTINGS_MODE == 'SERVER':
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             'LOCATION': 'my-cache',
+        },
+        'server': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': 'unix:/tmp/memcached.sock',
         }
     }
-
+    
+    # If configured CACHE_SERVER as True
+    if CONF.get('CACHE_SERVER', False):
+        CACHE_SERVER = 'server'
+    else:
+        CACHE_SERVER = 'default'
+        
     # Static files (CSS, JavaScript, Images)
 
     STATIC_URL = '/static/'

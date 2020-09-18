@@ -618,7 +618,7 @@ class Resource_ESearch(APIView):
             keywords=<comma-delimited-list>
             providers=<comma-delimited-providerid-list>
             relation=[!]<relatedid>
-            aggregations=[affiliation|resourcegroup|type|qualitylevel]
+            aggregations=[affiliation|resourcegroup|type|qualitylevel|providerid]
         ```
         Optional response argument(s):
         ```
@@ -634,7 +634,6 @@ class Resource_ESearch(APIView):
     def get(self, request, format=None, **kwargs):
         if not django_settings.ESCON:
             raise MyAPIException(code=status.HTTP_503_SERVICE_UNAVAILABLE, detail='Elasticsearch not available')
-        ESCON = django_settings.ESCON
         
         # Process optional arguments
         arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
@@ -726,7 +725,7 @@ class Resource_ESearch(APIView):
 
         try:
             # These filters are handled by the database; they are first
-            ES = Search(index=ResourceV3Index.Index.name).using(ESCON)
+            ES = Search(index=ResourceV3Index.Index.name).using(django_settings.ESCON)
             if want_affiliations:
                 ES = ES.filter('terms', Affiliation=want_affiliations)
             if want_resource_groups:
@@ -743,7 +742,6 @@ class Resource_ESearch(APIView):
                 ES = ES.query('match', Keywords=arg_keywords)
             if want_terms:
                 ES = ES.query('multi_match', query=' '.join(want_terms), fields=want_fields)
-#                , operator='AND'
             if want_relationid:
                 if want_relationinvert:
                     ES = ES.filter(
@@ -760,14 +758,9 @@ class Resource_ESearch(APIView):
                             Q('term', Relations__RelatedID__keyword=want_relationid)))
                         )
 
-#       Elasticsearch results are ordered by _score making sorting un-useful
-#            if sort:
-#                ES = ES.sort(sort)
-#            import pdb
-#            pdb.set_trace()
             if want_aggregations:
                 field_map = { item.lower(): item for item in
-                    ['Affiliation', 'ResourceGroup', 'Type', 'QualityLevel'] }
+                    ['Affiliation', 'ResourceGroup', 'Type', 'QualityLevel', 'ProviderID'] }
                 for field in want_aggregations:
                     if field in field_map:
                         realfield = field_map[field]
@@ -779,24 +772,38 @@ class Resource_ESearch(APIView):
                 ES = ES[page_start:page_end]
 #            ES = ES.extra(explain=True)
 
-            response = ES.execute()
+            es_results = ES.execute()
             
             response_obj = {}
             response_obj['results'] = []
-            for row in response.hits.hits:
+            for row in es_results.hits.hits:
                 row_dict = row['_source'].to_dict()
                 row_dict['_score'] = row['_score']
+                for rel in row_dict['Relations']:
+                    related = ResourceV3Index.Lookup_Relation(rel['RelatedID'])
+                    if related:
+                        rel['RelatedName'] = related.get('name')
                 response_obj['results'].append(row_dict)
 
             response_obj['total_results'] = ES.count()
 
-            if 'aggregations' in response:
+            if 'aggregations' in es_results:
                 response_obj['aggregations'] = {}
-                for aggkey in dir(response.aggregations):
-                    buckets = {}
-                    for item in response.aggregations[aggkey].buckets:
+                for aggkey in dir(es_results.aggregations):
+                    buckets = []
+                    for item in es_results.aggregations[aggkey].buckets:
                         itemdict = item.to_dict()
-                        buckets[itemdict['key']] = itemdict['doc_count']
+                        bucket = { 'count': itemdict['doc_count'] }
+                        if aggkey != 'ProviderID':
+                            bucket['name'] = itemdict['key']
+                        else:
+                            bucket['id'] = itemdict['key']
+                            provider = ResourceV3Index.Lookup_Relation(itemdict['key'])
+                            if provider:
+                                bucket['name'] = provider.get('name', itemdict['key'])
+                            else:
+                                bucket['name'] = itemdict['key']
+                        buckets.append(bucket)
                     response_obj['aggregations'][aggkey] = buckets
 
         except Exception as exc:
@@ -804,6 +811,7 @@ class Resource_ESearch(APIView):
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
         return MyAPIResponse(response_obj, template_name='resource_v3/resource_list.html')
+
 #
 # Event Views
 #
@@ -917,10 +925,8 @@ class Event_Search(APIView):
                 pdt = parse_datetime(dt + 'T00:00:00.0+00:00')
             if pdt is None:
                 raise Exception
-#            arg_startdate = pdt.astimezone(UTC).strftime('%Y-%m-%dT%H:%M:%S%z')
             arg_startdate = pdt.astimezone(UTC)
         except:
-#            arg_startdate = timezone.now().astimezone(UTC).strftime('%Y-%m-%dT%H:%M:%S%z')
             arg_startdate = timezone.now().astimezone(UTC)
         
         try:
@@ -931,10 +937,8 @@ class Event_Search(APIView):
                 pdt = parse_datetime(dt + 'T23:59:59.9+00:00')
             if pdt is None:
                 raise Exception
-#            arg_enddate = (pdt.astimezone(UTC) + timedelta(seconds=1)).strftime('%Y-%m-%dT%H:%M:%S%z')
             arg_enddate = (pdt.astimezone(UTC) + timedelta(seconds=1))
         except:
-#            arg_enddate = (timezone.now().astimezone(UTC) + timedelta(days=365*10)).strftime('%Y-%m-%dT%H:%M:%S%z')
             arg_enddate = (timezone.now().astimezone(UTC) + timedelta(days=365*10))
 
         page = request.GET.get('page', None)
@@ -980,6 +984,28 @@ class Event_Search(APIView):
         serializer = Resource_Event_Serializer(final_objects, context=context, many=True)
         response_obj['results'] = serializer.data
         return MyAPIResponse(response_obj, template_name='resource_v3/event_list.html')
+
+#
+# Cache Management Views
+#
+class Relations_Cache(APIView):
+    '''
+        Populate Relations Cache
+        
+        ### Optional response argument(s):<br>
+        ```
+            format={json}                 (json default)
+        ```
+        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
+            target="_blank">More Resource V3 API documentation</a>
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,)
+    def get(self, request, format='json', **kwargs):
+        start_utc = datetime.now(timezone.utc)
+        count = ResourceV3Index.Cache_Lookup_Relations()
+        response_obj = {'cached': count, 'seconds': (datetime.now(timezone.utc) - start_utc).total_seconds()}
+        return MyAPIResponse(response_obj)
 
 #
 # Guide Views

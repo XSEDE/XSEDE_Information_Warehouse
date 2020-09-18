@@ -49,7 +49,7 @@ urlpatterns_public = [
     url(r'^xdinfo/v1/', include('xdinfo.urls')),
     url(r'^warehouse-views/', include('warehouse_views.urls')),
     url(r'^home/', views.home, name='home'),
-    url(r'^', include ('django.contrib.auth.urls')),
+    url(r'^', include('django.contrib.auth.urls')),
     url(r'^', include('social_django.urls', namespace='social'))
 ]
 
@@ -63,6 +63,7 @@ urlpatterns_internal = [
     url(r'^robots\.txt$', lambda x: HttpResponse("User-Agent: *\nDisallow:", content_type="text/plain"), name="/static/robots.txt"),
     url(r'^$', TemplateView.as_view(template_name='index.html')),
     url(r'^info/feedback(\.html|\/)?$',TemplateView.as_view(template_name='feedback.html')),
+    url(r'^resource-api/v3/', include('resource_v3.urls_internal')),
 ]
 
 urlpatterns = urlpatterns_internal + urlpatterns_public

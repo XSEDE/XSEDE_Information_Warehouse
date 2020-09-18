@@ -1,7 +1,10 @@
 from django.db import models
+from django.conf import settings as django_settings
+from django.core.cache import caches
 from django.contrib.postgres.fields import JSONField
 
 from elasticsearch_dsl import Document, Text, Keyword, Date, InnerDoc, Nested
+from elasticsearch_dsl import Search
 
 ################################################################################
 # GLUE2 identifiers (AbstraceGlue2Entity)
@@ -142,6 +145,58 @@ class ResourceV3Index(Document):
     EndDateTime = Date()
     class Index:
         name = 'resourcev3-index'
+
+    @classmethod
+    def Cache_Lookup_Relations(self):
+        if not django_settings.ESCON:
+            raise MyAPIException(code=status.HTTP_503_SERVICE_UNAVAILABLE, detail='Elasticsearch not available')
+        ES = Search(index=self.Index.name).using(django_settings.ESCON).extra(size=0)
+        ES.aggs.bucket('allRelations', 'nested', path='Relations') \
+            .bucket('Relation_RelatedIDs', 'terms', field='Relations.RelatedID.keyword', size=1000)
+        es_results = ES.execute()
+
+        cache = caches[django_settings.CACHE_SERVER]
+        cache_key_prefix = self.Index.name + ':relation_id_lookup:'
+        count = 0
+        try:
+            for item in es_results.aggs['allRelations']['Relation_RelatedIDs'].buckets:
+                cache_key = cache_key_prefix + item['key']
+                cache_value = { 'id': item['key'],
+                                'count': item['doc_count'] }
+                ES2 = Search(index=self.Index.name).using(django_settings.ESCON)
+                ES2 = ES2.filter('terms', ID=list([item['key']]))
+                es2_results = ES2.execute()
+                if len(es2_results.hits.hits) == 1:
+                    cache_value['name'] = es2_results.hits.hits[0]['_source']['Name']
+                    cache_value['affiliation'] = es2_results.hits.hits[0]['_source']['Affiliation']
+                cache.set(cache_key, cache_value, 1 * 60 * 60)  # cache for 1 hour(s)
+                count += 1
+        except:
+            pass
+        return(count)
+
+    @classmethod
+    def Lookup_Relation(self, id):
+        cache = caches[django_settings.CACHE_SERVER]
+        cache_key_prefix = self.Index.name + ':relation_id_lookup:'
+        cache_key = cache_key_prefix + id
+        cache_value = cache.get(cache_key)
+        if cache_value is not None:
+            return cache_value
+
+        if not django_settings.ESCON:
+            raise MyAPIException(code=status.HTTP_503_SERVICE_UNAVAILABLE, detail='Elasticsearch not available')
+        ES2 = Search(index=ResourceV3Index.Index.name).using(django_settings.ESCON)
+        ES2 = ES2.filter('terms', ID=list([id]))
+        es2_results = ES2.execute()
+        if len(es2_results.hits.hits) == 1:
+            cache_value = { 'id': id,
+                            'name': es2_results.hits.hits[0]['_source']['Name'],
+                            'affiliation': es2_results.hits.hits[0]['_source']['Affiliation'] }
+            cache.set(cache_key, cache_value, 1 * 60 * 60)  # cache for 1 hour(s)
+            return cache_value
+        else:
+            return None
 
 #
 #  Resource Relationships
