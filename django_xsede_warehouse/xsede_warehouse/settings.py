@@ -187,16 +187,19 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        },'console': {
+        },
+        'console': {
             'level': 'WARNING',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
-	    'formatter': 'simple',
-        },'dbfile': {
+            'formatter': 'simple',
+        },
+        'dbfile': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': CONF['DB_LOG'],
-        },'g2file': {
+        },
+        'g2file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': CONF['G2_LOG'],
@@ -204,7 +207,8 @@ LOGGING = {
             'when': 'W6',
             'backupCount': 999,
             'utc': True,
-        }, 'syslog': {
+        },
+        'syslog': {
             'level': 'WARNING',
             'class': 'logging.handlers.SysLogHandler',
             'formatter': 'syslog',

@@ -161,14 +161,14 @@ class ResourceV3Index(Document):
         try:
             for item in es_results.aggs['allRelations']['Relation_RelatedIDs'].buckets:
                 cache_key = cache_key_prefix + item['key']
-                cache_value = { 'id': item['key'],
+                cache_value = { 'ID': item['key'],
                                 'count': item['doc_count'] }
                 ES2 = Search(index=self.Index.name).using(django_settings.ESCON)
                 ES2 = ES2.filter('terms', ID=list([item['key']]))
                 es2_results = ES2.execute()
                 if len(es2_results.hits.hits) == 1:
-                    cache_value['name'] = es2_results.hits.hits[0]['_source']['Name']
-                    cache_value['affiliation'] = es2_results.hits.hits[0]['_source']['Affiliation']
+                    cache_value['Name'] = es2_results.hits.hits[0]['_source']['Name']
+                    cache_value['Affiliation'] = es2_results.hits.hits[0]['_source']['Affiliation']
                 cache.set(cache_key, cache_value, 1 * 60 * 60)  # cache for 1 hour(s)
                 count += 1
         except:
@@ -190,9 +190,9 @@ class ResourceV3Index(Document):
         ES2 = ES2.filter('terms', ID=list([id]))
         es2_results = ES2.execute()
         if len(es2_results.hits.hits) == 1:
-            cache_value = { 'id': id,
-                            'name': es2_results.hits.hits[0]['_source']['Name'],
-                            'affiliation': es2_results.hits.hits[0]['_source']['Affiliation'] }
+            cache_value = { 'ID': id,
+                            'Name': es2_results.hits.hits[0]['_source']['Name'],
+                            'Affiliation': es2_results.hits.hits[0]['_source']['Affiliation'] }
             cache.set(cache_key, cache_value, 1 * 60 * 60)  # cache for 1 hour(s)
             return cache_value
         else:

@@ -779,10 +779,14 @@ class Resource_ESearch(APIView):
             for row in es_results.hits.hits:
                 row_dict = row['_source'].to_dict()
                 row_dict['_score'] = row['_score']
-                for rel in row_dict['Relations']:
-                    related = ResourceV3Index.Lookup_Relation(rel['RelatedID'])
-                    if related:
-                        rel['RelatedName'] = related.get('name')
+                try:
+                    for rel in row_dict['Relations']:
+                        rel['ID'] = rel.pop('RelatedID')
+                        related = ResourceV3Index.Lookup_Relation(rel['ID'])
+                        if related:
+                            rel['Name'] = related.get('Name')
+                except:
+                    pass
                 response_obj['results'].append(row_dict)
 
             response_obj['total_results'] = ES.count()
@@ -795,14 +799,14 @@ class Resource_ESearch(APIView):
                         itemdict = item.to_dict()
                         bucket = { 'count': itemdict['doc_count'] }
                         if aggkey != 'ProviderID':
-                            bucket['name'] = itemdict['key']
+                            bucket['Name'] = itemdict['key']
                         else:
-                            bucket['id'] = itemdict['key']
+                            bucket['ID'] = itemdict['key']
                             provider = ResourceV3Index.Lookup_Relation(itemdict['key'])
                             if provider:
-                                bucket['name'] = provider.get('name', itemdict['key'])
+                                bucket['Name'] = provider.get('Name', itemdict['key'])
                             else:
-                                bucket['name'] = itemdict['key']
+                                bucket['Name'] = itemdict['key']
                         buckets.append(bucket)
                     response_obj['aggregations'][aggkey] = buckets
 
