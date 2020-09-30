@@ -19,7 +19,15 @@ class XSEDEPersonAdmin(admin.ModelAdmin):
     ordering = ['portal_login', 'last_name', 'first_name']
     search_fields = ['person_id__iexact', 'portal_login__iexact', 'last_name', 'first_name', 'emails']
 
+class XSEDEFosAdmin(admin.ModelAdmin):
+    list_display = ('field_of_science_id', 'field_of_science_desc', 'parent_field_of_science_id', 'fos_nsf_abbrev')
+    list_display_links = ['field_of_science_id']
+    ordering = ['field_of_science_desc']
+    search_fields = ['field_of_science_id__iexact', 'parent_field_of_science_id__iexact', 'field_of_science_desc', 'fos_nsf_abbrev']
+
+
 # Register your models here.
 admin.site.register(TGResource, XSEDEResourceAdmin)
 admin.site.register(XSEDELocalUsermap, XSEDELocalUsermapAdmin)
 admin.site.register(XSEDEPerson, XSEDEPersonAdmin)
+admin.site.register(XSEDEFos, XSEDEFosAdmin)

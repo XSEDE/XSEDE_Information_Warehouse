@@ -49,3 +49,15 @@ class XSEDEPerson(models.Model):
         db_name = 'xcsr'
     def __str__(self):
        return str(self.person_id)
+
+class XSEDEFos(models.Model):
+    field_of_science_id = models.IntegerField(primary_key=True, null=False)
+    parent_field_of_science_id = models.IntegerField(null=True, blank=True)
+    field_of_science_desc = models.CharField(max_length=200, null=False)
+    fos_nsf_id = models.IntegerField(null=True, blank=True)
+    fos_nsf_abbrev = models.CharField(max_length=10, null=True, blank=True)
+    is_active = models.BooleanField(default=True, null=False)
+    class Meta:
+        db_name = 'xcsr'
+    def __str__(self):
+       return str(self.field_of_science_id)

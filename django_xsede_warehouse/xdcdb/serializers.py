@@ -26,7 +26,6 @@ class XSEDEResource_DetailURL_Serializer(serializers.ModelSerializer):
         fields = copy.copy([f.name for f in TGResource._meta.get_fields(include_parents=False)])
         fields.append('DetailURL')
 
-
 class XSEDEResourcePublished_Serializer(serializers.Serializer):
     ResourceID = serializers.CharField()
     ResourceName = serializers.SerializerMethodField('get_resourcename')
@@ -85,3 +84,23 @@ class XSEDEPerson_Serializer(serializers.Serializer):
         model = XSEDEPerson
         fields = ('person_id', 'portal_login', 'last_name', 'first_name', 'middle_name',
             'is_suspended', 'organization', 'citizenships', 'emails', 'addressesJSON', 'DetailURL')
+
+class XSEDEFos_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = XSEDEFos
+        fields = ('__all__')
+
+class XSEDEFos_DetailURL_Serializer(serializers.ModelSerializer):
+    DetailURL = serializers.SerializerMethodField()
+    
+    def get_DetailURL(self, XSEDEFos):
+        http_request = self.context.get('request')
+        if http_request:
+            return http_request.build_absolute_uri(uri_to_iri(reverse('xdcdb-fos-detail', args=[XSEDEFos.field_of_science_id])))
+        else:
+            return ''
+
+    class Meta:
+        model = XSEDEFos
+        fields = copy.copy([f.name for f in XSEDEFos._meta.get_fields(include_parents=False)])
+        fields.append('DetailURL')

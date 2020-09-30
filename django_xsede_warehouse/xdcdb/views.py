@@ -132,3 +132,60 @@ class XSEDEPerson_Search(APIView):
         serializer = XSEDEPerson_Serializer(objects, context={'request': request}, many=True)
         response_obj = {'results': serializer.data}
         return MyAPIResponse(response_obj, template_name='xdcdb/person_list.html')
+
+class XSEDEFos_List(APIView):
+    '''
+        ### Field of Science list
+        
+        Optional response argument(s):
+        ```
+            format={json,xml,html}              (json default)
+            sort=<field>
+        ```
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    def get(self, request, format=None, **kwargs):
+        if 'parentid' in self.kwargs:
+            try:
+                objects = XSEDEFos.objects.filter(parent_field_of_science_id__exact=self.kwargs['parentid'])
+            except XSEDEFos.DoesNotExist:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Parent ID not found')
+        else:
+            try:
+                objects = XSEDEFos.objects.all()
+            except:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Fields of Science not found')
+
+        sort_by = request.GET.get('sort')
+        if sort_by:
+            objects = objects.order_by(sort_by)
+
+        serializer = XSEDEFos_DetailURL_Serializer(objects, context={'request': request}, many=True)
+        response_obj = {'results': serializer.data}
+        return MyAPIResponse(response_obj, template_name='xdcdb/fos_list.html')
+
+class XSEDEFos_Detail(APIView):
+    '''
+        ### Field of Science detail
+        
+        Optional response argument(s):
+        ```
+            format={json,xml,html}              (json default)
+        ```
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    def get(self, request, format=None, **kwargs):
+        returnformat = request.query_params.get('format', 'json')
+        if not 'id' in self.kwargs:
+            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing ID argument')
+
+        try:
+            objects = [XSEDEFos.objects.get(pk=self.kwargs['id'])]
+        except XSEDEFos.DoesNotExist:
+            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified FOS ID not found')
+        serializer = XSEDEFos_Serializer(objects, many=True)
+        response_obj = {'results': serializer.data}
+        return MyAPIResponse(response_obj, template_name='xdcdb/fos_detail.html')
+
