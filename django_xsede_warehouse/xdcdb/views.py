@@ -137,6 +137,10 @@ class XSEDEFos_List(APIView):
     '''
         ### Field of Science list
         
+        Optional selection argument(s):
+        ```
+            search_strings=<comma_delimited_search_strings>
+        ```
         Optional response argument(s):
         ```
             format={json,xml,html}              (json default)
@@ -146,11 +150,24 @@ class XSEDEFos_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
+        arg_strings = request.GET.get('search_strings', None)
+        if arg_strings:
+            want_strings = list(arg_strings.replace(',', ' ').lower().split())
+        else:
+            want_strings = list()
+
         if 'parentid' in self.kwargs:
             try:
                 objects = XSEDEFos.objects.filter(parent_field_of_science_id__exact=self.kwargs['parentid'])
             except XSEDEFos.DoesNotExist:
                 raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Parent ID not found')
+        elif want_strings:
+            try:
+                objects = XSEDEFos.objects.filter(field_of_science_desc__icontains=want_strings[0])
+                for another in want_strings[1:]:
+                    objects = objects.filter(field_of_science_desc__icontains=another)
+            except:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Unexpected error handling search_strings')
         else:
             try:
                 objects = XSEDEFos.objects.all()
