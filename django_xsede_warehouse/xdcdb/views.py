@@ -144,7 +144,9 @@ class XSEDEFos_List(APIView):
         Optional response argument(s):
         ```
             format={json,xml,html}              (json default)
-            sort=<field>
+            sort=<field>                        (disables hierarchy=true)
+            hierarchy=true                      (in html output display hierarchy)
+            inactive=true                       (don't return only active)
         ```
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -155,6 +157,18 @@ class XSEDEFos_List(APIView):
             want_strings = list(arg_strings.replace(',', ' ').lower().split())
         else:
             want_strings = list()
+
+        arg_hierarchy = request.GET.get('hierarchy', None)
+        if arg_hierarchy and arg_hierarchy != '':
+            want_hierarchy = True
+        else:
+            want_hierarchy = False
+
+        arg_inactive = request.GET.get('inactive', None)
+        if arg_inactive and arg_inactive != '':
+            want_inactive = True
+        else:
+            want_inactive = False
 
         if 'parentid' in self.kwargs:
             try:
@@ -173,14 +187,59 @@ class XSEDEFos_List(APIView):
                 objects = XSEDEFos.objects.all()
             except:
                 raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Fields of Science not found')
+        if not want_inactive:
+            objects = objects.filter(is_active=True)
 
         sort_by = request.GET.get('sort')
         if sort_by:
             objects = objects.order_by(sort_by)
 
         serializer = XSEDEFos_DetailURL_Serializer(objects, context={'request': request}, many=True)
-        response_obj = {'results': serializer.data}
+
+        reqformat = format or request.GET.get('format', None)
+        if reqformat == 'xml' or reqformat == 'json' or sort_by or not want_hierarchy:
+            response_obj = {'results': serializer.data}
+            return MyAPIResponse(response_obj, template_name='xdcdb/fos_list.html')
+
+        if not sort_by and want_hierarchy:
+            # 1. Create description and parent lookup dictionaries
+            desc_lookup = {}
+            parent_lookup = {}
+            for item in serializer.data:
+                desc_lookup[item['field_of_science_id']] = item['field_of_science_desc']
+                parent_lookup[item['field_of_science_id']] = item['parent_field_of_science_id']
+            # 2. Create sort and depth lookup maps
+            sort_map = {}   # The textual field we will sort by
+            depth_map = {}  # Distance to an item without a parent
+            for item in serializer.data:
+                self.build_sort_depth(item['field_of_science_id'], sort_map, depth_map, desc_lookup, parent_lookup)
+        
+        response_list = list()
+        for item in serializer.data:
+            response_item = dict(item)
+            response_item['sort'] = sort_map[item['field_of_science_id']]
+            if depth_map[item['field_of_science_id']] == 0:
+                prefix = ''
+            else:
+                prefix = ((depth_map[item['field_of_science_id']] - 1) * 4) * '&nbsp;' + '&nbsp;&nbsp;\-'
+            response_item['print_desc'] = prefix + item['field_of_science_desc']
+            response_list.append(response_item)
+            
+        response_obj = {'results': sorted(response_list, key=lambda i: i['sort'])}
         return MyAPIResponse(response_obj, template_name='xdcdb/fos_list.html')
+
+    def build_sort_depth(self, myid, sm, dm, dl, pl):
+        if pl[myid] is None or pl[myid] == '':
+            # I don't have a parent, use my own description, depth is 0
+            sm[myid] = dl[myid]
+            dm[myid] = 0
+            return
+        if pl[myid] not in sm:
+            # My parent doesn't have an SL, iterate to get it
+            self.build_sort_depth(pl[myid], sm, dm, dl, pl)
+        # Append my parent SL with my own description, increment depth
+        sm[myid] = sm[pl[myid]] + ':' + dl[myid]
+        dm[myid] = dm[pl[myid]] + 1
 
 class XSEDEFos_Detail(APIView):
     '''
