@@ -26,7 +26,7 @@
         <td align="center"><b><div title="{{ record.ProcessingMessage }}">See</div></b></td>
         <td>{{ record.ProcessingEnd }}</td>
         <td><a href="{{ record.DetailURL }}?format=html">View</a></td>
-        <td><a href="{{ record.HistoryURL }}?format=html">View</a></td>
+        <td><a href="{{ record.HistoryURL }}?format=json">View</a></td>
     </tr>
     {% endfor %}
 {% endblock %}
