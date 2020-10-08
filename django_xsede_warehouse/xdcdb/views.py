@@ -221,7 +221,7 @@ class XSEDEFos_List(APIView):
             if depth_map[item['field_of_science_id']] == 0:
                 prefix = ''
             else:
-                prefix = ((depth_map[item['field_of_science_id']] - 1) * 4) * '&nbsp;' + '&nbsp;&nbsp;\-'
+                prefix = (depth_map[item['field_of_science_id']] * 4) * '&nbsp;'
             response_item['print_desc'] = prefix + item['field_of_science_desc']
             response_list.append(response_item)
             
