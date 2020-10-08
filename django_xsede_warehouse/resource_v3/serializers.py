@@ -52,10 +52,12 @@ class Resource_Detail_Serializer(serializers.ModelSerializer):
     # Adds Relations
     # Adds local raw EntityJSON
     Relations = serializers.SerializerMethodField()
+    DetailURL = serializers.SerializerMethodField()
     EntityJSON = serializers.SerializerMethodField()
 
     def get_Relations(self, ResourceV3):
         relations = []
+        http_request = self.context.get('request')
         try:
             relateditems = ResourceV3Relation.objects.filter(FirstResourceID=ResourceV3.ID)
             for ri in relateditems:
@@ -63,6 +65,8 @@ class Resource_Detail_Serializer(serializers.ModelSerializer):
                 provider = ResourceV3Index.Lookup_Relation(ri.SecondResourceID)
                 if provider and provider.get('Name'):
                     related['Name'] = provider.get('Name')
+                if http_request:
+                    related['DetailURL'] = http_request.build_absolute_uri(uri_to_iri(reverse('resource-detail', args=[ri.SecondResourceID])))
                 relations.append(related)
         except ResourceV3Relation.DoesNotExist:
             pass
@@ -74,6 +78,13 @@ class Resource_Detail_Serializer(serializers.ModelSerializer):
 #        except ResourceV3Relation.DoesNotExist:
 #            pass
         return(relations)
+
+    def get_DetailURL(self, ResourceV3):
+        http_request = self.context.get('request')
+        if http_request:
+            return http_request.build_absolute_uri(uri_to_iri(reverse('resource-detail', args=[ResourceV3.ID])))
+        else:
+            return ''
 
     def get_EntityJSON(self, ResourceV3):
         try:
@@ -87,6 +98,7 @@ class Resource_Detail_Serializer(serializers.ModelSerializer):
         model = ResourceV3
         fields = copy.copy([f.name for f in ResourceV3._meta.get_fields(include_parents=False)])
         fields.append('Relations')
+        fields.append('DetailURL')
         fields.append('EntityJSON')
 
 class Resource_Search_Serializer(serializers.ModelSerializer):

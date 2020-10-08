@@ -2,6 +2,8 @@ from django.db.models.expressions import RawSQL
 from django.db.models import Count
 from django.conf import settings as django_settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.urls import reverse
+from django.utils.encoding import uri_to_iri
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
 from rest_framework.views import APIView
@@ -445,9 +447,10 @@ class Resource_Detail(APIView):
         except ResourceV3.DoesNotExist:
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Global ID not found')
 
-        context = {}
+        context = {'request': request}
         serializer = Resource_Detail_Serializer(final_objects, context=context, many=True)
         response_obj = {'results': serializer.data}
+            
         return MyAPIResponse(response_obj, template_name='resource_v3/resource_detail.html')
 
 class Resource_Search(APIView):
@@ -605,6 +608,8 @@ class Resource_Search(APIView):
 class Resource_ESearch(APIView):
     '''
         ### Resource Elastic search and list
+
+        Results are ordered by relevance (_score)
         
         Optional selection argument(s):
         ```
@@ -718,13 +723,10 @@ class Resource_ESearch(APIView):
         else:
             want_aggregations = list()
         
-#       Elasticsearch results are ordered by _score making sorting un-useful
-#        sort = request.GET.get('sort', None)
         page = request.GET.get('page', 0)
         page_size = int(request.GET.get('results_per_page', 25))
 
         try:
-            # These filters are handled by the database; they are first
             ES = Search(index=ResourceV3Index.Index.name).using(django_settings.ESCON)
             if want_affiliations:
                 ES = ES.filter('terms', Affiliation=want_affiliations)
@@ -785,6 +787,14 @@ class Resource_ESearch(APIView):
                         related = ResourceV3Index.Lookup_Relation(rel['ID'])
                         if related:
                             rel['Name'] = related.get('Name')
+                        try:
+                            rel['DetailURL'] = request.build_absolute_uri(uri_to_iri(reverse('resource-detail', args=[rel['ID']])))
+                        except:
+                            pass
+                except:
+                    pass
+                try:
+                    row_dict['DetailURL'] = request.build_absolute_uri(uri_to_iri(reverse('resource-detail', args=[row_dict['ID']])))
                 except:
                     pass
                 response_obj['results'].append(row_dict)
