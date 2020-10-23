@@ -728,6 +728,7 @@ class Resource_ESearch(APIView):
 
         try:
             ES = Search(index=ResourceV3Index.Index.name).using(django_settings.ESCON)
+            # The FILTERs that control whether rows are returned at all
             if want_affiliations:
                 ES = ES.filter('terms', Affiliation=want_affiliations)
             if want_resource_groups:
@@ -738,12 +739,6 @@ class Resource_ESearch(APIView):
                 ES = ES.filter('terms', QualityLevel=want_qualitylevels)
             if want_providerids:
                 ES = ES.filter('terms', ProviderID=want_providerids)
-            if want_topics:
-                ES = ES.query('match', Topics=arg_topics)
-            if want_keywords:
-                ES = ES.query('match', Keywords=arg_keywords)
-            if want_terms:
-                ES = ES.query('multi_match', query=' '.join(want_terms), fields=want_fields)
             if want_relationid:
                 if want_relationinvert:
                     ES = ES.filter(
@@ -759,6 +754,19 @@ class Resource_ESearch(APIView):
                             Q('bool', filter=
                             Q('term', Relations__RelatedID__keyword=want_relationid)))
                         )
+            # The QUERYs that control how rows are ranked
+            if want_topics:
+                ES = ES.query('match', Topics=arg_topics)
+            if want_keywords:
+                ES = ES.query('match', Keywords=arg_keywords)
+            if want_terms:
+                ES = ES.query('multi_match', query=' '.join(want_terms), fields=want_fields)
+
+            # Whe no QUERYs, search for 'xsede' to generate a score and return best matches first,
+            #       but still return all rows whether had 'xsede' in them or not
+            if not want_topics and not want_keywords and not want_terms:
+                ES = ES.query('bool', minimum_should_match=-1, should=
+                    Q('multi_match', query='xsede', fields=fields_all ))
 
             if want_aggregations:
                 field_map = { item.lower(): item for item in
