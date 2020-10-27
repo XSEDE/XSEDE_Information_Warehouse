@@ -646,6 +646,7 @@ class Resource_ESearch(APIView):
             want_affiliations = list(arg_affiliations.split(','))
         else:
             want_affiliations = list()
+        only_xsede = len(want_affiliations) == 1 and want_affiliations[0] == 'xsede.org'
 
         arg_resource_groups = request.GET.get('resource_groups', None)
         want_resource_groups = list()
@@ -766,7 +767,7 @@ class Resource_ESearch(APIView):
             #       but still return all rows whether had 'xsede' in them or not
             if not want_topics and not want_keywords and not want_terms:
                 ES = ES.query('bool', minimum_should_match=-1, should=
-                    Q('multi_match', query='xsede', fields=fields_all ))
+                    Q('multi_match', query='xup rsp xsede', fields='Name' ))
 
             if want_aggregations:
                 field_map = { item.lower(): item for item in
@@ -821,7 +822,9 @@ class Resource_ESearch(APIView):
                         else:
                             bucket['ID'] = itemdict['key']
                             provider = ResourceV3Index.Lookup_Relation(itemdict['key'])
-                            if provider:
+                            if provider and only_xsede and provider.get('Abbreviation'):
+                                bucket['Name'] = provider.get('Abbreviation', itemdict['key'])
+                            elif provider:
                                 bucket['Name'] = provider.get('Name', itemdict['key'])
                             else:
                                 bucket['Name'] = itemdict['key']

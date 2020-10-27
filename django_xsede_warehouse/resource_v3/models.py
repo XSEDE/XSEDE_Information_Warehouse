@@ -6,6 +6,8 @@ from django.contrib.postgres.fields import JSONField
 from elasticsearch_dsl import Document, Text, Keyword, Date, InnerDoc, Nested
 from elasticsearch_dsl import Search
 
+import re
+
 ################################################################################
 # GLUE2 identifiers (AbstraceGlue2Entity)
 #   ID: Unique URI ID across all models and resource types
@@ -168,6 +170,9 @@ class ResourceV3Index(Document):
                 es2_results = ES2.execute()
                 if len(es2_results.hits.hits) == 1:
                     cache_value['Name'] = es2_results.hits.hits[0]['_source']['Name']
+                    paren = re.findall('\(([^)]+)', cache_value['Name'])
+                    if len(paren) > 0:
+                        cache_value['Abbreviation'] = '-'.join(paren)
                     cache_value['Affiliation'] = es2_results.hits.hits[0]['_source']['Affiliation']
                 cache.set(cache_key, cache_value, 1 * 60 * 60)  # cache for 1 hour(s)
                 count += 1
@@ -193,6 +198,9 @@ class ResourceV3Index(Document):
             cache_value = { 'ID': id,
                             'Name': es2_results.hits.hits[0]['_source']['Name'],
                             'Affiliation': es2_results.hits.hits[0]['_source']['Affiliation'] }
+            paren = re.findall('\(([^)]+)', cache_value['Name'])
+            if len(paren) > 0:
+                cache_value['Abbreviation'] = '-'.join(paren)
             cache.set(cache_key, cache_value, 1 * 60 * 60)  # cache for 1 hour(s)
             return cache_value
         else:
