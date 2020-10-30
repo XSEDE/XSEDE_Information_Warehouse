@@ -673,20 +673,26 @@ class Resource_ESearch(APIView):
                 want_qualitylevels.append(quality_map.get(item.lower(), item))
 
         arg_terms = request.GET.get('search_terms', None)
+        want_terms = list()
+        want_wildcard_terms = list()
         if arg_terms:
-            want_terms = list(arg_terms.replace(',', ' ').lower().split())
-        else:
-            want_terms = list()
+            for term in arg_terms.replace(',', ' ').lower().split():
+                if '*' in term:
+                    want_wildcard_terms.append(term)
+                else:
+                    want_terms.append(term)
+        if len(want_wildcard_terms) > 1:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Only one wildcard term allowed')
 
-        # Search any valid subset of fields_all passed in search_fields, otherwise search all of them
+        # Search any valid subset of fields_all passed in search_fields
         arg_fields = request.GET.get('search_fields', None)
         fields_all = ['Name', 'Topics', 'Keywords', 'ShortDescription', 'Description']
         fields_map = { item.lower(): item for item in fields_all }
         want_fields = list()
-        if arg_fields and arg_fields not in ['_all_', '*']:
+        if arg_fields and arg_fields.lower() not in ['_all_', '*']:
             for item in arg_fields.replace(',', ' ').lower().split():
-                want_fields.append(fields_map.get(item.lower(), item))
-        if not want_fields:
+                want_fields.append(fields_map.get(item, item)) # The lookup value, or the value itself
+        if not want_fields:     # Default is to search all fields
             want_fields = fields_all
 
         arg_topics = request.GET.get('topics', None)
@@ -727,8 +733,10 @@ class Resource_ESearch(APIView):
         page = request.GET.get('page', 0)
         page_size = int(request.GET.get('results_per_page', 25))
 
+        # Build the query, starting with result filters, and then queries that rank results
         try:
             ES = Search(index=ResourceV3Index.Index.name).using(django_settings.ESCON)
+
             # The FILTERs that control whether rows are returned at all
             if want_affiliations:
                 ES = ES.filter('terms', Affiliation=want_affiliations)
@@ -755,6 +763,7 @@ class Resource_ESearch(APIView):
                             Q('bool', filter=
                             Q('term', Relations__RelatedID__keyword=want_relationid)))
                         )
+
             # The QUERYs that control how rows are ranked
             if want_topics:
                 ES = ES.query('match', Topics=arg_topics)
@@ -762,13 +771,19 @@ class Resource_ESearch(APIView):
                 ES = ES.query('match', Keywords=arg_keywords)
             if want_terms:
                 ES = ES.query('multi_match', query=' '.join(want_terms), fields=want_fields)
+            if want_wildcard_terms:
+                SUBQ = []
+                for field in want_fields:
+                    SUBQ.append(Q({'wildcard': {field: want_wildcard_terms[0]}}))
+                ES = ES.query('bool', should=SUBQ)
 
-            # Whe no QUERYs, search for 'xsede' to generate a score and return best matches first,
-            #       but still return all rows whether had 'xsede' in them or not
-            if not want_topics and not want_keywords and not want_terms:
+            # When no QUERYs, default query to generate a score and return best matches first,
+            #       but without filtering out non-matches
+            if not want_topics and not want_keywords and not want_terms and not want_wildcard_terms:
                 ES = ES.query('bool', minimum_should_match=-1, should=
                     Q('multi_match', query='xup rsp xsede', fields='Name' ))
 
+            # Request aggregations
             if want_aggregations:
                 field_map = { item.lower(): item for item in
                     ['Affiliation', 'ResourceGroup', 'Type', 'QualityLevel', 'ProviderID'] }

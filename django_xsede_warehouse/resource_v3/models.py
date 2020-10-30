@@ -138,7 +138,7 @@ class ResourceV3Index(Document):
     Type = Keyword()
     ShortDescription = Text()
     ProviderID = Keyword()
-    Descripton = Text()
+    Description = Text()
     Topics = Text()
     Keywords = Text()
     Audience = Text()
