@@ -730,7 +730,7 @@ class Resource_ESearch(APIView):
         else:
             want_aggregations = list()
         
-        page = request.GET.get('page', 0)
+        page = int(request.GET.get('page', 0))
         page_size = int(request.GET.get('results_per_page', 25))
 
         # Build the query, starting with result filters, and then queries that rank results
@@ -777,11 +777,17 @@ class Resource_ESearch(APIView):
                     SUBQ.append(Q({'wildcard': {field: want_wildcard_terms[0]}}))
                 ES = ES.query('bool', should=SUBQ)
 
-            # When no QUERYs, default query to generate a score and return best matches first,
+            # This section applies a default non-filtering query when there are no user queries
+            # So that results have a score and are returned in a prefered order
             #       but without filtering out non-matches
-            if not want_topics and not want_keywords and not want_terms and not want_wildcard_terms:
-                ES = ES.query('bool', minimum_should_match=-1, should=
-                    Q('multi_match', query='xup rsp xsede', fields='Name' ))
+            USER_QUERIES = want_topics or want_keywords or want_terms or want_wildcard_terms
+            if not USER_QUERIES:
+                if len(want_types) == 1 and want_types[0] == 'Cloud Image':
+                    ES = ES.query('bool', minimum_should_match=-1, should=
+                        Q('match', Keywords='featured' ))
+                elif only_xsede:
+                    ES = ES.query('bool', minimum_should_match=-1, should=
+                        Q('multi_match', query='xup rsp xsede', fields='Name' ))
 
             # Request aggregations
             if want_aggregations:
@@ -792,7 +798,7 @@ class Resource_ESearch(APIView):
                         realfield = field_map[field]
                         ES.aggs.bucket(realfield, A('terms', field=realfield))
 
-            if page:
+            if page or page_size:
                 page_start = page_size * int(page)
                 page_end = page_start + page_size
                 ES = ES[page_start:page_end]
