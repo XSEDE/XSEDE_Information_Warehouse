@@ -234,8 +234,7 @@ LOGGING = {
 }
 
 ADMINS = (
-	('JP Navarro', 'navarro@mcs.anl.gov'),
-	('Eric Blau', 'blau@mcs.anl.gov'),
+	('Information Services Alerts', 'info-serv-alert@xsede.org'),
 )
 
 logg2 = logging.getLogger('xsede.logger')
