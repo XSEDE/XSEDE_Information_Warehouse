@@ -78,6 +78,8 @@ class XSEDEPerson_Detail(APIView):
                 objects = [XSEDEPerson.objects.get(pk=self.kwargs['id'])]
             except XSEDEPerson.DoesNotExist:
                 raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Person ID not found')
+            except ValueError:
+                raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Person ID is not valid')
         elif 'portalid' in self.kwargs:
             try:
                 objects = XSEDEPerson.objects.filter(portal_login__exact=self.kwargs['portalid'])
