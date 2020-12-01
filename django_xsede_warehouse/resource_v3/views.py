@@ -489,6 +489,7 @@ class Resource_Search(APIView):
         else:
             want_affiliations = set()
 
+        arg_resource_groups = request.GET.get('resource_groups', None)
         want_resource_groups = list()
         if arg_resource_groups:
             # We normalize case if lower of what was entered is in our map, otherwise we leave what was entered
