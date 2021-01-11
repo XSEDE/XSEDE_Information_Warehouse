@@ -1,3 +1,6 @@
+tag-2.3-20210110 JP
+  - Fix Resource V3 invalid page handling, a couple of minor fixes
+
 tag-2.3-20200918 JP
   - Implement Resource V3 relation caching which includes ProviderID relationship
   - Add ProviderID aggregation/facetting

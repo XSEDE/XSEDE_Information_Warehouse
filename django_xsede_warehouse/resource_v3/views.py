@@ -139,8 +139,16 @@ class Local_Search(APIView):
         else:
             want_localtypes = set()
 
-        page = request.GET.get('page', None)
-        page_size = request.GET.get('results_per_page', 25)
+        try:
+            parm = request.GET.get('page', 0)
+            page = int(parm)
+        except:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page "{}" not valid'.format(parm))
+        try:
+            parm = request.GET.get('results_per_page', 25)
+            page_size = int(parm)
+        except:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page_size "{}" not valid'.format(parm))
 
         try:
             objects = ResourceV3Local.objects.filter(Affiliation__exact=arg_affiliation)
@@ -152,7 +160,7 @@ class Local_Search(APIView):
             if page:
                 paginator = Paginator(objects, page_size)
                 final_objects = paginator.page(page)
-                response_obj['page'] = int(page)
+                response_obj['page'] = page
                 response_obj['total_pages'] = paginator.num_pages
             else:
                 final_objects = objects
@@ -221,8 +229,17 @@ class Resource_Types_List(APIView):
         else:
             want_affiliations = set()
 
-        page = request.GET.get('page', None)
-        page_size = request.GET.get('results_per_page', 25)
+        try:
+            parm = request.GET.get('page', 0)
+            page = int(parm)
+        except:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page "{}" not valid'.format(parm))
+        try:
+            parm = request.GET.get('results_per_page', 25)
+            page_size = int(parm)
+        except:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page_size "{}" not valid'.format(parm))
+
         response_obj = {}
 
         try:
@@ -237,7 +254,7 @@ class Resource_Types_List(APIView):
             if page:
                 paginator = Paginator(objects, page_size)
                 final_objects = paginator.page(page)
-                response_obj['page'] = int(page)
+                response_obj['page'] = page
                 response_obj['total_pages'] = paginator.num_pages
             else:
                 final_objects = objects
@@ -551,8 +568,17 @@ class Resource_Search(APIView):
             want_providers = []
 
         sort = request.GET.get('sort', 'Name')
-        page = request.GET.get('page', None)
-        page_size = request.GET.get('results_per_page', 25)
+
+        try:
+            parm = request.GET.get('page', 0)
+            page = int(parm)
+        except:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page "{}" not valid'.format(parm))
+        try:
+            parm = request.GET.get('results_per_page', 25)
+            page_size = int(parm)
+        except:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page_size "{}" not valid'.format(parm))
 
         arg_subtotals = request.GET.get('subtotals', None)
         if arg_subtotals:
@@ -593,7 +619,7 @@ class Resource_Search(APIView):
             if page:
                 paginator = Paginator(objects, page_size)
                 final_objects = paginator.page(page)
-                response_obj['page'] = int(page)
+                response_obj['page'] = page
                 response_obj['total_pages'] = paginator.num_pages
             else:
                 final_objects = objects
@@ -730,9 +756,17 @@ class Resource_ESearch(APIView):
             want_aggregations = list(x.lower() for x in arg_aggregations.split(','))
         else:
             want_aggregations = list()
-        
-        page = int(request.GET.get('page', 0))
-        page_size = int(request.GET.get('results_per_page', 25))
+
+        try:
+            parm = request.GET.get('page', 0)
+            page = int(parm)
+        except:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page "{}" not valid'.format(parm))
+        try:
+            parm = request.GET.get('results_per_page', 25)
+            page_size = int(parm)
+        except:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page_size "{}" not valid'.format(parm))
 
         # Build the query, starting with result filters, and then queries that rank results
         try:
@@ -800,7 +834,7 @@ class Resource_ESearch(APIView):
                         ES.aggs.bucket(realfield, A('terms', field=realfield))
 
             if page or page_size:
-                page_start = page_size * int(page)
+                page_start = page_size * page
                 page_end = page_start + page_size
                 ES = ES[page_start:page_end]
 #            ES = ES.extra(explain=True)
@@ -988,8 +1022,17 @@ class Event_Search(APIView):
         except:
             arg_enddate = (timezone.now().astimezone(UTC) + timedelta(days=365*10))
 
-        page = request.GET.get('page', None)
-        page_size = request.GET.get('results_per_page', 25)
+        try:
+            parm = request.GET.get('page', 0)
+            page = int(parm)
+        except:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page "{}" not valid'.format(parm))
+        try:
+            parm = request.GET.get('results_per_page', 25)
+            page_size = int(parm)
+        except:
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page_size "{}" not valid'.format(parm))
+
         fields = request.GET.get('fields', None)
         response_obj = {}
 
@@ -1020,7 +1063,7 @@ class Event_Search(APIView):
             if page:
                 paginator = Paginator(objects, page_size)
                 final_objects = paginator.page(page)
-                response_obj['page'] = int(page)
+                response_obj['page'] = page
                 response_obj['total_pages'] = paginator.num_pages
             else:
                 final_objects = objects
@@ -1053,168 +1096,3 @@ class Relations_Cache(APIView):
         count = ResourceV3Index.Cache_Lookup_Relations()
         response_obj = {'cached': count, 'seconds': (datetime.now(timezone.utc) - start_utc).total_seconds()}
         return MyAPIResponse(response_obj)
-
-#
-# Guide Views
-#
-#class Guide_Detail(APIView):
-#    '''
-#        Single Guide access by Global ID or by Affiliation and Local ID
-#
-#        ### Optional response argument(s):<br>
-#        ```
-#            fields=<local_fields>               (return named fields)
-#            format={json,xml,html}              (json default)
-#        ```
-#        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-#            target="_blank">More Resource V3 API documentation</a>
-#    '''
-#    permission_classes = (IsAuthenticatedOrReadOnly,)
-#    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
-#    def get(self, request, format=None, **kwargs):
-#        arg_id = request.GET.get('id', kwargs.get('id', None))
-#        if not arg_id:
-#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing Global ID argument')
-#
-#        try:
-#            final_objects = [ResourceV3.objects.get(pk=arg_id)]
-#        except ResourceV3.DoesNotExist:
-#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Global ID not found')
-#
-#        want_resource_groups = set(['Guides'])
-#        if final_objects[0].ResourceGroup not in want_resource_groups:
-#            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified Guide not found')
-#
-#        context = {}
-#        serializer = Resource_Detail_Serializer(final_objects, context=context, many=True)
-#        response_obj = {'results': serializer.data}
-#        return MyAPIResponse(response_obj, template_name='resource_v3/resource_detail.html')
-
-
-#class Guide_Search(APIView):
-#    '''
-#        ### Guide search and list
-#        
-#        Optional Resource selection argument(s) to return related Guides:
-#        ```
-#            search_terms=<comma_delimited_search_terms>
-#            search_strings=<comma_delimited_search_strings>
-#            affiliations=<comma-delimited-list>
-#            topics=<topic1>[,<topic2>[...]]
-#            types=<type1>[,<type2>[...]]
-#            providers=<provider1>[,<provider2>[...]]
-#        ```
-#        Optional response argument(s):
-#        ```
-#            format={json,xml,html}              (json default)
-#            sort=<local_field>                  (default global Name)
-#            page=<number>
-#            results_per_page=<number>           (default=25)
-#        ```
-#        <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
-#            target="_blank">More Resource V3 API documentation</a>
-#    '''
-#    permission_classes = (IsAuthenticatedOrReadOnly,)
-#    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
-#    def get(self, request, format=None, **kwargs):
-#        # Process optional arguments
-#        arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
-#        if arg_affiliations and arg_affiliations not in ['_all_', '*']:
-#            want_affiliations = set(arg_affiliations.split(','))
-#        else:
-#            want_affiliations = set()
-#
-#        want_resource_groups = set(['Guides'])
-#
-#        arg_terms = request.GET.get('search_terms', None)
-#        if arg_terms:
-#            want_terms = set(arg_terms.replace(',', ' ').lower().split())
-#        else:
-#            want_terms = set()
-#
-#        arg_strings = request.GET.get('search_strings', None)
-#        if arg_strings:
-#            want_strings = set(arg_strings.replace(',', ' ').lower().split())
-#        else:
-#            want_strings = set()
-#
-#        arg_topics = request.GET.get('topics', None)
-#        if arg_topics:
-#            want_topics = set(arg_topics.split(','))
-#        else:
-#            want_topics = set()
-#
-#        arg_types = request.GET.get('types', None)
-#        if arg_types:
-#            want_types = set(arg_types.split(','))
-#        else:
-#            want_types = set()
-#
-#        arg_providers = request.GET.get('providers', None)
-#        # Search in ProviderID field if possible rather than Provider in JSONField
-#        if arg_providers:
-#            if set(arg_providers).issubset(set('0123456789,')):
-#                # Handle numeric providers for uiuc.edu
-#                if want_affiliations and len(want_affiliations) == 1:
-#                    this_affiliation = next(iter(want_affiliations))
-#                    want_providerids = ['urn:glue2:GlobalResourceProvider:{}.{}'.format(x.strip(), this_affiliation) for x in arg_providers.split(',')]
-#                    want_providers = []
-#                else:
-#                    want_providerids = []
-#                    want_providers = [int(x) for x in arg_providers.split(',') if x.strip().isdigit()]
-#            else:
-#                want_providerids = set(arg_providers.split(','))
-#                want_providers = []
-#        else:
-#            want_providerids = []
-#            want_providers = []
-#
-#        sort = request.GET.get('sort', 'Name')
-#        page = request.GET.get('page', None)
-#        page_size = request.GET.get('results_per_page', 25)
-#
-#        response_obj = {}
-#        try:
-#            # These filters are handled by the database; they are first
-#            RES = ResourceV3.objects.filter(QualityLevel__exact='Production')
-#            if want_affiliations:
-#                RES = RES.filter(Affiliation__in=want_affiliations)
-#            if want_resource_groups:
-#                RES = RES.filter(ResourceGroup__in=want_resource_groups)
-#            if want_types:
-#                RES = RES.filter(Type__in=want_types)
-#            if want_providerids:
-#                RES = RES.filter(ProviderID__in=want_providerids)
-#
-#            # These filters have to be handled with code; they must be after the previous database filters
-#            if want_topics:
-#                RES = resource_topics_filter(RES, want_topics)
-#            if want_terms:
-#                RES = resource_terms_filtersort(RES, want_terms, sort_field='name')
-#            elif want_strings:
-#                RES = resource_strings_filtersort(RES, want_strings, sort_field='name')
-#            RES = resource_oldevents_filter(RES)
-#
-#            want_resources = set()
-#            for item in RES:
-#                want_resources.add(item.ID)
-#
-#            want_guides = ResourceV3.objects.filter(ID__in=want_resources).order_by('ID').distinct('ID').values_list('ID', flat=True)
-#
-#            objects = ResourceV3.objects.filter(pk__in=want_guides).order_by('Name')
-#            response_obj['total_results'] = len(objects)
-#
-#            if page:
-#                paginator = Paginator(objects, page_size)
-#                final_objects = paginator.page(page)
-#                response_obj['page'] = int(page)
-#                response_obj['total_pages'] = paginator.num_pages
-#            else:
-#                final_objects = objects
-#        except Exception as exc:
-#            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
-#
-#        context = {}
-#        serializer = Guide_Search_Serializer(final_objects, context=context, many=True)
-#        response_obj['results'] = serializer.data
-#        return MyAPIResponse(response_obj, template_name='resource_v3/guide_list.html')
