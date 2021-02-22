@@ -17,7 +17,7 @@ from glue2_db.models import ApplicationHandle
 from xdcdb.models import *
 from xdcdb.serializers import *
 from rdr_db.serializers import *
-from warehouse_views.serializers import Generic_Resource_Serializer, Software_Full_Serializer, Software_Community_Serializer
+from warehouse_views.serializers import Generic_Resource_Serializer, Software_Full_Serializer, Software_Community_Serializer, SGCI_Resource_Serializer_010
 from xsede_warehouse.responses import MyAPIResponse
 
 # Create your views here.
@@ -115,13 +115,9 @@ class Resource_List_XDCDB_Active(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def get(self, request, format=None):
         active_resourceids = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='ALL', result='RESOURCEID')
-        try:
-            sort_by = request.GET.get('sort')
-            objects = TGResource.objects.filter(ResourceID__in=active_resourceids).order_by('ResourceID').order_by(sort_by)
-        except:
-            objects = objects = TGResource.objects.filter(ResourceID__in=active_resourceids).order_by('ResourceID')
+        sort_by = request.GET.get('sort', 'ResourceID')
+        objects = TGResource.objects.filter(ResourceID__in=active_resourceids).order_by(sort_by)
         returnformat = request.query_params.get('format', None)
-        objects = TGResource.objects.filter(ResourceID__in=active_resourceids).order_by('ResourceID')
         serializer = XSEDEResource_Serializer(objects, many=True)
         if returnformat != 'html':
             return Response(serializer.data)
@@ -156,6 +152,29 @@ class Resource_List_CSA_Active(APIView):
         serializer = RDR_CSA_Serializer(objects, many=True)
         response_obj = {'results': serializer.data}
         return MyAPIResponse(response_obj, template_name='warehouse_views/csa_resources.html')
+
+class Resource_List_SGCI_Active_010(APIView):
+    '''
+        ### SGCI Resource Description from RDR about ACTIVE XSEDE resources, meaning:
+            Provider level is: Level 1 or Level 2
+            Status is: friendly, coming soon, pre-production, production, post-production
+            
+        Excludes: Non-XSEDE, Provider Level 3, Status Decomissioned
+        
+        Optional response argument(s):
+        ```
+            format={json,xml,html}              (json default)
+        ```
+        <a href="https://docs.google.com/document/d/1kh_0JCwRr7J2LiNlkQgfjopkHV4UbxB_UpXNhgt3vzc"
+            target="_blank">More API documentation</a>
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    def get(self, request, format=None):
+        objects = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='SUB', result='OBJECTS')
+        serializer = SGCI_Resource_Serializer_010(objects, many=True)
+        response_obj = {'results': serializer.data}
+        return MyAPIResponse(response_obj, template_name='warehouse_views/sgci_resources.html')
 
 class RDR_Detail(APIView):
     '''

@@ -1,3 +1,6 @@
+tag-2.4-20210222 JP
+  - New warehouse-views/v1/resources-sgci/v0.1.0/
+
 tag-2.4-20210110 JP
   - Fix Resource V3 invalid page handling, a couple of minor fixes
 

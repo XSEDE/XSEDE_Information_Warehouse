@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}XSEDE SGCI Resource List{% endblock %}
+{% block content %}
+  <table width="98%" border=0 cellspacing=0 cellpadding=0>
+    <tr height="50">
+      <td width="22%" align="left"></td>
+      <td width="52%" align="center" valign="center"><h1>XSEDE SGCI Resource List</h1></td>
+      <td width="22%" align="right" valign="top"><td>
+    </tr>
+  </table>
+  <table style="margin-left:2px" border=1 cellspacing=0 cellpadding=3>
+  <tr>
+      <th>host</th>
+      <th>name</th>
+      <th>description</th>
+      <th>storageResource</th>
+      <th>computeResource</th>
+  </tr>
+  {% for resource in results %}
+    <tr>
+    <td>{{ resource.host }}</td>
+    <td>{{ resource.name }}</td>
+    <td>{{ resource.description }}</td>
+    <td><div title="{{ resource.storageResource | pprint }}">Hover to view</div></td>
+    <td><div title="{{ resource.computeResource | pprint }}">Hover to view</div></td>
+    </tr>
+  {% endfor %}
+{% endblock %}

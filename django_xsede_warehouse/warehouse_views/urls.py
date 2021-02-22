@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^v1/resources-active/$', RDR_List_Active.as_view(), name='rdr-list-active'),
     url(r'^v1/resources-xdcdb-active/$', Resource_List_XDCDB_Active.as_view(), name='resource-list-active-xdcdb'),
     url(r'^v1/resources-csa/$', Resource_List_CSA_Active.as_view(), name='resource-list-active-csa'),
+    url(r'^v1/resources-sgci/v0.1.0/$', Resource_List_SGCI_Active_010.as_view(), name='resource-list-active-sgci-010'),
     url(r'^v1/resource/ResourceID/(?P<resourceid>[^/]+)/$', RDR_Detail.as_view(), name='rdr-detail'),
     url(r'^v1/software/$', Software_Full.as_view(), name='software-list'),
     url(r'^v1/software/ID/(?P<id>[^/]+)/$', Software_Full.as_view(), name='software-detail'),
