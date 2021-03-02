@@ -191,18 +191,18 @@ class Software_Community_Serializer(serializers.ModelSerializer):
             return []
 
 class SGCI_Resource_Serializer_010(serializers.ModelSerializer):
-    REMOVABLE_FIELDS = ['computeResource', 'storageResource', 'resourceOutages']
+    REMOVABLE_FIELDS = ['computeResources', 'storageResources', 'resourceOutages']
     schemaVersion = serializers.SerializerMethodField()
     host = serializers.CharField(source='info_resourceid')
     name = serializers.CharField(source='resource_descriptive_name')
     description = serializers.CharField(source='resource_description')
-    computeResource = serializers.SerializerMethodField()
-    storageResource = serializers.SerializerMethodField()
+    computeResources = serializers.SerializerMethodField()
+    storageResources = serializers.SerializerMethodField()
     resourceStatus = serializers.SerializerMethodField()
     resourceOutages = serializers.SerializerMethodField()
     class Meta:
         model = RDRResource
-        fields = ('schemaVersion', 'host', 'name', 'description', 'computeResource', 'storageResource', 'resourceStatus', 'resourceOutages')
+        fields = ('schemaVersion', 'host', 'name', 'description', 'computeResources', 'storageResources', 'resourceStatus', 'resourceOutages')
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -217,7 +217,7 @@ class SGCI_Resource_Serializer_010(serializers.ModelSerializer):
     def get_schemaVersion(self, RDRResource):
         return('0.1.0')
 
-    def get_computeResource(self, RDRResource):
+    def get_computeResources(self, RDRResource):
         if RDRResource.rdr_type != 'compute':
             return(None)
 
@@ -261,22 +261,32 @@ class SGCI_Resource_Serializer_010(serializers.ModelSerializer):
             batchSystem['jobManager'] = cm[0].Name
         else:
             batchSystem['jobManager'] = RDRResource.other_attributes.get('batch_system', 'N/A')
+
+#        if RDRResource.info_resourceid == 'stampede2.tacc.xsede.org':
+#            import pdb
+#            pdb.set_trace()
             
         evs = ExecutionEnvironment.objects.filter(ResourceID=RDRResource.info_resourceid)
         partitions = []
         for ev in evs:
+            totalNodes = ev.EntityJSON.get('TotalInstances')
+            if not totalNodes:
+                extension = ev.EntityJSON.get('Extension')
+                if extension and extension.get('Nodes'):
+                    totalNodes = len(extension.get('Nodes'))
+            cpuCount = ev.EntityJSON.get('LogicalCPUs')
             par = {'name': ev.Name,
-                    'totalNodes': ev.EntityJSON.get('TotalInstances', 'n/a'),
                     'nodehardware': {
                         'cpuType': ev.EntityJSON.get('Platform', 'n/a'),
-                        'cpuCount': ev.EntityJSON.get('LogicalCPUs', 'n/a'),
                         'memorySize': ev.EntityJSON.get('MainMemorySize', 'n/a') }
                 }
+            if totalNodes:
+                par['totalNodes'] = totalNodes
+            if cpuCount:
+                par['nodehardware']['cpuCount'] = cpuCount
             partitions.append(par)
         if partitions:
             batchSystem['partitions'] = partitions
-
-#        if RDRResource.info_resourceid == 'stampede2.tacc.xsede.org':
 
         batch = {'schedulerType': 'BATCH'}
         if connections:
@@ -293,7 +303,7 @@ class SGCI_Resource_Serializer_010(serializers.ModelSerializer):
         result = [batch, fork]
         return(result)
 
-    def get_storageResource(self, RDRResource):
+    def get_storageResources(self, RDRResource):
         if RDRResource.rdr_type != 'storage':
             return(None)
 

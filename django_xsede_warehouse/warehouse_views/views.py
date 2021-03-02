@@ -171,7 +171,7 @@ class Resource_List_SGCI_Active_010(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None):
-        objects = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='SUB', result='OBJECTS')
+        objects = RDR_Active_Resources_V2(affiliation='XSEDE', allocated=True, type='SUB', result='OBJECTS')
         serializer = SGCI_Resource_Serializer_010(objects, many=True)
         response_obj = {'results': serializer.data}
         return MyAPIResponse(response_obj, template_name='warehouse_views/sgci_resources.html')
