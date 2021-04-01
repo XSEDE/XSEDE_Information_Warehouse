@@ -15,7 +15,7 @@ class ResourceV3Local_Admin(admin.ModelAdmin):
     preserve_filters = True
     fieldsets = (
         (None, {
-            'fields': ('ID', 'CreationTime', 'Validity', 'Affiliation')
+            'fields': ('ID', 'CreationTime', 'Validity', 'Affiliation', 'CatalogMetaURL')
             }),
         ('Local Fields', {
             'fields': ('LocalID', 'LocalType', 'LocalURL', 'EntityJSON')

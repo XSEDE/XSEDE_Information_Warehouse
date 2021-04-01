@@ -182,6 +182,7 @@ class ResourceV3Index(Document):
 
     @classmethod
     def Lookup_Relation(self, id):
+        # Lookup a cached relation, and load it into the cache if it isn't there.
         cache = caches[django_settings.CACHE_SERVER]
         cache_key_prefix = self.Index.name + ':relation_id_lookup:'
         cache_key = cache_key_prefix + id

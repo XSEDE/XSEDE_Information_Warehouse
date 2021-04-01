@@ -649,6 +649,7 @@ class Resource_ESearch(APIView):
             topics=<comma-delimited-list>
             keywords=<comma-delimited-list>
             providers=<comma-delimited-providerid-list>
+            idprefix=<an-id-prefix>
             relation=[!]<relatedid>
             aggregations=[affiliation|resourcegroup|type|qualitylevel|providerid]
         ```
@@ -671,7 +672,7 @@ class Resource_ESearch(APIView):
         arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
         if arg_affiliations and arg_affiliations not in ['_all_', '*']:
             want_affiliations = list(arg_affiliations.split(','))
-        else:
+        else: # No selected affiliations means all affiliations
             want_affiliations = list()
         only_xsede = len(want_affiliations) == 1 and want_affiliations[0] == 'xsede.org'
 
@@ -741,6 +742,16 @@ class Resource_ESearch(APIView):
         else:
             want_providerids = list()
 
+        arg_idprefix = request.GET.get('idprefix', None)
+        # Search for ID fields that start with this prefix
+        if arg_idprefix:
+            if arg_idprefix[-1] in ('%', '*'):
+                want_idprefix = arg_idprefix[:-1]
+            else:
+                want_idprefix = arg_idprefix
+        else:
+            want_idprefix = False
+
         arg_relation = request.GET.get('relation', None)
         if arg_relation:
             want_relationinvert = (arg_relation[0] == '!')
@@ -783,6 +794,8 @@ class Resource_ESearch(APIView):
                 ES = ES.filter('terms', QualityLevel=want_qualitylevels)
             if want_providerids:
                 ES = ES.filter('terms', ProviderID=want_providerids)
+            if want_idprefix:
+                ES = ES.filter('prefix', ID=want_idprefix)
             if want_relationid:
                 if want_relationinvert:
                     ES = ES.filter(
@@ -812,17 +825,19 @@ class Resource_ESearch(APIView):
                     SUBQ.append(Q({'wildcard': {field: want_wildcard_terms[0]}}))
                 ES = ES.query('bool', should=SUBQ)
 
-            # This section applies a default non-filtering query when there are no user queries
-            # So that results have a score and are returned in a prefered order
-            #       but without filtering out non-matches
+            # If the user didn't enter search terms use a default non-filtering query that does not
+            #   exclude non-matches but produces results ordered by the default query based score
             USER_QUERIES = want_topics or want_keywords or want_terms or want_wildcard_terms
             if not USER_QUERIES:
+                # Default ordering for 'Cloud Image'
                 if len(want_types) == 1 and want_types[0] == 'Cloud Image':
                     ES = ES.query('bool', minimum_should_match=-1, should=
                         Q('match', Keywords='featured' ))
+                # Default ordering for XSEDE
                 elif only_xsede:
                     ES = ES.query('bool', minimum_should_match=-1, should=
                         Q('multi_match', query='xup rsp xsede', fields='Name' ))
+                # Everything else doesn't have a default query or ordering
 
             # Request aggregations
             if want_aggregations:
@@ -875,7 +890,7 @@ class Resource_ESearch(APIView):
                         bucket = { 'count': itemdict['doc_count'] }
                         if aggkey != 'ProviderID':
                             bucket['Name'] = itemdict['key']
-                        else:
+                        else: # For ProviderIDs lookup the cached Name
                             bucket['ID'] = itemdict['key']
                             provider = ResourceV3Index.Lookup_Relation(itemdict['key'])
                             if provider and only_xsede and provider.get('Abbreviation'):
