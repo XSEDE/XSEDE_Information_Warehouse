@@ -266,10 +266,6 @@ class SGCI_Resource_Serializer_010(serializers.ModelSerializer):
         else:
             batchSystem['jobManager'] = RDRResource.other_attributes.get('batch_system', 'N/A')
 
-#        if RDRResource.info_resourceid == 'stampede2.tacc.xsede.org':
-#            import pdb
-#            pdb.set_trace()
-            
         evs = ExecutionEnvironment.objects.filter(ResourceID=RDRResource.info_resourceid)
         partitions = []
         for ev in evs:
@@ -317,11 +313,15 @@ class SGCI_Resource_Serializer_010(serializers.ModelSerializer):
             if ep.InterfaceName == 'org.globus.openssh':
                 for cp in ['SSH', 'SCP']:
                     for sp in ['SSHKEYS', 'X509']:
-                        con = {'connectionProtocol': cp, 'securityProtocol': sp}
-                        if ':' in ep.URL:
-                            host, port = ep.URL.split(':')
+                        if ep.URL.startswith('gsissh://'):
+                            url = ep.URL[len('gsissh://'):].rstrip('/')
                         else:
-                            host, port = ep.URL, 22
+                            url = ep.URL[:]
+                        con = {'connectionProtocol': cp, 'securityProtocol': sp}
+                        if ':' in url:
+                            host, port = url.split(':')
+                        else:
+                            host, port = url, 22
                         if host == ep.ResourceID:
                             con['port'] = int(port) or 22
                         else:
