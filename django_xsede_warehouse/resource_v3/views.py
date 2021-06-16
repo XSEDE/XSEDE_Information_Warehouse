@@ -114,7 +114,7 @@ class Local_Search(APIView):
         Optional response argument(s):
         ```
             format={json,xml,html}              (json default)
-            page=<number>
+            page=<number>                       (between 1 and <n>)
             results_per_page=<number>           (default=25)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
@@ -139,16 +139,23 @@ class Local_Search(APIView):
         else:
             want_localtypes = set()
 
-        try:
-            parm = request.GET.get('page', 0)
-            page = int(parm)
-        except:
-            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page "{}" not valid'.format(parm))
+        parm = request.GET.get('page')
+        if parm:
+            try:
+                page = int(parm)
+                if page == 0:
+                    raise
+            except:
+                raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page "{}" not valid'.format(parm))
+        else:
+            page = None
         try:
             parm = request.GET.get('results_per_page', 25)
             page_size = int(parm)
         except:
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page_size "{}" not valid'.format(parm))
+
+        response_obj = {}
 
         try:
             objects = ResourceV3Local.objects.filter(Affiliation__exact=arg_affiliation)
@@ -169,7 +176,7 @@ class Local_Search(APIView):
 
         context={'request': request}
         serializer = Local_List_Serializer(final_objects, context=context, many=True)
-        response_obj = {'results': serializer.data}
+        response_obj['results'] = serializer.data
         return MyAPIResponse(response_obj, template_name='resource_v3/local_list.html')
 
 class Local_Detail(APIView):
@@ -214,7 +221,7 @@ class Resource_Types_List(APIView):
         Optional response format argument(s):
         ```
             format={json,xml,html}              (json default)
-            page=<number>
+            page=<number>                       (between 1 and <n>)
             results_per_page=<number>           (default=25)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
@@ -229,17 +236,6 @@ class Resource_Types_List(APIView):
         else:
             want_affiliations = set()
 
-        try:
-            parm = request.GET.get('page', 0)
-            page = int(parm)
-        except:
-            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page "{}" not valid'.format(parm))
-        try:
-            parm = request.GET.get('results_per_page', 25)
-            page_size = int(parm)
-        except:
-            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page_size "{}" not valid'.format(parm))
-
         response_obj = {}
 
         try:
@@ -251,13 +247,7 @@ class Resource_Types_List(APIView):
                     values('ResourceGroup','Type').annotate(count=Count(['ResourceGroup','Type']))
             objects = objects.order_by('ResourceGroup', 'Type')
             response_obj['total_results'] = len(objects)
-            if page:
-                paginator = Paginator(objects, page_size)
-                final_objects = paginator.page(page)
-                response_obj['page'] = page
-                response_obj['total_pages'] = paginator.num_pages
-            else:
-                final_objects = objects
+            final_objects = objects
         except Exception as exc:
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
         context = {}
@@ -489,7 +479,7 @@ class Resource_Search(APIView):
         ```
             format={json,xml,html}              (json default)
             sort=<local_field>                  (default global Name)
-            page=<number>
+            page=<number>                       (between 1 and <n>)
             results_per_page=<number>           (default=25)
             subtotals={only,include}            (default no totals)
         ```
@@ -569,11 +559,16 @@ class Resource_Search(APIView):
 
         sort = request.GET.get('sort', 'Name')
 
-        try:
-            parm = request.GET.get('page', 0)
-            page = int(parm)
-        except:
-            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page "{}" not valid'.format(parm))
+        parm = request.GET.get('page')
+        if parm:
+            try:
+                page = int(parm)
+                if page == 0:
+                    raise
+            except:
+                raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page "{}" not valid'.format(parm))
+        else:
+            page = None
         try:
             parm = request.GET.get('results_per_page', 25)
             page_size = int(parm)
@@ -655,9 +650,9 @@ class Resource_ESearch(APIView):
         ```
         Optional response argument(s):
         ```
-            format={json,xml,html}                              (json default)
-            page=<number>                                       (default=0)
-            results_per_page=<number>                           (default=25)
+            format={json,xml,html}              (json default)
+            page=<number>                       (between 1 and <n>)
+            results_per_page=<number>           (default=25)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
             target="_blank">More Resource V3 API documentation</a>
@@ -769,8 +764,10 @@ class Resource_ESearch(APIView):
             want_aggregations = list()
 
         try:
-            parm = request.GET.get('page', 0)
+            parm = request.GET.get('page', 1)
             page = int(parm)
+            if page == 0:
+                raise
         except:
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page "{}" not valid'.format(parm))
         try:
@@ -960,7 +957,7 @@ class Event_Search(APIView):
         Optional response format argument(s):
         ```
             format={json,xml,html}              (json default)
-            page=<number>
+            page=<number>                       (between 1 and <n>)
             results_per_page=<number>           (default=25)
         ```
         <a href="https://docs.google.com/document/d/1usQdnm6omMx7oAgaqA9HR_E0FxjakYpeBm1pAvk9lzE"
@@ -1037,11 +1034,16 @@ class Event_Search(APIView):
         except:
             arg_enddate = (timezone.now().astimezone(UTC) + timedelta(days=365*10))
 
-        try:
-            parm = request.GET.get('page', 0)
-            page = int(parm)
-        except:
-            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page "{}" not valid'.format(parm))
+        parm = request.GET.get('page')
+        if parm:
+            try:
+                page = int(parm)
+                if page == 0:
+                    raise
+            except:
+                raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Specified page "{}" not valid'.format(parm))
+        else:
+            page = None
         try:
             parm = request.GET.get('results_per_page', 25)
             page_size = int(parm)
