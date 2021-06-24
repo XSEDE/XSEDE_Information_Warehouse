@@ -199,6 +199,8 @@ class ResourceV3Index(Document):
             cache_value = { 'ID': id,
                             'Name': es2_results.hits.hits[0]['_source']['Name'],
                             'Affiliation': es2_results.hits.hits[0]['_source']['Affiliation'] }
+                            'ResourceGroup': es2_results.hits.hits[0]['_source']['ResourceGroup'] }
+                            'ProviderID': es2_results.hits.hits[0]['_source']['ProviderID'] }
             paren = re.findall('\(([^)]+)', cache_value['Name'])
             if len(paren) > 0:
                 cache_value['Abbreviation'] = '-'.join(paren)
