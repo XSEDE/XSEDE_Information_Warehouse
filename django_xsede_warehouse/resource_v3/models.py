@@ -175,7 +175,7 @@ class ResourceV3Index(Document):
                         cache_value['Abbreviation'] = '-'.join(paren)
                     cache_value['Affiliation'] = es2_results.hits.hits[0]['_source']['Affiliation']
                     cache_value['ResourceGroup'] = es2_results.hits.hits[0]['_source']['ResourceGroup']
-                    cache_value['ProviderID'] = es2_results.hits.hits[0]['_source']['ProviderID']
+                    #cache_value['ProviderID'] = es2_results.hits.hits[0]['_source']['ProviderID']
                 cache.set(cache_key, cache_value, 1 * 60 * 60)  # cache for 1 hour(s)
                 count += 1
         except:
@@ -201,7 +201,7 @@ class ResourceV3Index(Document):
             cache_value = { 'ID': id,
                             'Name': es2_results.hits.hits[0]['_source']['Name'],
                             'ResourceGroup': es2_results.hits.hits[0]['_source']['ResourceGroup'],
-                            'ProviderID': es2_results.hits.hits[0]['_source']['ProviderID'],
+                            #'ProviderID': es2_results.hits.hits[0]['_source']['ProviderID'],
                             'Affiliation': es2_results.hits.hits[0]['_source']['Affiliation'] }
             paren = re.findall('\(([^)]+)', cache_value['Name'])
             if len(paren) > 0:
