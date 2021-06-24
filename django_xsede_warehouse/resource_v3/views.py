@@ -846,7 +846,7 @@ class Resource_ESearch(APIView):
                         ES.aggs.bucket(realfield, A('terms', field=realfield))
 
             if page or page_size:
-                page_start = page_size * page
+                page_start = page_size * (page - 1)
                 page_end = page_start + page_size
                 ES = ES[page_start:page_end]
 #            ES = ES.extra(explain=True)
