@@ -198,8 +198,8 @@ class ResourceV3Index(Document):
         if len(es2_results.hits.hits) == 1:
             cache_value = { 'ID': id,
                             'Name': es2_results.hits.hits[0]['_source']['Name'],
-                            'Affiliation': es2_results.hits.hits[0]['_source']['Affiliation'] }
-                            'ResourceGroup': es2_results.hits.hits[0]['_source']['ResourceGroup'] }
+                            'Affiliation': es2_results.hits.hits[0]['_source']['Affiliation'],
+                            'ResourceGroup': es2_results.hits.hits[0]['_source']['ResourceGroup'],
                             'ProviderID': es2_results.hits.hits[0]['_source']['ProviderID'] }
             paren = re.findall('\(([^)]+)', cache_value['Name'])
             if len(paren) > 0:
