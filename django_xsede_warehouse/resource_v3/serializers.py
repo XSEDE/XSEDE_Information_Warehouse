@@ -63,10 +63,14 @@ class Resource_Detail_Serializer(serializers.ModelSerializer):
             for ri in relateditems:
                 related = {'RelationType': ri.RelationType, 'ID': ri.SecondResourceID}
                 provider = ResourceV3Index.Lookup_Relation(ri.SecondResourceID)
-                if provider:
-#                    related['ResourceGroup'] = provider.get('ResourceGroup')  # Not in CACHE
-                    if provider.get('Name'):
-                        related['Name'] = provider.get('Name')
+                if provider and provider.get('Name'):
+                    related['Name'] = provider.get('Name')
+                if provider and provider.get('ResourceGroup'):
+                    related['ResourceGroup'] = provider.get('ResourceGroup')
+                if provider and provider.get('ProviderID'):
+                    rp = ResourceV3Index.Lookup_Relation(provider.get('ProviderID'))
+                    if rp and rp.get('Name'):
+                        related['Provider'] = rp.get('Name')
                 if http_request:
                     related['DetailURL'] = http_request.build_absolute_uri(uri_to_iri(reverse('resource-detail', args=[ri.SecondResourceID])))
                 relations.append(related)
