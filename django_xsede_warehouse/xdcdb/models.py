@@ -4,7 +4,7 @@ from django.contrib.postgres.fields import JSONField
 # Create your models here.
 
 class TGResource(models.Model):
-    ResourceID = models.CharField(primary_key=True,max_length=32)
+    ResourceID = models.CharField(primary_key=True,max_length=40)
     #ResourceName = models.CharField(db_index=True, max_length=120)
     SiteID = models.CharField(db_index=True, max_length=40)
     OrganizationAbbrev = models.CharField(db_index=True, max_length=40)

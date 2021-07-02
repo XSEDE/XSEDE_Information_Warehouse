@@ -1,3 +1,6 @@
+tag-2.4-20210702 JP
+  - Expand TGResources model ResourceID field length from 32 to 40
+
 tag-2.4-20210616 JP
   - Fix resource_v3 page handling
 
