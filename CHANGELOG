@@ -1,3 +1,6 @@
+tag-2.4-20210818 JP
+  - Adjust SGCI response to comply with final SGCI schema v0.1.0
+
 tag-2.4-20210726 JP
   - Fix /warehouse-views/v1/resources-xdcdb-active/ sort by XDCDB ResourceName bug
 

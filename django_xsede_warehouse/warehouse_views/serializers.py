@@ -239,8 +239,8 @@ class SGCI_Resource_Serializer_010(serializers.ModelSerializer):
                         if host == ep.ResourceID:
                             con['port'] = int(port) or 22
                         else:
-                            con['proxyHost'] = host
-                            con['proxyPort'] = int(port)
+                            con['host'] = host
+                            con['port'] = int(port)
                         connections.append(con)
             elif ep.InterfaceName == 'org.globus.gridftp':
                 con = {'connectionProtocol': 'GRIDFTP', 'securityProtocol': 'X509'}
@@ -255,8 +255,8 @@ class SGCI_Resource_Serializer_010(serializers.ModelSerializer):
                 if host == ep.ResourceID:
                     con['port'] = int(port) or 2811
                 else:
-                    con['proxyHost'] = host
-                    con['proxyPort'] = int(port) or 2811
+                    con['host'] = host
+                    con['port'] = int(port) or 2811
                 connections.append(con)
 
         batchSystem = {}
@@ -276,14 +276,14 @@ class SGCI_Resource_Serializer_010(serializers.ModelSerializer):
                     totalNodes = len(extension.get('Nodes'))
             cpuCount = ev.EntityJSON.get('LogicalCPUs')
             par = {'name': ev.Name,
-                    'nodehardware': {
+                    'nodeHardware': {
                         'cpuType': ev.EntityJSON.get('Platform', 'n/a'),
                         'memorySize': ev.EntityJSON.get('MainMemorySize', 'n/a') }
                 }
             if totalNodes:
                 par['totalNodes'] = totalNodes
             if cpuCount:
-                par['nodehardware']['cpuCount'] = cpuCount
+                par['nodeHardware']['cpuCount'] = cpuCount
             partitions.append(par)
         if partitions:
             batchSystem['partitions'] = partitions
@@ -325,8 +325,8 @@ class SGCI_Resource_Serializer_010(serializers.ModelSerializer):
                         if host == ep.ResourceID:
                             con['port'] = int(port) or 22
                         else:
-                            con['proxyHost'] = host
-                            con['proxyPort'] = int(port)
+                            con['host'] = host
+                            con['port'] = int(port)
                         connections.append(con)
             elif ep.InterfaceName == 'org.globus.gridftp':
                 con = {'connectionProtocol': 'GRIDFTP', 'securityProtocol': 'X509'}
@@ -341,8 +341,8 @@ class SGCI_Resource_Serializer_010(serializers.ModelSerializer):
                 if host == ep.ResourceID:
                     con['port'] = int(port) or 2811
                 else:
-                    con['proxyHost'] = host
-                    con['proxyPort'] = int(port) or 2811
+                    con['host'] = host
+                    con['port'] = int(port) or 2811
                 connections.append(con)
 
         storage = {'storageType': 'POSIX'}
@@ -363,11 +363,12 @@ class SGCI_Resource_Serializer_010(serializers.ModelSerializer):
     def get_resourceOutages(self, RDRResource):
         now = timezone.now()
         outages = []
-        for out in Outages.objects.filter(ResourceID=RDRResource.info_resourceid, OutageStart__lte=now, OutageEnd__gte=now):
+        # current and future outages all end in the future
+        for out in Outages.objects.filter(ResourceID=RDRResource.info_resourceid, OutageEnd__gte=now):
             item = {'type': out.OutageType.capitalize(),
                     'name': out.Subject,
-                    'starts': out.OutageStart,
-                    'ends': out.OutageEnd}
+                    'startsDatetime': out.OutageStart.isoformat(),
+                    'endsDatetime': out.OutageEnd.isoformat()}
             if out.Content:
                 item['description'] = out.Content
             if out.WebURL:
