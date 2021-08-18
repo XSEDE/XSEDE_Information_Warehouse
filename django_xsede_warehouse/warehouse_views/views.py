@@ -17,7 +17,7 @@ from glue2_db.models import ApplicationHandle
 from xdcdb.models import *
 from xdcdb.serializers import *
 from rdr_db.serializers import *
-from warehouse_views.serializers import Generic_Resource_Serializer, Software_Full_Serializer, Software_Community_Serializer, SGCI_Resource_Serializer_010
+from warehouse_views.serializers import Generic_Resource_Serializer, Software_Full_Serializer, Software_Community_Serializer, SGCI_Resource_Serializer_100
 from xsede_warehouse.responses import MyAPIResponse
 
 # Create your views here.
@@ -153,7 +153,7 @@ class Resource_List_CSA_Active(APIView):
         response_obj = {'results': serializer.data}
         return MyAPIResponse(response_obj, template_name='warehouse_views/csa_resources.html')
 
-class Resource_List_SGCI_Active_010(APIView):
+class Resource_List_SGCI_Active_100(APIView):
     '''
         ### SGCI Resource Description from RDR about ACTIVE XSEDE resources, meaning:
             Provider level is: Level 1 or Level 2
@@ -172,7 +172,7 @@ class Resource_List_SGCI_Active_010(APIView):
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None):
         objects = RDR_Active_Resources_V2(affiliation='XSEDE', allocated=True, type='SUB', result='OBJECTS')
-        serializer = SGCI_Resource_Serializer_010(objects, many=True)
+        serializer = SGCI_Resource_Serializer_100(objects, many=True)
         response_obj = {'results': serializer.data}
         return MyAPIResponse(response_obj, template_name='warehouse_views/sgci_resources.html')
 

@@ -190,7 +190,7 @@ class Software_Community_Serializer(serializers.ModelSerializer):
         except:
             return []
 
-class SGCI_Resource_Serializer_010(serializers.ModelSerializer):
+class SGCI_Resource_Serializer_100(serializers.ModelSerializer):
     REMOVABLE_FIELDS = ['computeResources', 'storageResources', 'resourceOutages']
     schemaVersion = serializers.SerializerMethodField()
     host = serializers.CharField(source='info_resourceid')
