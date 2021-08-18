@@ -215,7 +215,7 @@ class SGCI_Resource_Serializer_100(serializers.ModelSerializer):
         return rep
         
     def get_schemaVersion(self, RDRResource):
-        return('0.1.0')
+        return('1.0.0')
 
     def get_computeResources(self, RDRResource):
         if RDRResource.rdr_type != 'compute':
