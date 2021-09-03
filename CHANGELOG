@@ -1,3 +1,7 @@
+tag-2.4-20210903
+  - Replace ';' with '&' as query parameter separator per https://docs.djangoproject.com/en/2.2/releases/2.2.19/
+  - Use a default 'featured' Esearch term to get better performance
+
 tag-2.4-20210819 and tag-2.4-20210819b JP
   - Bump version up to v1.0.0
 

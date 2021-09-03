@@ -826,7 +826,7 @@ class Resource_ESearch(APIView):
             #   exclude non-matches but produces results ordered by the default query based score
             USER_QUERIES = want_topics or want_keywords or want_terms or want_wildcard_terms
             if not USER_QUERIES:
-                # Default ordering for 'Cloud Image'
+                # Default ordering for 'Cloud Image', 'featured' is known to be used
                 if len(want_types) == 1 and want_types[0] == 'Cloud Image':
                     ES = ES.query('bool', minimum_should_match=-1, should=
                         Q('match', Keywords='featured' ))
@@ -834,7 +834,10 @@ class Resource_ESearch(APIView):
                 elif only_xsede:
                     ES = ES.query('bool', minimum_should_match=-1, should=
                         Q('multi_match', query='xup rsp xsede', fields='Name' ))
-                # Everything else doesn't have a default query or ordering
+                # Everything else doesn't have a default query or ordering so we inject 'featured'
+                else: # 'featured' may not be known to be used, but is useful
+                    ES = ES.query('bool', minimum_should_match=-1, should=
+                        Q('match', Keywords='featured' ))
 
             # Request aggregations
             if want_aggregations:
