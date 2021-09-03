@@ -197,7 +197,8 @@ class RDR_Detail(APIView):
         returnformat = request.query_params.get('format', None)
         if 'resourceid' in self.kwargs:
             try:
-                objects = RDRResource.objects.filter(info_resourceid__exact=uri_to_iri(self.kwargs['resourceid']),rdr_type__exact='resource')
+                objects = RDRResource.objects.filter(rdr_resource_id__exact=uri_to_iri(self.kwargs['resourceid']))
+                # ,rdr_type__exact='resource'
             except RDRResource.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
         if not objects:

@@ -5,6 +5,7 @@ tag-2.4-20210903b
     https://docs.djangoproject.com/en/2.2/releases/2.1/#deprecated-features-2-1
   - Replace model.save() with update_or_create
     https://docs.djangoproject.com/en/3.0/releases/3.0/
+  - Fix warehouse-views/v1/resource/ResourceID/ bug
 
 tag-2.4-20210903
   - Replace ';' with '&' as query parameter separator per https://docs.djangoproject.com/en/2.2/releases/2.2.19/
