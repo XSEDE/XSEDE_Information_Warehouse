@@ -197,21 +197,21 @@ class Glue2ProcessRawMonitoring():
             pa.FinishActivity(False, msg)
             return (False, msg)
         
-        model = None
+        obj = None
         try:
-            model = EntityHistory(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=ts, EntityJSON=jsondata)
-            model.save()
-            logg2.info('New GLUE2 EntityHistory.ID={} (DocType={}, ResourceID={})'.format(model.ID, model.DocumentType, model.ResourceID))
+            obj, created = EntityHistory.objects.get_or_create(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=ts, EntityJSON=jsondata)
+            obj.save()
+            logg2.info('New GLUE2 EntityHistory.ID={} (DocType={}, ResourceID={})'.format(obj.ID, obj.DocumentType, obj.ResourceID))
         except (ValidationError) as e:
-            msg = 'Exception on GLUE2 EntityHistory (DocType={}, ResourceID={}): {}'.format(model.DocumentType, model.ResourceID, e.error_list)
+            msg = 'Exception on GLUE2 EntityHistory (DocType={}, ResourceID={}): {}'.format(obj.DocumentType, obj.ResourceID, e.error_list)
             pa.FinishActivity(False, msg)
             return (False, msg)
         except (DataError, IntegrityError) as e:
-            msg = 'Exception on GLUE2 EntityHistory (DocType={}, ResourceID={}): {}'.format(model.DocumentType, model.ResourceID, e.error_list)
+            msg = 'Exception on GLUE2 EntityHistory (DocType={}, ResourceID={}): {}'.format(obj.DocumentType, obj.ResourceID, e.error_list)
             pa.FinishActivity(False, msg)
             return (False, msg)
 
-        g2doc = Glue2NewMonitoring(doctype, resourceid, ts, 'EntityHistory.ID=%s' % model.ID)
+        g2doc = Glue2NewMonitoring(doctype, resourceid, ts, 'EntityHistory.ID=%s' % obj.ID)
         try:
             response = g2doc.process(jsondata)
         except (ValidationError, ProcessingException) as e:

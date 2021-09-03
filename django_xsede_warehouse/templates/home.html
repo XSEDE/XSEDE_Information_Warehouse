@@ -19,7 +19,7 @@
         <br/>
         <a href="{% url 'logout' %}?next={{ request.path }}">Logout</a>
     {% else %}
-{% load staticfiles %}
+{% load static %}
   <a href="{% url 'social:begin' 'globus' %}?next={{ request.path }}"><img src="{% static "images/login-to-xsede.jpg" %}" width="15%" border="0" alt="Login To XSEDE"></a>
     {% endif %}
     </p>

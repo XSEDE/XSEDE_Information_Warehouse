@@ -1,8 +1,10 @@
-tag-3.0-tbd
+tag-2.4-20210903b
   - Stop using Django 2.0 deprecated features (only one)
     https://docs.djangoproject.com/en/2.2/releases/2.0/#deprecated-features-2-0
-
-
+  - Stop using Django 2.1 deprecated features (only one)
+    https://docs.djangoproject.com/en/2.2/releases/2.1/#deprecated-features-2-1
+  - Replace model.save() with update_or_create
+    https://docs.djangoproject.com/en/3.0/releases/3.0/
 
 tag-2.4-20210903
   - Replace ';' with '&' as query parameter separator per https://docs.djangoproject.com/en/2.2/releases/2.2.19/

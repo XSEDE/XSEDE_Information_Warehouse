@@ -163,7 +163,7 @@ class Glue2NewDocument():
                 desc = self.new[me][ID].get('Description')
                 if desc is not None:
                     desc = desc[:512]
-                model = ApplicationEnvironment(ID=self.new[me][ID]['ID'],
+                model, created = ApplicationEnvironment.objects.get_or_create(ID=self.new[me][ID]['ID'],
                                                ResourceID=self.resourceid,
                                                Name=self.new[me][ID]['Name'],
                                                CreationTime=self.new[me][ID]['CreationTime'],
@@ -211,7 +211,7 @@ class Glue2NewDocument():
                     hval = self.new[me][ID]['Value'][:maxval]
                 else:
                     hval = self.new[me][ID]['Value']
-                model = ApplicationHandle(ID=self.new[me][ID]['ID'],
+                model, created = ApplicationHandle.objects.get_or_create(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
@@ -297,7 +297,7 @@ class Glue2NewDocument():
                 self.tag_from_application(other_json)
                 if self.resourceid.endswith('.xsede.org'):
                     self.tag_xsede_support_contact(other_json)
-                model = AbstractService(ID=self.new[me][ID]['ID'],
+                model, created = AbstractService.objects.get_or_create(ID=self.new[me][ID]['ID'],
                                         ResourceID=self.resourceid,
                                         Name=self.new[me][ID]['Name'],
                                         CreationTime=self.new[me][ID]['CreationTime'],
@@ -337,7 +337,7 @@ class Glue2NewDocument():
                           'QualityLevel', 'InterfaceVersion', 'InterfaceName']:
                     other_json.pop(k, None)
                 self.tag_from_application(other_json)
-                model = Endpoint(ID=self.new[me][ID]['ID'],
+                model, created = Endpoint.objects.get_or_create(ID=self.new[me][ID]['ID'],
                                  ResourceID=self.resourceid,
                                  Name=self.new[me][ID]['Name'],
                                  CreationTime=self.new[me][ID]['CreationTime'],
@@ -405,7 +405,7 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model = ComputingManager(ID=self.new[me][ID]['ID'],
+                model, created = ComputingManager.objects.get_or_create(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
@@ -444,7 +444,7 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model = ExecutionEnvironment(ID=self.new[me][ID]['ID'],
+                model, created = ExecutionEnvironment.objects.get_or_create(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
@@ -488,7 +488,7 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model = Location(ID=self.new[me][ID]['ID'],
+                model, created = Location.objects.get_or_create(ID=self.new[me][ID]['ID'],
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
                                           Validity=get_Validity(self.new[me][ID]),
@@ -526,7 +526,7 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model = ComputingShare(ID=self.new[me][ID]['ID'],
+                model, created = ComputingShare.objects.get_or_create(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID]['Name'],
                                           CreationTime=self.new[me][ID]['CreationTime'],
@@ -581,7 +581,7 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model = ComputingActivity(ID=self.new[me][ID]['ID'],
+                model, created = ComputingActivity.objects.get_or_create(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID].get('Name', 'none'),
                                           CreationTime=self.new[me][ID]['CreationTime'],
@@ -621,7 +621,7 @@ class Glue2NewDocument():
             ID='urn:glue2:ComputingQueue:{}'.format(self.resourceid)
             other_json = self.new[me].copy()
             self.tag_from_application(other_json)
-            model = ComputingQueue(ID=ID,
+            model, created = ComputingQueue.objects.get_or_create(ID=ID,
                                   ResourceID=self.resourceid,
                                   Name='entire_queue',
                                   CreationTime=self.receivedtime,
@@ -657,7 +657,7 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model = ComputingManagerAcceleratorInfo(ID=self.new[me][ID]['ID'],
+                model, created = ComputingManagerAcceleratorInfo.objects.get_or_create(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID].get('Name', 'none'),
                                           CreationTime=self.new[me][ID]['CreationTime'],
@@ -705,7 +705,7 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model = ComputingShareAcceleratorInfo(ID=self.new[me][ID]['ID'],
+                model, created = ComputingShareAcceleratorInfo.objects.get_or_create(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID].get('Name', 'none'),
                                           CreationTime=self.new[me][ID]['CreationTime'],
@@ -753,7 +753,7 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model = AcceleratorEnvironment(ID=self.new[me][ID]['ID'],
+                model, created = AcceleratorEnvironment.objects.get_or_create(ID=self.new[me][ID]['ID'],
                                           ResourceID=self.resourceid,
                                           Name=self.new[me][ID].get('Name', 'none'),
                                           Type=self.new[me][ID].get('Type', 'none'),
@@ -818,7 +818,7 @@ class Glue2NewDocument():
                 new_history = ','.join(tmp)
             try:
                 other_json = self.new[me][ID].copy()
-                model = PublisherInfo(ID=new_id,
+                model, created = PublisherInfo.objects.get_or_create(ID=new_id,
                                         ResourceID=self.resourceid,
                                         Type=self.new[me][ID].get('Type', 'none'),
                                         Version=self.new[me][ID].get('Version', 'none'),
@@ -975,7 +975,7 @@ class Glue2ProcessRawIPF():
         
         model = None
         try:
-            model = EntityHistory(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=ts, EntityJSON=jsondata)
+            model, created = EntityHistory.objects.get_or_create(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=ts, EntityJSON=jsondata)
             model.save()
             logg2.info('New GLUE2 EntityHistory.ID={} (DocType={}, ResourceID={})'.format(model.ID, model.DocumentType, model.ResourceID))
             self.EntityHistory_ID = model.ID

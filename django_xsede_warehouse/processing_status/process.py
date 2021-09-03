@@ -30,7 +30,7 @@ class ProcessingActivity():
         self.Application = Application
         self.Function = Function
         self.ID = ID
-        model = ProcessingRecord(ID=ID,
+        obj, created = ProcessingRecord.objects.get_or_create(ID=ID,
                                 Topic=Topic,
                                 About=About,
                                 ProcessingNode=socket.gethostname(),
@@ -38,8 +38,8 @@ class ProcessingActivity():
                                 ProcessingFunction=self.Function,
                                 ProcessingStart=datetime.now(utc)
                                  )
-        model.save()
-        self.model = model
+        obj.save()
+        self.model = obj
 
     def FinishActivity(self, Code, Message):
         self.model.ProcessingEnd=datetime.now(utc)
@@ -56,15 +56,15 @@ class ProcessingActivity():
         self.model.save()
 
         if self.model.ProcessingCode != '0':
-            errmodel = ProcessingError(Topic=self.model.Topic,
-                                     About=self.model.About,
-                                     ProcessingNode=self.model.ProcessingNode,
-                                     ProcessingApplication=self.model.ProcessingApplication,
-                                     ProcessingFunction=self.model.ProcessingFunction,
-                                     ErrorTime=self.model.ProcessingEnd,
-                                     ErrorCode=self.model.ProcessingCode,
-                                     ErrorMessage=self.model.ProcessingMessage,
-                                     Reference1=self.model.ID
-                                 )
-            errmodel.save()
-            self.errmodel = errmodel
+            obj = ProcessingError(Topic=self.model.Topic,
+                                 About=self.model.About,
+                                 ProcessingNode=self.model.ProcessingNode,
+                                 ProcessingApplication=self.model.ProcessingApplication,
+                                 ProcessingFunction=self.model.ProcessingFunction,
+                                 ErrorTime=self.model.ProcessingEnd,
+                                 ErrorCode=self.model.ProcessingCode,
+                                 ErrorMessage=self.model.ProcessingMessage,
+                                 Reference1=self.model.ID
+                             )
+            obj.save()
+            self.errmodel = obj

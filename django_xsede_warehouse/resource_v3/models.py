@@ -99,7 +99,7 @@ class ResourceV3(AbstractResourceV3Model):
         if relations:
             for i in relations:
                 newRels.append({'RelatedID': i, 'RelationType': relations[i]})
-        obj = ResourceV3Index(
+        obj, created = ResourceV3Index.objects.get_or_create(
                 meta={'id': self.ID},
                 ID = self.ID,
                 Affiliation = self.Affiliation,
