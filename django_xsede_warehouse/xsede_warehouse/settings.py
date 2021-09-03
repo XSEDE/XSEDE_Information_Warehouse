@@ -113,7 +113,7 @@ DATABASES = {       # Set common NAME, ENGINE, PORT, CONN_MAX_AGE below
 
 for db in DATABASES:
     DATABASES[db]['NAME'] = 'warehouse'
-    DATABASES[db]['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+    DATABASES[db]['ENGINE'] = 'django.db.backends.postgresql'
     DATABASES[db]['PORT'] = ''
     DATABASES[db]['CONN_MAX_AGE'] = 600 # Persist DB connections
 
