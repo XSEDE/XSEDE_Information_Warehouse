@@ -16,7 +16,7 @@ class RDRResource_Serializer_Plus(serializers.ModelSerializer):
     def get_DetailURL(self, RDRResource):
         http_request = self.context.get('request')
         if http_request:
-            return http_request.build_absolute_uri(uri_to_iri(reverse('rdr-detail', args=[RDRResource.rdr_resource_id])))
+            return http_request.build_absolute_uri(uri_to_iri(reverse('rdr-detail-rdrid', args=[RDRResource.rdr_resource_id])))
         else:
             return ''
     

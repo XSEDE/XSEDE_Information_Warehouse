@@ -195,13 +195,17 @@ class RDR_Detail(APIView):
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
         rdrid = request.GET.get('rdrid', kwargs.get('rdrid', None))
-        if not rdrid:
-            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing RDR ID argument')
+        resourceid = request.GET.get('resourceid', kwargs.get('resourceid', None))
+        if not rdrid and not resourceid:
+            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing RDR or Resource ID argument')
         
         try:
-            final_objects = [RDRResource.objects.get(pk=rdrid)]
+            if rdrid:
+                final_objects = [RDRResource.objects.get(pk=rdrid)]
+            else: # have resourceid, this may return no objects
+                final_objects = RDRResource.objects.filter(info_resourceid__exact=uri_to_iri(resourceid))
         except RDRResource.DoesNotExist:
-            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified RDR ID not found')
+            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified RDR or Resource ID not found')
 
         context = {}
         serializer = Generic_Resource_Serializer(final_objects, context=context, many=True)
