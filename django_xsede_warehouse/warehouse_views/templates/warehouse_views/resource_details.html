@@ -8,10 +8,11 @@
       <td width="22%" align="right" valign="top"><td>
     </tr>
   </table>
+  {% for record in results %}
   <table style="margin-left:2px" border=0 cellspacing=10 cellpadding=3>
+  <tr><hr size=1></tr>
   <tr>
   <td valign="top" style="width:120px"><strong>Resource:</strong></td>
-  {% for record in results %}
   <td>{{ record.ResourceID }}</td>
   <td>{{ record.PopsName }}</td>
   </tr>
@@ -43,6 +44,6 @@
   <td valign="top"><strong>Updated At:</strong></td>
   <td colspan="2">{{ record.updated_at }}</td>
   </tr>
-  {% endfor %}
   </table>
+  {% endfor %}
 {% endblock %}
