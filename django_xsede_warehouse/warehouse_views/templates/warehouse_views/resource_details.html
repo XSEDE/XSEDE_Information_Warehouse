@@ -11,36 +11,38 @@
   <table style="margin-left:2px" border=0 cellspacing=10 cellpadding=3>
   <tr>
   <td valign="top" style="width:120px"><strong>Resource:</strong></td>
-  <td>{{ resource_details.ResourceID }}</td>
-  <td>{{ resource_details.PopsName }}</td>
+  {% for record in results %}
+  <td>{{ record.ResourceID }}</td>
+  <td>{{ record.PopsName }}</td>
   </tr>
   <td valign="top"><strong>Site:</strong></td>
-  <td>{{ resource_details.SiteID }}</td>
-  <td>{{ resource_details.OrganizationName }}</td>
+  <td>{{ record.SiteID }}</td>
+  <td>{{ record.OrganizationName }}</td>
   </tr>
   </tr>
   <td valign="top"><strong>SP Level:</strong></td>
-  <td>{{ resource_details.provider_level }}</td>
+  <td>{{ record.provider_level }}</td>
   </tr>
   </tr>
   <td valign="top"><strong>XCDB Name:</strong></td>
-  <td>{{ resource_details.XcdbName }}</td>
+  <td>{{ record.XcdbName }}</td>
   </tr>
   </tr>
   <td valign="top"><strong>RDR Status:</strong></td>
-  <td>{{ resource_details.latest_status }}</td>
-  <td>From '{{ resource_details.latest_status_begin }}' thru '{{ resource_details.latest_status_end }}'</td>
+  <td>{{ record.latest_status }}</td>
+  <td>From '{{ record.latest_status_begin }}' thru '{{ record.latest_status_end }}'</td>
   </tr>
   <td valign="top"><strong>Description:</strong></td>
-  <td colspan="2">{{ resource_details.resource_description }}</td>
+  <td colspan="2">{{ record.resource_description }}</td>
   </tr>
   </tr>
   <td valign="top"><strong>RDR ID:</strong></td>
-  <td>{{ resource_details.rdr_resource_id }}</td>
+  <td>{{ record.rdr_resource_id }}</td>
   </tr>
   </tr>
   <td valign="top"><strong>Updated At:</strong></td>
-  <td colspan="2">{{ resource_details.updated_at }}</td>
+  <td colspan="2">{{ record.updated_at }}</td>
   </tr>
+  {% endfor %}
   </table>
 {% endblock %}

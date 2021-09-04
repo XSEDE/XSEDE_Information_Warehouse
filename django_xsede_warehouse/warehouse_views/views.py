@@ -192,25 +192,21 @@ class RDR_Detail(APIView):
             target="_blank">More API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
-#    renderer_classes = (JSONRenderer,XMLRenderer,)
+    renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
     def get(self, request, format=None, **kwargs):
-        returnformat = request.query_params.get('format', None)
-        if 'resourceid' in self.kwargs:
-            try:
-                objects = RDRResource.objects.filter(rdr_resource_id__exact=uri_to_iri(self.kwargs['resourceid']))
-                # ,rdr_type__exact='resource'
-            except RDRResource.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-        if not objects:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        rdrid = request.GET.get('rdrid', kwargs.get('rdrid', None))
+        if not rdrid:
+            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing RDR ID argument')
+        
+        try:
+            final_objects = [RDRResource.objects.get(pk=rdrid)]
+        except RDRResource.DoesNotExist:
+            raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Specified RDR ID not found')
 
-        if returnformat != 'html':
-            serializer = Generic_Resource_Serializer(objects[0])
-            return Response(serializer.data)
-        else:
-            serializer = Generic_Resource_Serializer(objects[0])
-            context = {'resource_details': serializer.data}
-            return render(request, 'warehouse_views/resource_details.html', context)
+        context = {}
+        serializer = Generic_Resource_Serializer(final_objects, context=context, many=True)
+        response_obj = {'results': serializer.data}
+        return MyAPIResponse(response_obj, template_name='warehouse_views/resource_details.html')
 
 class Software_Full(APIView):
     '''

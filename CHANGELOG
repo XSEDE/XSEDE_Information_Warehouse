@@ -1,3 +1,6 @@
+tag-2.4-20210904
+  - Convert warehouse-views/v1/resource/ResourceID/ to APIResponse
+
 tag-2.4-20210903b
   - Stop using Django 2.0 deprecated features (only one)
     https://docs.djangoproject.com/en/2.2/releases/2.0/#deprecated-features-2-0
