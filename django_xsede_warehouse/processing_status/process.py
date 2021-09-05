@@ -30,14 +30,16 @@ class ProcessingActivity():
         self.Application = Application
         self.Function = Function
         self.ID = ID
-        obj, created = ProcessingRecord.objects.get_or_create(ID=ID,
-                                Topic=Topic,
-                                About=About,
-                                ProcessingNode=socket.gethostname(),
-                                ProcessingApplication=self.Application,
-                                ProcessingFunction=self.Function,
-                                ProcessingStart=datetime.now(utc)
-                                 )
+        obj, created = ProcessingRecord.objects.update_or_create(
+                            ID=ID,
+                            defaults = {
+                                'Topic': Topic,
+                                'About': About,
+                                'ProcessingNode': socket.gethostname(),
+                                'ProcessingApplication': self.Application,
+                                'ProcessingFunction': self.Function,
+                                'ProcessingStart': datetime.now(utc)
+                            })
         obj.save()
         self.model = obj
 

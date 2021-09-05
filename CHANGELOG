@@ -1,3 +1,6 @@
+tag-2.4-20210905
+  - Correctly implment update_or_create
+
 tag-2.4-20210904
   - Convert warehouse-views/v1/resource/ResourceID/ to APIResponse
   - Fix several warehouse-views/v1/resource/* issues

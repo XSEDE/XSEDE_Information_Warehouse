@@ -7,7 +7,7 @@ import pdb
 def copy_v2_to_v3():
     pdb.set_trace()
 #    for item in ResourceV2Provider.objects.all().iterator():
-#        new_obj, created = ResourceV3Provider.objects.get_or_create(ID=item.ID)
+#        new_obj, created = ResourceV3Provider.objects.update_or_create(ID=item.ID)
 #        item_dict = model_to_dict(item)
 #        for field in ResourceV2Provider._meta.fields:
 #            setattr(new_obj, field.name, item_dict[field.name])
@@ -18,7 +18,7 @@ def copy_v2_to_v3():
 #        new_obj.save()
 #
 #    for item in ResourceV2.objects.all().iterator():
-#        new_obj, created = ResourceV3.objects.get_or_create(ID=item.ID)
+#        new_obj, created = ResourceV3.objects.update_or_create(ID=item.ID)
 #        item_dict = model_to_dict(item)
 #        for field in ResourceV2._meta.fields:
 #            setattr(new_obj, field.name, item_dict[field.name])

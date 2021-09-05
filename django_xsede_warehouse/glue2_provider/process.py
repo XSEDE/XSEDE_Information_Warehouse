@@ -163,15 +163,18 @@ class Glue2NewDocument():
                 desc = self.new[me][ID].get('Description')
                 if desc is not None:
                     desc = desc[:512]
-                model, created = ApplicationEnvironment.objects.get_or_create(ID=self.new[me][ID]['ID'],
-                                               ResourceID=self.resourceid,
-                                               Name=self.new[me][ID]['Name'],
-                                               CreationTime=self.new[me][ID]['CreationTime'],
-                                               Validity=get_Validity(self.new[me][ID]),
-                                               Description=desc,
-                                               AppName=self.new[me][ID]['AppName'],
-                                               AppVersion=self.new[me][ID].get('AppVersion', 'none'),
-                                               EntityJSON=other_json)
+                model, created = ApplicationEnvironment.objects.update_or_create(
+                                    ID=self.new[me][ID]['ID'],
+                                    defaults = {
+                                           'ResourceID': self.resourceid,
+                                           'Name': self.new[me][ID]['Name'],
+                                           'CreationTime': self.new[me][ID]['CreationTime'],
+                                           'Validity': get_Validity(self.new[me][ID]),
+                                           'Description': desc,
+                                           'AppName': self.new[me][ID]['AppName'],
+                                           'AppVersion': self.new[me][ID].get('AppVersion', 'none'),
+                                           'EntityJSON': other_json
+                                    })
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -211,15 +214,18 @@ class Glue2NewDocument():
                     hval = self.new[me][ID]['Value'][:maxval]
                 else:
                     hval = self.new[me][ID]['Value']
-                model, created = ApplicationHandle.objects.get_or_create(ID=self.new[me][ID]['ID'],
-                                          ResourceID=self.resourceid,
-                                          Name=self.new[me][ID]['Name'],
-                                          CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=get_Validity(self.new[me][ID]),
-                                          Type=self.new[me][ID]['Type'],
-                                          Value=hval,
-                                          ApplicationEnvironment=fk,
-                                          EntityJSON=other_json)
+                model, created = ApplicationHandle.objects.update_or_create(
+                                    ID=self.new[me][ID]['ID'],
+                                    defaults = {
+                                        'ResourceID': self.resourceid,
+                                        'Name': self.new[me][ID]['Name'],
+                                        'CreationTime': self.new[me][ID]['CreationTime'],
+                                        'Validity': get_Validity(self.new[me][ID]),
+                                        'Type': self.new[me][ID]['Type'],
+                                        'Value': hval,
+                                        'ApplicationEnvironment': fk,
+                                        'EntityJSON': other_json
+                                    })
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -297,15 +303,18 @@ class Glue2NewDocument():
                 self.tag_from_application(other_json)
                 if self.resourceid.endswith('.xsede.org'):
                     self.tag_xsede_support_contact(other_json)
-                model, created = AbstractService.objects.get_or_create(ID=self.new[me][ID]['ID'],
-                                        ResourceID=self.resourceid,
-                                        Name=self.new[me][ID]['Name'],
-                                        CreationTime=self.new[me][ID]['CreationTime'],
-                                        Validity=get_Validity(self.new[me][ID]),
-                                        EntityJSON=other_json,
-                                        ServiceType=self.newAbsServType[ID],
-                                        Type=self.new[me][ID]['Type'],
-                                        QualityLevel=self.new[me][ID].get('QualityLevel', 'none'))
+                model, created = AbstractService.objects.update_or_create(
+                                    ID=self.new[me][ID]['ID'],
+                                    defaults = {
+                                        'ResourceID': self.resourceid,
+                                        'Name': self.new[me][ID]['Name'],
+                                        'CreationTime': self.new[me][ID]['CreationTime'],
+                                        'Validity': get_Validity(self.new[me][ID]),
+                                        'EntityJSON': other_json,
+                                        'ServiceType': self.newAbsServType[ID],
+                                        'Type': self.new[me][ID]['Type'],
+                                        'QualityLevel': self.new[me][ID].get('QualityLevel', 'none')
+                                    })
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -337,19 +346,22 @@ class Glue2NewDocument():
                           'QualityLevel', 'InterfaceVersion', 'InterfaceName']:
                     other_json.pop(k, None)
                 self.tag_from_application(other_json)
-                model, created = Endpoint.objects.get_or_create(ID=self.new[me][ID]['ID'],
-                                 ResourceID=self.resourceid,
-                                 Name=self.new[me][ID]['Name'],
-                                 CreationTime=self.new[me][ID]['CreationTime'],
-                                 Validity=get_Validity(self.new[me][ID]),
-                                 AbstractService=fk,
-                                 EntityJSON=other_json,
-                                 HealthState=self.new[me][ID]['HealthState'],
-                                 ServingState=self.new[me][ID]['ServingState'],
-                                 URL=self.new[me][ID]['URL'],
-                                 QualityLevel=self.new[me][ID].get('QualityLevel', 'none'),
-                                 InterfaceVersion=self.new[me][ID]['InterfaceVersion'],
-                                 InterfaceName=self.new[me][ID]['InterfaceName'],)
+                model, created = Endpoint.objects.update_or_create(
+                                    ID=self.new[me][ID]['ID'],
+                                    defaults = {
+                                        'ResourceID': self.resourceid,
+                                        'Name': self.new[me][ID]['Name'],
+                                        'CreationTime': self.new[me][ID]['CreationTime'],
+                                        'Validity': get_Validity(self.new[me][ID]),
+                                        'AbstractService': fk,
+                                        'EntityJSON': other_json,
+                                        'HealthState': self.new[me][ID]['HealthState'],
+                                        'ServingState': self.new[me][ID]['ServingState'],
+                                        'URL': self.new[me][ID]['URL'],
+                                        'QualityLevel': self.new[me][ID].get('QualityLevel', 'none'),
+                                        'InterfaceVersion': self.new[me][ID]['InterfaceVersion'],
+                                        'InterfaceName': self.new[me][ID]['InterfaceName']
+                                    })
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -405,12 +417,15 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model, created = ComputingManager.objects.get_or_create(ID=self.new[me][ID]['ID'],
-                                          ResourceID=self.resourceid,
-                                          Name=self.new[me][ID]['Name'],
-                                          CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=other_json)
+                model, created = ComputingManager.objects.update_or_create(
+                                    ID=self.new[me][ID]['ID'],
+                                    defaults = {
+                                        'ResourceID': self.resourceid,
+                                        'Name': self.new[me][ID]['Name'],
+                                        'CreationTime': self.new[me][ID]['CreationTime'],
+                                        'Validity': get_Validity(self.new[me][ID]),
+                                        'EntityJSON': other_json
+                                    })
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -444,12 +459,15 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model, created = ExecutionEnvironment.objects.get_or_create(ID=self.new[me][ID]['ID'],
-                                          ResourceID=self.resourceid,
-                                          Name=self.new[me][ID]['Name'],
-                                          CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=other_json)
+                model, created = ExecutionEnvironment.objects.update_or_create(
+                                    ID=self.new[me][ID]['ID'],
+                                    defaults = {
+                                        'ResourceID': self.resourceid,
+                                        'Name': self.new[me][ID]['Name'],
+                                        'CreationTime': self.new[me][ID]['CreationTime'],
+                                        'Validity': get_Validity(self.new[me][ID]),
+                                        'EntityJSON': other_json
+                                    })
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -488,11 +506,14 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model, created = Location.objects.get_or_create(ID=self.new[me][ID]['ID'],
-                                          Name=self.new[me][ID]['Name'],
-                                          CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=other_json)
+                model, created = Location.objects.update_or_create(
+                                    ID=self.new[me][ID]['ID'],
+                                    defaults = {
+                                          'Name': self.new[me][ID]['Name'],
+                                          'CreationTime': self.new[me][ID]['CreationTime'],
+                                          'Validity': get_Validity(self.new[me][ID]),
+                                          'EntityJSON': other_json
+                                    })
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -526,12 +547,15 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model, created = ComputingShare.objects.get_or_create(ID=self.new[me][ID]['ID'],
-                                          ResourceID=self.resourceid,
-                                          Name=self.new[me][ID]['Name'],
-                                          CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=other_json)
+                model, created = ComputingShare.objects.update_or_create(
+                                    ID=self.new[me][ID]['ID'],
+                                    defaults = {
+                                        'ResourceID': self.resourceid,
+                                        'Name': self.new[me][ID]['Name'],
+                                        'CreationTime': self.new[me][ID]['CreationTime'],
+                                        'Validity': get_Validity(self.new[me][ID]),
+                                        'EntityJSON': other_json
+                                    })
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -581,12 +605,15 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model, created = ComputingActivity.objects.get_or_create(ID=self.new[me][ID]['ID'],
-                                          ResourceID=self.resourceid,
-                                          Name=self.new[me][ID].get('Name', 'none'),
-                                          CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=other_json)
+                model, created = ComputingActivity.objects.update_or_create(
+                                    ID=self.new[me][ID]['ID'],
+                                    defaults = {
+                                        'ResourceID': self.resourceid,
+                                        'Name': self.new[me][ID].get('Name', 'none'),
+                                        'CreationTime': self.new[me][ID]['CreationTime'],
+                                        'Validity': get_Validity(self.new[me][ID]),
+                                        'EntityJSON': other_json
+                                    })
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -621,12 +648,15 @@ class Glue2NewDocument():
             ID='urn:glue2:ComputingQueue:{}'.format(self.resourceid)
             other_json = self.new[me].copy()
             self.tag_from_application(other_json)
-            model, created = ComputingQueue.objects.get_or_create(ID=ID,
-                                  ResourceID=self.resourceid,
-                                  Name='entire_queue',
-                                  CreationTime=self.receivedtime,
-                                  Validity=None,
-                                  EntityJSON=other_json)
+            model, created = ComputingQueue.objects.update_or_create(
+                                ID=ID,
+                                defaults = {
+                                    'ResourceID': self.resourceid,
+                                    'Name': 'entire_queue',
+                                    'CreationTime': self.receivedtime,
+                                    'Validity': None,
+                                    'EntityJSON': other_json
+                                })
             model.save()
             self.stats['%s.Updates' % me] += 1
         except (DataError, IntegrityError) as e:
@@ -657,12 +687,15 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model, created = ComputingManagerAcceleratorInfo.objects.get_or_create(ID=self.new[me][ID]['ID'],
-                                          ResourceID=self.resourceid,
-                                          Name=self.new[me][ID].get('Name', 'none'),
-                                          CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=other_json)
+                model, created = ComputingManagerAcceleratorInfo.objects.update_or_create(
+                                    ID=self.new[me][ID]['ID'],
+                                    defaults = {
+                                        'ResourceID': self.resourceid,
+                                        'Name': self.new[me][ID].get('Name', 'none'),
+                                        'CreationTime': self.new[me][ID]['CreationTime'],
+                                        'Validity': get_Validity(self.new[me][ID]),
+                                        'EntityJSON': other_json
+                                    })
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -705,12 +738,15 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model, created = ComputingShareAcceleratorInfo.objects.get_or_create(ID=self.new[me][ID]['ID'],
-                                          ResourceID=self.resourceid,
-                                          Name=self.new[me][ID].get('Name', 'none'),
-                                          CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=other_json)
+                model, created = ComputingShareAcceleratorInfo.objects.update_or_create(
+                                    ID=self.new[me][ID]['ID'],
+                                    defaults = {
+                                        'ResourceID': self.resourceid,
+                                        'Name': self.new[me][ID].get('Name', 'none'),
+                                        'CreationTime': self.new[me][ID]['CreationTime'],
+                                        'Validity': get_Validity(self.new[me][ID]),
+                                        'EntityJSON': other_json
+                                    })
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -753,13 +789,16 @@ class Glue2NewDocument():
             try:
                 other_json = self.new[me][ID].copy()
                 self.tag_from_application(other_json)
-                model, created = AcceleratorEnvironment.objects.get_or_create(ID=self.new[me][ID]['ID'],
-                                          ResourceID=self.resourceid,
-                                          Name=self.new[me][ID].get('Name', 'none'),
-                                          Type=self.new[me][ID].get('Type', 'none'),
-                                          CreationTime=self.new[me][ID]['CreationTime'],
-                                          Validity=get_Validity(self.new[me][ID]),
-                                          EntityJSON=other_json)
+                model, created = AcceleratorEnvironment.objects.update_or_create(
+                                    ID=self.new[me][ID]['ID'],
+                                    defaults = {
+                                        'ResourceID': self.resourceid,
+                                        'Name': self.new[me][ID].get('Name', 'none'),
+                                        'Type': self.new[me][ID].get('Type', 'none'),
+                                        'CreationTime': self.new[me][ID]['CreationTime'],
+                                        'Validity': get_Validity(self.new[me][ID]),
+                                        'EntityJSON': other_json
+                                    })
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -818,15 +857,18 @@ class Glue2NewDocument():
                 new_history = ','.join(tmp)
             try:
                 other_json = self.new[me][ID].copy()
-                model, created = PublisherInfo.objects.get_or_create(ID=new_id,
-                                        ResourceID=self.resourceid,
-                                        Type=self.new[me][ID].get('Type', 'none'),
-                                        Version=self.new[me][ID].get('Version', 'none'),
-                                        Hostname=self.new[me][ID].get('Hostname', 'none'),
-                                        Location=self.new[me][ID].get('Location', 'none'),
-                                        CreationTime=self.new[me][ID]['CreationTime'],
-                                        RecentHistory=new_history,
-                                        EntityJSON=other_json)
+                model, created = PublisherInfo.objects.update_or_create(
+                                    ID=new_id,
+                                    defaults = {
+                                        'ResourceID': self.resourceid,
+                                        'Type': self.new[me][ID].get('Type', 'none'),
+                                        'Version': self.new[me][ID].get('Version', 'none'),
+                                        'Hostname': self.new[me][ID].get('Hostname', 'none'),
+                                        'Location': self.new[me][ID].get('Location', 'none'),
+                                        'CreationTime': self.new[me][ID]['CreationTime'],
+                                        'RecentHistory': new_history,
+                                        'EntityJSON': other_json
+                                    })
                 model.save()
                 self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
@@ -975,7 +1017,7 @@ class Glue2ProcessRawIPF():
         
         model = None
         try:
-            model, created = EntityHistory.objects.get_or_create(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=ts, EntityJSON=jsondata)
+            model, created = EntityHistory.objects.update_or_create(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=ts, EntityJSON=jsondata)
             model.save()
             logg2.info('New GLUE2 EntityHistory.ID={} (DocType={}, ResourceID={})'.format(model.ID, model.DocumentType, model.ResourceID))
             self.EntityHistory_ID = model.ID
