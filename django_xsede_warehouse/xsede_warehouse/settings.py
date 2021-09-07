@@ -201,12 +201,9 @@ LOGGING = {
         },
         'g2file': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'class': 'logging.FileHandler',
             'filename': CONF['G2_LOG'],
             'formatter': 'logfile',
-            'when': 'W6',
-            'backupCount': 999,
-            'utc': True,
         },
         'syslog': {
             'level': 'WARNING',
