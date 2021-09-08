@@ -1017,7 +1017,7 @@ class Glue2ProcessRawIPF():
         
         model = None
         try:
-            model, created = EntityHistory.objects.update_or_create(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=ts, EntityJSON=jsondata)
+            model = EntityHistory(DocumentType=doctype, ResourceID=resourceid, ReceivedTime=ts, EntityJSON=jsondata)
             model.save()
             logg2.info('New GLUE2 EntityHistory.ID={} (DocType={}, ResourceID={})'.format(model.ID, model.DocumentType, model.ResourceID))
             self.EntityHistory_ID = model.ID

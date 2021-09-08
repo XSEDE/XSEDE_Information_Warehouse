@@ -1,8 +1,11 @@
+tag-2.4-20210907
+  - Dont' use update_or_create for EntityHistory which is always a new object
+
 tag-2.4-20210906
   - Deconfigure API logging rotation, we'll try letting Apache handle it
 
 tag-2.4-20210905
-  - Correctly implment update_or_create
+  - Correctly implement update_or_create
 
 tag-2.4-20210904
   - Convert warehouse-views/v1/resource/ResourceID/ to APIResponse
