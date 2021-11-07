@@ -101,31 +101,33 @@ class Glue2NewMonitoring():
             logg2.debug('ID=%s, ResourceID=%s, Name=%s' % (self.new[me][ID]['ID'], self.resourceid, self.new[me][ID]['Name']))
 
             try:
-                nagios_m, created = TestResult.objects.update_or_create(ID=self.new[me][ID]['ID'],
-                                                                    defaults={
-                                                                        'ResourceID': self.resourceid,
-                                                                        'Name': self.new[me][ID]['Name'],
-                                                                        'CreationTime': self.new[me][ID]['CreationTime'],
-                                                                        'EntityJSON': self.new[me][ID],
-                                                                        'Source': extension['Source'].lower(),
-                                                                        'Result': extension['Result'].lower(),
-                                                                        'ErrorMessage': errormessage,
-                                                                        'IsSoftware' : issoftware,
-                                                                        'IsService': isservice
-                                                                     })
-                if not created:
-                    self.stats['%s.Current' % me] = 1
-                    if parse_datetime(self.new[me][ID]['CreationTime']) > nagios_m.CreationTime:
-                        TestResult.objects.filter(ID=self.new[me][ID]['ID']).update(ResourceID=self.resourceid,
-                                                                             Name=self.new[me][ID]['Name'],
-                                                                             CreationTime=self.new[me][ID]['CreationTime'],
-                                                                             EntityJSON=self.new[me][ID],
-                                                                             Source=extension['Source'].lower(),
-                                                                             Result=extension['Result'].lower(),
-                                                                             ErrorMessage=errormessage,
-                                                                             IsSoftware=issoftware,
-                                                                             IsService=isservice)
-                self.new[me][ID]['model'] = nagios_m
+                model, created = TestResult.objects.update_or_create(
+                                    ID=self.new[me][ID]['ID'],
+                                    defaults={
+                                        'ResourceID': self.resourceid,
+                                        'Name': self.new[me][ID]['Name'],
+                                        'CreationTime': self.new[me][ID]['CreationTime'],
+                                        'EntityJSON': self.new[me][ID],
+                                        'Source': extension['Source'].lower(),
+                                        'Result': extension['Result'].lower(),
+                                        'ErrorMessage': errormessage,
+                                        'IsSoftware' : issoftware,
+                                        'IsService': isservice
+                                     })
+                model.save()
+#                if not created:
+#                    self.stats['%s.Current' % me] = 1
+#                    if parse_datetime(self.new[me][ID]['CreationTime']) > model.CreationTime:
+#                        TestResult.objects.filter(ID=self.new[me][ID]['ID']).update(ResourceID=self.resourceid,
+#                                                                             Name=self.new[me][ID]['Name'],
+#                                                                             CreationTime=self.new[me][ID]['CreationTime'],
+#                                                                             EntityJSON=self.new[me][ID],
+#                                                                             Source=extension['Source'].lower(),
+#                                                                             Result=extension['Result'].lower(),
+#                                                                             ErrorMessage=errormessage,
+#                                                                             IsSoftware=issoftware,
+#                                                                             IsService=isservice)
+                self.new[me][ID]['model'] = model
                 self.stats['%s.Updates' % me] += 1
             except (DataError, IntegrityError) as e:
                 raise ProcessingException('%s updating %s (ID=%s): %s' % (type(e).__name__, me, self.new[me][ID]['ID'], e.message))
