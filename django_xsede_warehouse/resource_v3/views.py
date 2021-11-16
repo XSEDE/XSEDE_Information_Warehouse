@@ -16,7 +16,7 @@ from .models import *
 from .serializers import *
 from xsede_warehouse.exceptions import MyAPIException
 from xsede_warehouse.responses import MyAPIResponse
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, RequestError
 from elasticsearch_dsl import Search, Q, A
 import datetime
 from datetime import datetime, timedelta
