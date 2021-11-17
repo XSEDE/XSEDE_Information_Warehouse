@@ -1,10 +1,11 @@
+from django.urls import reverse, get_script_prefix
+from django.utils.encoding import uri_to_iri
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
-#from drf_toolbox import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
 from glue2_db.models import ApplicationEnvironment, ApplicationHandle, AbstractService, ComputingActivity, ComputingQueue, Endpoint
 from glue2_db.serializers import ApplicationHandle_DbSerializer, AbstractService_DbSerializer, Endpoint_DbSerializer
-from django.urls import reverse, get_script_prefix
-from django.utils.encoding import uri_to_iri
 import copy
 
 class ApplicationEnvironment_Serializer(serializers.ModelSerializer):
@@ -45,31 +46,39 @@ class EndpointServices_Serializer(serializers.ModelSerializer):
 class EndpointServices_Support_Serializer(serializers.ModelSerializer):
     ServiceType = serializers.CharField(source='AbstractService.ServiceType')
     SupportContact = serializers.SerializerMethodField('get_supportcontact')
-    class Meta:
-        model = Endpoint
-        fields = ('ResourceID', 'InterfaceName', 'InterfaceVersion', 'URL',
-                  'QualityLevel', 'ServingState', 'HealthState', 'ServiceType',
-                  'CreationTime', 'ID', 'SupportContact')
+
+    @extend_schema_field(OpenApiTypes.STR)
     def get_supportcontact(self, Endpoint):
         try:
             return Endpoint.AbstractService.EntityJSON['Extension']['SupportContact']
         except:
             return []
 
+    class Meta:
+        model = Endpoint
+        fields = ('ResourceID', 'InterfaceName', 'InterfaceVersion', 'URL',
+                  'QualityLevel', 'ServingState', 'HealthState', 'ServiceType',
+                  'CreationTime', 'ID', 'SupportContact')
+
 class ComputingActivity_Expand_Serializer(serializers.ModelSerializer):
     DetailURL = serializers.SerializerMethodField()
     StandardState = serializers.SerializerMethodField()
+
+    @extend_schema_field(OpenApiTypes.STR)
     def get_DetailURL(self, ComputingActivity):
         http_request = self.context.get('request')
         if http_request:
             return http_request.build_absolute_uri(uri_to_iri(reverse('jobs-detail', args=[ComputingActivity.ID])))
         else:
             return ''
+
+    @extend_schema_field(OpenApiTypes.STR)
     def get_StandardState(self, ComputingActivity):
         for s in ComputingActivity.EntityJSON.get('State'):
             if s.startswith('ipf:'):
                 return s[4:]
         return ''
+
     class Meta:
         model = ComputingActivity
         fields = copy.copy([f.name for f in ComputingActivity._meta.get_fields(include_parents=False)])
@@ -78,6 +87,8 @@ class ComputingActivity_Expand_Serializer(serializers.ModelSerializer):
 
 class ComputingQueue_Expand_Serializer(serializers.ModelSerializer):
     JobQueue = serializers.SerializerMethodField()
+
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_JobQueue(self, ComputingQueue):
 #        try:
 #            sort_by = self.context.get('sort_by', None)

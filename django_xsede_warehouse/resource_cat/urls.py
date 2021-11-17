@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.urls import include, path
 from resource_cat.views import *
 from django.views.decorators.cache import cache_page
 
@@ -6,40 +6,40 @@ from django.views.decorators.cache import cache_page
 # Additionally, we include login URLs for the browseable API.
 # Special reg for resource/id/<id> in case there are slashes in the 'id'
 urlpatterns = [
-    url(r'^resource_search/affiliation/(?P<affiliation>[^/]+)/?$',
+    path(r'resource_search/affiliation/<str:affiliation>/',
         Resource_Search.as_view(),
         name='resource-search'),
-    url(r'^resource_search/?$',
+    path(r'resource_search/',
         Resource_Search.as_view(),
         name='resource-search'),
-    url(r'^providers/affiliation/(?P<affiliation>[^/]+)/?$',
+    path(r'providers/affiliation/<str:affiliation>/',
         cache_page(60 * 60)(Resource_Provider_List.as_view()),
         name='resource-provider-list'),
-    url(r'^providers/?$',
+    path(r'providers/',
         cache_page(60 * 60)(Resource_Provider_List.as_view()),
         name='resource-provider-list'),
-    url(r'^resource_types/affiliation/(?P<affiliation>[^/]+)/?$',
+    path(r'resource_types/affiliation/<str:affiliation>/',
         cache_page(60 * 60)(Resource_Types_List.as_view()),
         name='resource-types-list'),
-    url(r'^resource_types/?$',
+    path(r'resource_types/',
         cache_page(60 * 60)(Resource_Types_List.as_view()),
         name='resource-types-list'),
-    url(r'^events/affiliation/(?P<affiliation>[^/]+)/?$',
+    path(r'events/affiliation/<str:affiliation>/',
         cache_page(60 * 5)(Events_List.as_view()),
         name='events-list'),
-    url(r'^events/?$',
+    path(r'events/',
         cache_page(60 * 5)(Events_List.as_view()),
         name='events-list'),
-    url(r'^resource/id/(?P<id>.+)/$',
+    path(r'resource/id/<str:id>/',
         Resource_Detail.as_view(),
         name='resource-detail'),
-    url(r'^resource/id/(?P<id>.+)$',
+    path(r'resource/id/<str:id>)/',
         Resource_Detail.as_view(),
         name='resource-detail'),
-    url(r'^resource/?$',
+    path(r'resource/',
         Resource_Detail.as_view(),
         name='resource-detail'),
-    url(r'^resource/affiliation/(?P<affiliation>[^/]+)/localid/(?P<localid>[^/]+)/?$',
+    path(r'resource/affiliation/<str:affiliation>/localid/<str:localid>/',
         Resource_Detail.as_view(),
         name='resource-detail'),
 ]

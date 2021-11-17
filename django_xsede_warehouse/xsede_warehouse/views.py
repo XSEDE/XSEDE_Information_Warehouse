@@ -1,6 +1,4 @@
-from django.conf.urls import url
 from django.shortcuts import render
-from rest_framework_swagger.views import get_swagger_view
 
 def home(request):
     uuid = None

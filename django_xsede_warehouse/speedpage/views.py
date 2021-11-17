@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
@@ -8,6 +9,7 @@ from speedpage.serializers import *
 # Create your views here.
 class speedpage_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=speedpage_Serializer)
     def get(self, request, format=None):
         objects = speedpage.objects.all()
         serializer = speedpage_Serializer(objects, many=True)
@@ -15,6 +17,7 @@ class speedpage_List(APIView):
 
 class speedpage_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=speedpage_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'sourceid' in self.kwargs:
             if 'destid' in self.kwargs:

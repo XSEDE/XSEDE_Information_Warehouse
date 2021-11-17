@@ -1,6 +1,7 @@
 from django.http import *
 from django.shortcuts import render
 from django.utils.encoding import uri_to_iri
+from drf_spectacular.utils import extend_schema
 
 # Create your views here.
 from datetime import datetime
@@ -25,6 +26,7 @@ class goServices_List(APIView):
         Globus Online endpoints derived from GLUE2 Endpoint
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=goEndpointServices_Serializer)
     def get(self, request, format=None):
         endpoints = Endpoint.objects.filter(Name__exact='org.globus.gridftp')
         serializer = goEndpointServices_Serializer(endpoints,many=True)
@@ -35,6 +37,7 @@ class goServices_Detail(APIView):
         Globus Online endpoints derived from GLUE2 Endpoint
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=goEndpointServices_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
             try:
@@ -44,7 +47,7 @@ class goServices_Detail(APIView):
             serializer = goEndpointServices_Serializer(object)
         elif 'resourceid' in self.kwargs:
             objects = Endpoint.objects.filter(ResourceID__exact=self.kwargs['resourceid']).filter(Name__exact='org.globus.gridftp')
-            serializer = EndpointServices_Serializer(objects, many=True)
+            serializer = goEndpointServices_Serializer(objects, many=True)
         elif 'interfacename' in self.kwargs:
             objects = Endpoint.objects.filter(InterfaceName__exact=self.kwargs['interfacename']).filter(Name__exact='org.globus.gridftp')
             serializer = goEndpointServices_Serializer(objects, many=True)

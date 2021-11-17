@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.utils.encoding import uri_to_iri
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
@@ -22,6 +23,7 @@ import requests
 # Create your views here.
 class ApplicationEnvironment_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ApplicationEnvironment_Serializer)
     def get(self, request, format=None):
         objects = ApplicationEnvironment.objects.all()
         serializer = ApplicationEnvironment_Serializer(objects, many=True)
@@ -33,6 +35,7 @@ class Software_List(APIView):
         GLUE2 software combining ApplicationEnvironment and AppliactionHandle
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ApplicationHandle_Serializer)
     def get(self, request, format=None):
         objects = ApplicationHandle.objects.all()
         serializer = ApplicationHandle_Serializer(objects, many=True)
@@ -43,6 +46,7 @@ class Software_Detail(APIView):
         GLUE2 software combining ApplicationEnvironment and AppliactionHandle
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ApplicationHandle_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
             try:
@@ -64,6 +68,7 @@ class Services_List(APIView):
         GLUE2 services combining AbstractService and Endpoint
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=EndpointServices_Support_Serializer)
     def get(self, request, format=None):
         objects = Endpoint.objects.all()
         serializer = EndpointServices_Support_Serializer(objects, many=True)
@@ -74,6 +79,7 @@ class Services_Detail(APIView):
         GLUE2 services combining AbstractService and Endpoint
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=EndpointServices_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
             try:
@@ -99,6 +105,7 @@ class Jobqueue_List(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (GlobusAuthentication,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=ComputingQueue_Expand_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'resourceid' in self.kwargs:
             try:
@@ -121,6 +128,7 @@ class Job_Detail(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (GlobusAuthentication,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=ComputingActivity_Expand_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
             try:
@@ -139,6 +147,7 @@ class Job_List(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (GlobusAuthentication,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=ComputingActivity_Expand_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
             try:
@@ -172,6 +181,7 @@ class Jobs_per_Resource_by_ProfileID(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (GlobusAuthentication,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=ComputingActivity_Expand_Serializer)
     def get(self, request, format=None, **kwargs):
         import requests
         fullusername = None
@@ -201,6 +211,7 @@ class Jobs_by_ProfileID(APIView):
     authentication_classes = (GlobusAuthentication,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=ComputingActivity_Expand_Serializer)
     def get(self, request, format=None, **kwargs):
         import requests
         fullusername = None

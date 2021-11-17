@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
@@ -16,6 +17,7 @@ class RDRResource_List(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=RDRResource_Serializer_Plus)
     def get(self, request, format=None, **kwargs):
         if 'resourceid' in self.kwargs:
             objects = RDRResource.objects.filter(info_resourceid__exact=self.kwargs['resourceid'])
@@ -39,10 +41,10 @@ class RDRResource_Detail(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=RDRResource_Serializer)
     def get(self, request, format=None, **kwargs):
         try:
-            int(self.kwargs['id'])
-            object = RDRResource.objects.get(pk=self.kwargs['id'])
+            object = RDRResource.objects.get(pk=int(self.kwargs['id']))
         except ValueError:
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='ID parameter is not valid')
         except RDRResource.DoesNotExist:
@@ -56,6 +58,7 @@ class RDRResource_XUP_List(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,XMLRenderer,)
+    @extend_schema(responses=RDRResource_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'resourceid' in self.kwargs:
             objects = RDRResource.objects.filter(info_resourceid__exact=self.kwargs['resourceid'])
@@ -67,6 +70,7 @@ class RDRResource_XUP_List(APIView):
 class RDRResource_XUP_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,XMLRenderer,)
+    @extend_schema(responses=RDRResource_Serializer)
     def get(self, request, format=None, **kwargs):
         try:
             int(self.kwargs['id'])

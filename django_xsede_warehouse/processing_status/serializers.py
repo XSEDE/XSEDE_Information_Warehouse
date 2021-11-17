@@ -1,8 +1,10 @@
-from rest_framework import serializers
-from processing_status.models import *
 from django.utils.encoding import iri_to_uri
 from django.utils.http import urlquote
 from django.urls import reverse
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
+from rest_framework import serializers
+from processing_status.models import *
 import copy
 import json
 
@@ -17,12 +19,15 @@ class ProcessingRecord_DetailURL_DbSerializer(serializers.ModelSerializer):
     DetailURL = serializers.SerializerMethodField()
     HistoryURL = serializers.SerializerMethodField()
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_DetailURL(self, ProcessingRecord):
         http_request = self.context.get('request')
         if http_request:
             return http_request.build_absolute_uri(iri_to_uri(reverse('processingrecord-detail', kwargs={'id': ProcessingRecord.ID} )))
         else:
             return ''
+
+    @extend_schema_field(OpenApiTypes.STR)
     def get_HistoryURL(self, ProcessingRecord):
         # Not sure this works. Requires ProcessingMessage to be serialized Dict
         #       which we just started to do
@@ -37,6 +42,7 @@ class ProcessingRecord_DetailURL_DbSerializer(serializers.ModelSerializer):
                 return http_request.build_absolute_uri(iri_to_uri(reverse('entityhistory-detail', kwargs={'id': urlquote(historyid, safe='')} )))
         except:
             return ''
+
     class Meta:
         model = ProcessingRecord
         fields = copy.copy([f.name for f in ProcessingRecord._meta.get_fields(include_parents=False)])
@@ -44,6 +50,7 @@ class ProcessingRecord_DetailURL_DbSerializer(serializers.ModelSerializer):
 
 class PublisherInfo_DbSerializer(serializers.ModelSerializer):
     CreationTime = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S %Z')
+
     class Meta:
         model = PublisherInfo
         fields = copy.copy([f.name for f in PublisherInfo._meta.get_fields(include_parents=False)])
@@ -52,12 +59,14 @@ class PublisherInfo_DetailURL_DbSerializer(serializers.ModelSerializer):
     CreationTime = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S %Z')
     DetailURL = serializers.SerializerMethodField()
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_DetailURL(self, PublisherInfo):
         http_request = self.context.get('request')
         if http_request:
             return http_request.build_absolute_uri(iri_to_uri(reverse('publisherinfo-detail', args=[urlquote(PublisherInfo.ID, safe='')] )))
         else:
             return ''
+
     class Meta:
         model = PublisherInfo
         fields = copy.copy([f.name for f in PublisherInfo._meta.get_fields(include_parents=False)])

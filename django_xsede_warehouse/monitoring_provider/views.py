@@ -1,4 +1,6 @@
 from django.utils import timezone
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
 
 # Create your views here.
 from rest_framework import viewsets, status
@@ -8,8 +10,11 @@ from rest_framework.response import Response
 from monitoring_provider.process import Glue2ProcessRawMonitoring
 
 class Glue2ProcessDoc(APIView):
-#    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    '''
+        Process SP Monitoring document entities
+    '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(request=None, responses={201: OpenApiTypes.STR, 400: OpenApiTypes.STR})
     def post(self, request, doctype, resourceid, format=None):
         proc = Glue2ProcessRawMonitoring(application='monitoring_provider.views', function='Glue2ProcessDoc')
         ts = timezone.now()

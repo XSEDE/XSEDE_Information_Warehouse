@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
@@ -11,6 +12,7 @@ from outages.serializers import *
 # Create your views here.
 class Outages_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Outages_DetailURL_Serializer)
     def get(self, request, format=None):
         returnformat = request.query_params.get('format', 'json')
         try:
@@ -28,6 +30,7 @@ class Outages_List(APIView):
 
 class Outages_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Outages_Serializer)
     def get(self, request, format=None, **kwargs):
         returnformat = request.query_params.get('format', 'json')
         if 'id' in self.kwargs:
@@ -45,6 +48,7 @@ class Outages_Detail(APIView):
 
 class Outages_By_Resource(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Outages_Serializer)
     def get(self, request, format=None, **kwargs):
         returnformat = request.query_params.get('format', 'json')
         if 'ResourceID' in self.kwargs:
@@ -65,6 +69,7 @@ class Outages_By_Resource(APIView):
 
 class Outages_Current(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Outages_Serializer)
     def get(self, request, format=None, **kwargs):
         returnformat = request.query_params.get('format', 'json')
         try:
@@ -84,6 +89,7 @@ class Outages_Current(APIView):
 
 class Outages_Past(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Outages_Serializer)
     def get(self, request, format=None, **kwargs):
         returnformat = request.query_params.get('format', 'json')
         try:
@@ -104,6 +110,7 @@ class Outages_Past(APIView):
 
 class Outages_Future(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Outages_Serializer)
     def get(self, request, format=None, **kwargs):
         returnformat = request.query_params.get('format', 'json')
         try:
@@ -123,6 +130,7 @@ class Outages_Future(APIView):
 
 class Outages_StatusRelevant(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Outages_Serializer)
     def get(self, request, format=None, **kwargs):
         now = timezone.now()
         returnformat = request.query_params.get('format', 'json')

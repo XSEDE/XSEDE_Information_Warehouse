@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.utils.encoding import uri_to_iri
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
@@ -9,6 +10,7 @@ from monitoring_views_api.serializers import *
 # Create your views here.
 class Software_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=TestResult_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'resourceid' in self.kwargs:
             try:
@@ -35,6 +37,7 @@ class Software_List(APIView):
 
 class Service_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=TestResult_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'resourceid' in self.kwargs:
             try:
@@ -61,6 +64,7 @@ class Service_List(APIView):
 
 class Software_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=TestResult_Serializer)
     def get(self, request, format=None, **kwargs):
         returnformat = request.query_params.get('format', 'json')
         serializer = None
@@ -77,6 +81,7 @@ class Software_Detail(APIView):
 
 class Service_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=TestResult_Serializer)
     def get(self, request, format=None, **kwargs):
         returnformat = request.query_params.get('format', 'json')
         serializer = None

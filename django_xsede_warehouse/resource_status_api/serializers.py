@@ -1,6 +1,8 @@
 from django.urls import reverse, get_script_prefix
 from django.utils.encoding import uri_to_iri
 from django.utils import timezone
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
 from glue2_db.models import ComputingManager, ComputingManagerAcceleratorInfo, ComputingShare
@@ -32,6 +34,7 @@ class Resource_Status_Serializer(serializers.Serializer):
 
     Overall_Status = serializers.SerializerMethodField()
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_RDR_Declared_Status(self, RDRResource):
         if RDRResource.latest_status in ['production']:
             self.RDR_Label = 'Green'
@@ -58,6 +61,7 @@ class Resource_Status_Serializer(serializers.Serializer):
                 'Summary': self.RDR_Summary,
                 'References_URLs': RDR_URL}
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_Outage_Status(self, RDRResource):
         now = timezone.now()
         outsearch = Outages.objects.filter(ResourceID=RDRResource.info_resourceid, OutageStart__lte=now, OutageEnd__gte=now)
@@ -83,6 +87,7 @@ class Resource_Status_Serializer(serializers.Serializer):
                 'Summary': self.Outage_Summary,
                 'References_URLs': outurls}
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_Monitoring_Status(self, RDRResource):
         monsearch = TestResult.objects.filter(ResourceID=RDRResource.info_resourceid)
         monfail = set()
@@ -107,6 +112,7 @@ class Resource_Status_Serializer(serializers.Serializer):
                 'Summary': self.Monitor_Summary,
                 'Reference_URLs': monurls}
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_Overall_Status(self, RDRResource):
     #   Overall Status algorithm
     #   Red: RDR declared status is not Green(production) or Yellow(pre-production, post-production, friendly)
@@ -184,6 +190,7 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
 
     Overall_Status = serializers.SerializerMethodField()
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_RDR_Declared_Status(self, RDRResource):
         if RDRResource.latest_status in ['production']:
             self.RDR_Label = 'Green'
@@ -210,6 +217,7 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
                 'Summary': self.RDR_Summary,
                 'References_URLs': RDR_URL}
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_Outage_Status(self, RDRResource):
         now = timezone.now()
         outsearch = Outages.objects.filter(ResourceID=RDRResource.info_resourceid, OutageStart__lte=now, OutageEnd__gte=now)
@@ -235,6 +243,7 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
                 'Summary': self.Outage_Summary,
                 'References_URLs': outurls}
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_Monitoring_Status(self, RDRResource):
         monsearch = TestResult.objects.filter(ResourceID=RDRResource.info_resourceid)
         monfail = set()
@@ -260,6 +269,7 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
                 'Summary': self.Monitor_Summary,
                 'Reference_URLs': monurls}
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_Publishing_Status(self, RDRResource):
         pubsearch = ProcessingRecord.objects.filter(About=RDRResource.info_resourceid)
         puberror = set()
@@ -306,6 +316,7 @@ class Resource_Ops_Status_Serializer(serializers.Serializer):
             'Summary': self.Publishing_Summary,
             'Reference_URLs': puburls}
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_Overall_Status(self, RDRResource):
     #   Overall Status algorithm
     #   Red: RDR declared status is not Green(production) or Yellow(pre-production, post-production, friendly)
@@ -376,6 +387,7 @@ class Resource_Batch_Status_Serializer(serializers.Serializer):
 
 #    Computing_Queue_Info = serializers.SerializerMethodField()
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_Computing_Manager_Info(self, RDRResource):
         managers = ComputingManager.objects.filter(ResourceID=RDRResource.info_resourceid)
         results = {}
@@ -389,6 +401,7 @@ class Resource_Batch_Status_Serializer(serializers.Serializer):
             break
         return(results)
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_Computing_Manager_Accelerator_Info(self, RDRResource):
         managers = ComputingManagerAcceleratorInfo.objects.filter(ResourceID=RDRResource.info_resourceid)
         results = {}
@@ -400,6 +413,7 @@ class Resource_Batch_Status_Serializer(serializers.Serializer):
             break
         return(results)
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_Computing_Share_Info(self, RDRResource):
         shares = ComputingShare.objects.filter(ResourceID=RDRResource.info_resourceid)
         results = dict((i, 0) for i in ('TotalJobs', 'RunningJobs', 'WaitingJobs', 'SuspendedJobs'))
@@ -417,9 +431,11 @@ class Resource_Batch_Status_Serializer(serializers.Serializer):
         else:
             return(results)
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_Computing_Share_Accelerator_Info(self, RDRResource):
         return({})
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_Computing_Queue_Info(self, RDRResource):
         return({})
 

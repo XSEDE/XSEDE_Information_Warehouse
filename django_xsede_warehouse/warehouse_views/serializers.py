@@ -1,4 +1,6 @@
 from django.utils import timezone
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
 from glue2_db.models import ApplicationEnvironment, ApplicationHandle, Endpoint, ComputingManager, ExecutionEnvironment
@@ -35,6 +37,7 @@ class Generic_Resource_Serializer(serializers.ModelSerializer):
                   'OrganizationAbbrev', 'OrganizationName',
                   'AmieName','PopsName', 'XcdbName')
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_OrganizationAbbrev(self, RDRResource):
         try:
             XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
@@ -43,6 +46,7 @@ class Generic_Resource_Serializer(serializers.ModelSerializer):
         except TGResource.DoesNotExist:
             pass
         return None
+    @extend_schema_field(OpenApiTypes.STR)
     def get_OrganizationName(self, RDRResource):
         try:
             XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
@@ -51,6 +55,7 @@ class Generic_Resource_Serializer(serializers.ModelSerializer):
         except TGResource.DoesNotExist:
             pass
         return None
+    @extend_schema_field(OpenApiTypes.STR)
     def get_AmieName(self, RDRResource):
         try:
             XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
@@ -59,6 +64,7 @@ class Generic_Resource_Serializer(serializers.ModelSerializer):
         except TGResource.DoesNotExist:
             pass
         return None
+    @extend_schema_field(OpenApiTypes.STR)
     def get_PopsName(self, RDRResource):
         try:
             XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
@@ -67,6 +73,7 @@ class Generic_Resource_Serializer(serializers.ModelSerializer):
         except TGResource.DoesNotExist:
             pass
         return None
+    @extend_schema_field(OpenApiTypes.STR)
     def get_XcdbName(self, RDRResource):
         try:
             XCDB_object = TGResource.objects.get(pk=RDRResource.info_resourceid)
@@ -91,6 +98,7 @@ class Software_Full_Serializer(serializers.ModelSerializer):
         fields = ('ResourceID', 'SiteID', 'AppName', 'AppVersion', 'Description', 'Handle', 'Domain',
                   'Keywords', 'SupportStatus', 'Repository', 'CreationTime','ID')
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_siteid(self, ApplicationHandle):
         try:
             RDR_object = RDRResource.objects.filter(rdr_type='resource').filter(info_resourceid=ApplicationHandle.ResourceID)
@@ -100,29 +108,34 @@ class Software_Full_Serializer(serializers.ModelSerializer):
             pass
         return None
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_handle(self, ApplicationHandle):
         return({'HandleType': ApplicationHandle.Type,
                 'HandleKey': ApplicationHandle.Value
                })
     
+    @extend_schema_field(OpenApiTypes.STR)
     def get_category(self, ApplicationHandle):
         try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['Category']
         except:
             return []
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_keywords(self, ApplicationHandle):
         try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Keywords']
         except:
             return []
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_supportstatus(self, ApplicationHandle):
         try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['SupportStatus']
         except:
             return []
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_repository(self, ApplicationHandle):
         try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Repository']
@@ -146,6 +159,7 @@ class Software_Community_Serializer(serializers.ModelSerializer):
         fields = ('ResourceID', 'SiteID', 'AppName', 'AppVersion', 'Description', 'Handle', 'Domain',
                   'Keywords', 'SupportStatus', 'SupportContact', 'Repository', 'CreationTime', 'ID')
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_siteid(self, ApplicationHandle):
         try:
             RDR_object = RDRResource.objects.filter(rdr_type='resource').filter(info_resourceid=ApplicationHandle.ResourceID)
@@ -155,35 +169,41 @@ class Software_Community_Serializer(serializers.ModelSerializer):
             pass
         return None
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_handle(self, ApplicationHandle):
         return({'HandleType': ApplicationHandle.Type,
                 'HandleKey': ApplicationHandle.Value
                })
     
+    @extend_schema_field(OpenApiTypes.STR)
     def get_category(self, ApplicationHandle):
         try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['Category']
         except:
             return []
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_keywords(self, ApplicationHandle):
         try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Keywords']
         except:
             return []
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_supportstatus(self, ApplicationHandle):
         try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['SupportStatus']
         except:
             return []
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_supportcontact(self, ApplicationHandle):
         try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Extension']['SupportContact']
         except:
             return []
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_repository(self, ApplicationHandle):
         try:
             return ApplicationHandle.ApplicationEnvironment.EntityJSON['Repository']
@@ -214,9 +234,11 @@ class SGCI_Resource_Serializer_100(serializers.ModelSerializer):
                 pass
         return rep
         
+    @extend_schema_field(OpenApiTypes.STR)
     def get_schemaVersion(self, RDRResource):
         return('1.0.0')
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_computeResources(self, RDRResource):
         if RDRResource.rdr_type != 'compute':
             return(None)
@@ -303,6 +325,7 @@ class SGCI_Resource_Serializer_100(serializers.ModelSerializer):
         result = [batch, fork]
         return(result)
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_storageResources(self, RDRResource):
         if RDRResource.rdr_type != 'storage':
             return(None)
@@ -352,6 +375,7 @@ class SGCI_Resource_Serializer_100(serializers.ModelSerializer):
         result = [storage]
         return(result)
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_resourceStatus(self, RDRResource):
         status = {'status': RDRResource.latest_status.capitalize()}
         if RDRResource.latest_status_begin:
@@ -360,6 +384,7 @@ class SGCI_Resource_Serializer_100(serializers.ModelSerializer):
             status['ends'] = '{:%Y-%m-%d}'.format(RDRResource.latest_status_end)
         return(status)
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_resourceOutages(self, RDRResource):
         now = timezone.now()
         outages = []

@@ -1,5 +1,7 @@
 from django.urls import reverse
 from django.utils.encoding import uri_to_iri
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from .models import *
 import copy
@@ -7,6 +9,7 @@ import copy
 class Catalog_List_Serializer(serializers.ModelSerializer):
     DetailURL = serializers.SerializerMethodField()
     
+    @extend_schema_field(OpenApiTypes.STR)
     def get_DetailURL(self, ResourceV3Catalog):
         http_request = self.context.get('request')
         if http_request:
@@ -27,6 +30,7 @@ class Catalog_Detail_Serializer(serializers.ModelSerializer):
 class Local_List_Serializer(serializers.ModelSerializer):
     DetailURL = serializers.SerializerMethodField()
     
+    @extend_schema_field(OpenApiTypes.STR)
     def get_DetailURL(self, ResourceV3Local):
         http_request = self.context.get('request')
         if http_request:
@@ -55,6 +59,7 @@ class Resource_Detail_Serializer(serializers.ModelSerializer):
     DetailURL = serializers.SerializerMethodField()
     EntityJSON = serializers.SerializerMethodField()
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_Relations(self, ResourceV3):
         relations = []
         http_request = self.context.get('request')
@@ -85,6 +90,7 @@ class Resource_Detail_Serializer(serializers.ModelSerializer):
 #            pass
         return(relations)
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_DetailURL(self, ResourceV3):
         http_request = self.context.get('request')
         if http_request:
@@ -92,6 +98,7 @@ class Resource_Detail_Serializer(serializers.ModelSerializer):
         else:
             return ''
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_EntityJSON(self, ResourceV3):
         try:
             local = ResourceV3Local.objects.get(pk=ResourceV3.ID)
@@ -113,6 +120,7 @@ class Resource_Search_Serializer(serializers.ModelSerializer):
     Provider = serializers.SerializerMethodField()
     DetailURL = serializers.SerializerMethodField()
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_Provider(self, ResourceV3):
 #        try:
 #            provider = ResourceV3Provider.objects.get(pk=ResourceV3.ProviderID)
@@ -122,6 +130,7 @@ class Resource_Search_Serializer(serializers.ModelSerializer):
 #            pass
         return(None)
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_DetailURL(self, ResourceV3):
         http_request = self.context.get('request')
         if http_request:

@@ -1,3 +1,10 @@
+tag-3.0-20210916
+  - Django 3.0 driven replacement of swagger with drf_spectacular
+  - DJango 3.0 driven identify response serializers
+  - Django 3.0 driven declare response serializer field types
+  - Switch from url() to path() to <type:parameters>
+  - Retire applications: resource_cat and resource_v2
+
 tag-2.4-20210912
   - Revert ES Document update_or_create 
 

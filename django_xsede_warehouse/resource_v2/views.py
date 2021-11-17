@@ -3,6 +3,7 @@ from django.db.models import Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
@@ -249,6 +250,7 @@ class Resource_Detail(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Resource_Detail_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_id = request.GET.get('id', kwargs.get('id', None))
         arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
@@ -321,6 +323,7 @@ class Resource_Search(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Resource_Search_Serializer)
     def get(self, request, format=None, **kwargs):
         # Process optional arguments
         arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
@@ -469,6 +472,7 @@ class Resource_Provider_List(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=ResourceProvider_Search_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
         if arg_affiliation:
@@ -528,6 +532,7 @@ class Resource_Types_List(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Resource_Types_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
         if arg_affiliation:
@@ -593,6 +598,7 @@ class Event_Search(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Resource_Event_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
         if arg_affiliation:
@@ -727,6 +733,7 @@ class Guide_Detail(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Guide_Detail_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_id = request.GET.get('id', kwargs.get('id', None))
         arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
@@ -784,6 +791,7 @@ class Guide_Search(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Guide_Search_Serializer)
     def get(self, request, format=None, **kwargs):
         # Process optional arguments
         arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))

@@ -1,7 +1,9 @@
-from rest_framework import serializers
-from outages.models import *
 from django.utils.encoding import uri_to_iri
 from django.urls import reverse, get_script_prefix
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
+from rest_framework import serializers
+from outages.models import *
 import copy
 
 class Outages_Serializer(serializers.ModelSerializer):
@@ -14,6 +16,7 @@ class Outages_DetailURL_Serializer(serializers.ModelSerializer):
     OutageEnd = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S %Z')
     DetailURL = serializers.SerializerMethodField()
     
+    @extend_schema_field(OpenApiTypes.STR)
     def get_DetailURL(self, Outages):
         http_request = self.context.get('request')
         if http_request:
