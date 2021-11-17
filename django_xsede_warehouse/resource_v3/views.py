@@ -6,17 +6,18 @@ from django.urls import reverse
 from django.utils.encoding import uri_to_iri
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
+from drf_spectacular.utils import extend_schema
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework_xml.renderers import XMLRenderer
 from rest_framework.response import Response
-from rest_framework import status
 from .models import *
 from .serializers import *
 from xsede_warehouse.exceptions import MyAPIException
 from xsede_warehouse.responses import MyAPIResponse
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, RequestError
 from elasticsearch_dsl import Search, Q, A
 import datetime
 from datetime import datetime, timedelta
@@ -46,6 +47,7 @@ class Catalog_Search(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Catalog_List_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
         if arg_affiliations and arg_affiliations not in ['_all_', '*']:
@@ -79,6 +81,7 @@ class Catalog_Detail(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Catalog_Detail_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_id = request.GET.get('id', kwargs.get('id', None))
         if not arg_id:
@@ -122,6 +125,7 @@ class Local_Search(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Local_List_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_affiliation = request.GET.get('affiliation', kwargs.get('affiliation', None))
         if not arg_affiliation:
@@ -192,6 +196,7 @@ class Local_Detail(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Local_Detail_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_id = request.GET.get('id', kwargs.get('id', None))
         if not arg_id:
@@ -229,6 +234,7 @@ class Resource_Types_List(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Resource_Types_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
         if arg_affiliations and arg_affiliations not in ['_all_', '*']:
@@ -444,6 +450,7 @@ class Resource_Detail(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Resource_Detail_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_id = request.GET.get('id', kwargs.get('id', None))
         if not arg_id:
@@ -488,6 +495,7 @@ class Resource_Search(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Resource_Search_Serializer)
     def get(self, request, format=None, **kwargs):
         # Process optional arguments
         arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
@@ -659,6 +667,7 @@ class Resource_ESearch(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(request=None, responses={200: OpenApiTypes.OBJECT, 400: OpenApiTypes.STR, 503: OpenApiTypes.STR})
     def get(self, request, format=None, **kwargs):
         if not django_settings.ESCON:
             raise MyAPIException(code=status.HTTP_503_SERVICE_UNAVAILABLE, detail='Elasticsearch not available')
@@ -902,6 +911,17 @@ class Resource_ESearch(APIView):
                         buckets.append(bucket)
                     response_obj['aggregations'][aggkey] = buckets
 
+        except RequestError as exc:
+            if exc.error == 'search_phase_execution_exception':
+                try:
+                    reason = exc.info['error']['root_cause'][0]['reason']
+                    if not reason.startswith('Result window is too large'):
+                        pass
+                finally:
+                    logg2.warning(exc)
+                    raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Unable to page that far into results, narrow your search') from None
+            logg2.info(exc, exc_info=True)
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
         except Exception as exc:
             logg2.info(exc, exc_info=True)
             raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
@@ -924,6 +944,7 @@ class Event_Detail(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Resource_Detail_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_id = request.GET.get('id', kwargs.get('id', None))
         if not arg_id:
@@ -968,6 +989,7 @@ class Event_Search(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Resource_Event_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_affiliations = request.GET.get('affiliations', kwargs.get('affiliations', None))
         if arg_affiliations and arg_affiliations not in ['_all_', '*']:
@@ -1111,8 +1133,9 @@ class Relations_Cache(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,)
+    @extend_schema(request=None, responses={200: OpenApiTypes.OBJECT})
     def get(self, request, format='json', **kwargs):
         start_utc = datetime.now(timezone.utc)
         count = ResourceV3Index.Cache_Lookup_Relations()
         response_obj = {'cached': count, 'seconds': (datetime.now(timezone.utc) - start_utc).total_seconds()}
-        return MyAPIResponse(response_obj)
+        return MyAPIResponse(response_obj, code=status.HTTP_200_OK)

@@ -58,8 +58,6 @@ INSTALLED_APPS = (
     'processing_status',
     'projectresources',
     'rdr_db',
-    'resource_cat',
-    'resource_v2',
     'resource_v3',
     'resource_status_api',
     'speedpage',
@@ -68,6 +66,10 @@ INSTALLED_APPS = (
     'xdcdb',
     'xdinfo',
 )
+#INSTALLED_APPS_RETIRED = (
+#    'resource_cat',
+#    'resource_v2',
+#)
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -261,7 +263,7 @@ if SETTINGS_MODE == 'SERVER':
         'django.contrib.staticfiles',
         'mp_auth',
         'rest_framework',
-        'rest_framework_swagger',
+        'drf_spectacular',
         'social_django',
     )
 
@@ -291,12 +293,14 @@ if SETTINGS_MODE == 'SERVER':
         'GET'
     )
 
-    SWAGGER_SETTINGS = {
-        "exclude_namespaces": ["internal_apis"],    #  List URL namespaces to ignore
+#from xsede_warehouse.apidoc_filter import filter_internal_apis
+    SPECTACULAR_SETTINGS = {
+        'TITLE': 'XSEDE Information Services API',
+        'DESCRIPTION': 'Provides API access to XSEDE aggregated information services',
+        'VERSION': '1.0.0',
+        'PREPROCESSING_HOOKS': ['xsede_warehouse.hooks.remove_internal_apis'],
     }
-    if 'SUB_SITE' in CONF:
-        SWAGGER_SETTINGS['api_path'] = '/{}'.format(CONF['SUB_SITE'])
-
+    
     ROOT_URLCONF = 'xsede_warehouse.urls'
 
     TEMPLATES = [
@@ -375,7 +379,7 @@ if SETTINGS_MODE == 'SERVER':
            'rest_framework.renderers.BrowsableAPIRenderer',
            'rest_framework_xml.renderers.XMLRenderer',
         ],
-        'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+        'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
         'PAGINATE_BY': 10,
     }
 
@@ -387,6 +391,7 @@ if SETTINGS_MODE == 'SERVER':
             }
         },
     }
+    from xsede_warehouse.globus_oauth_toolkit import *
 
     #
     # Social Auth

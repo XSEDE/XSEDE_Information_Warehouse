@@ -1,9 +1,10 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
-from django.http import HttpResponse
 from xdinfo.models import *
 from xdinfo.serializers import *
 from glue2_db.models import *
@@ -26,6 +27,7 @@ class xdinfo_Cmd(APIView):
         version = '1'
         return('API version {}'.format(version))
 
+    @extend_schema(request=None, responses={200: OpenApiTypes.OBJECT})
     def get(self, request, format=None, **kwargs):
         #print self.kwargs
         infoformat = self.kwargs.get('infoformat', 'csv')
@@ -283,13 +285,3 @@ class xdinfo_Cmd(APIView):
 Additional documentation available at https://software.xsede.org/production/xdinfo/latest/User_Documentation.html"""
 
         return helpstring
-
-# Deprecated during Python 3 upgrade
-#def safe_unicode(obj, *args):
-#    """ return the unicode representation of obj """
-#    try:
-#        return unicode(obj, *args)
-#    except UnicodeDecodeError:
-#        # obj is byte string
-#        ascii_text = str(obj).encode('string_escape')
-#        return unicode(ascii_text)

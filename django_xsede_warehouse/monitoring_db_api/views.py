@@ -1,6 +1,8 @@
 from django.http import *
 from django.shortcuts import render
 from django.utils.encoding import uri_to_iri
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
 
 # Create your views here.
 from datetime import datetime
@@ -16,11 +18,12 @@ logg2 = logging.getLogger('xsede.logger')
 
 class TestResult_DbList(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=TestResult_DbSerializer)
     def get(self, request, format=None):
         objects = TestResult.objects.all()
         serializer = TestResult_DbSerializer(objects, many=True)
         return Response(serializer.data)
-
+    @extend_schema(request=TestResult_DbSerializer, responses=TestResult_DbSerializer)
     def post(self, request, format=None):
         serializer = TestResult_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -30,6 +33,7 @@ class TestResult_DbList(APIView):
 
 class TestResult_DbDetail_Source(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=TestResult_DbSerializer)
     def get(self, request, format=None):
         path_info = request.META.get('PATH_INFO',None)
         serializer = None
@@ -40,7 +44,7 @@ class TestResult_DbDetail_Source(APIView):
             objects = TestResult.objects.filter(Source__exact='nagios')
             serializer = TestResult_DbSerializer(objects, many=True)
         return Response(serializer.data)
-
+    @extend_schema(request=TestResult_DbSerializer, responses=TestResult_DbSerializer)
     def post(self, request, format=None):
         path_info = request.META.get('PATH_INFO', None)
         if 'inca' or 'nagios' in path_info:
@@ -52,6 +56,7 @@ class TestResult_DbDetail_Source(APIView):
 
 class TestResult_DbDetail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=TestResult_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = TestResult.objects.get(pk=pk)
@@ -59,6 +64,7 @@ class TestResult_DbDetail(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = TestResult_DbSerializer(object)
         return Response(serializer.data)
+    @extend_schema(request=TestResult_DbSerializer, responses=TestResult_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = TestResult.objects.get(pk=pk)
@@ -69,6 +75,7 @@ class TestResult_DbDetail(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = TestResult.objects.get(pk=pk)

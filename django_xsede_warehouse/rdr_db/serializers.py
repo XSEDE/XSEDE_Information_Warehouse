@@ -1,7 +1,9 @@
-from rdr_db.models import *
-from rest_framework import serializers
 from django.utils.encoding import uri_to_iri
 from django.urls import reverse, get_script_prefix
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
+from rdr_db.models import *
+from rest_framework import serializers
 import copy
 
 class RDRResource_Serializer(serializers.ModelSerializer):
@@ -13,6 +15,7 @@ class RDRResource_Serializer_Plus(serializers.ModelSerializer):
     DetailURL = serializers.SerializerMethodField()
     updated_at = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S %Z')
     
+    @extend_schema_field(OpenApiTypes.STR)
     def get_DetailURL(self, RDRResource):
         http_request = self.context.get('request')
         if http_request:
@@ -31,12 +34,16 @@ class RDR_CSA_Serializer(serializers.ModelSerializer):
     gateway_recommended_use = serializers.SerializerMethodField()
     gateway_support_attributes = serializers.SerializerMethodField()
     
+    @extend_schema_field(OpenApiTypes.STR)
     def get_csa_feature_user_description(self, RDRResource):
         return RDRResource.other_attributes['community_software_area_feature_user_description']
+    @extend_schema_field(OpenApiTypes.STR)
     def get_csa_email(self, RDRResource):
         return RDRResource.other_attributes['community_software_area_email']
+    @extend_schema_field(OpenApiTypes.STR)
     def get_gateway_recommended_use(self, RDRResource):
         return RDRResource.other_attributes['gateway_recommended_use']
+    @extend_schema_field(OpenApiTypes.STR)
     def get_gateway_support_attributes(self, RDRResource):
         try:
             return ', '.join(RDRResource.other_attributes['gateway_support']['gateway_support_attributes'])

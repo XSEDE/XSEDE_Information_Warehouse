@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.urls import include, path
 from .views import *
 from django.views.decorators.cache import cache_page
 
@@ -6,35 +6,24 @@ from django.views.decorators.cache import cache_page
 # Additionally, we include login URLs for the browseable API.
 # Special reg for resource/id/<id> in case there are slashes in the 'id'
 urlpatterns = [
-    url(r'^catalog_search/?$',
+    path(r'catalog_search/',
         Catalog_Search.as_view(), name='catalog-search'),
-    url(r'^catalog/id/(?P<id>.+)/$',
+    path(r'catalog/id/<str:id>/',
         Catalog_Detail.as_view(), name='catalog-detail'),
-    url(r'^local/id/(?P<id>.+)/$',
+    path(r'local/id/<str:id>/',
         Local_Detail.as_view(), name='local-detail-globalid'),
-    url(r'^local_search/?$',
+    path(r'local_search/',
         Local_Search.as_view(), name='local-search'),
-#    url(r'^provider/id/(?P<id>.+)/$',
-#        Provider_Detail.as_view(), name='provider-detail'),
-#    url(r'^provider_search/?$',
-##        cache_page(60 * 60)(Provider_Search.as_view()), name='provider-search'),
-#        Provider_Search.as_view(), name='provider-search'),
-    url(r'^resource_types/?$',
+    path(r'resource_types/',
         cache_page(60 * 60)(Resource_Types_List.as_view()), name='resource-types-list'),
-    url(r'^resource/id/(?P<id>.+)/$',
+    path(r'resource/id/<str:id>/',
         Resource_Detail.as_view(), name='resource-detail'),
-    url(r'^resource_search/?$',
+    path(r'resource_search/',
         Resource_Search.as_view(), name='resource-search'),
-    url(r'^resource_esearch/?$',
+    path(r'resource_esearch/',
         Resource_ESearch.as_view(), name='resource-esearch'),
-    url(r'^event/id/(?P<id>.+)/$',
+    path(r'event/id/<str:id>/',
         Event_Detail.as_view(), name='event-detail'),
-    url(r'^event_search/?$',
+    path(r'event_search/',
         Event_Search.as_view(), name='event-search'),
-#    url(r'^relations_cache/?$',
-#        Relations_Cache.as_view(), name='relations-cache'),
-#    url(r'^guide/id/(?P<id>.+)/$',
-#        Guide_Detail.as_view(), name='guide-detail'),
-#    url(r'^guide_search/?$',
-#        Guide_Search.as_view(), name='guide-search'),
 ]

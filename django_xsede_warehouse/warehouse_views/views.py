@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from django.utils.encoding import uri_to_iri
 from django.urls import reverse, get_script_prefix
+from drf_spectacular.utils import extend_schema, extend_schema_field
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
@@ -38,6 +39,7 @@ class RDR_List(APIView):
             target="_blank">More API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=RDRResource_Serializer_Plus)
     def get(self, request, format=None, **kwargs):
         returnformat = request.query_params.get('format', None)
         active_resourceids = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='ALL', result='RESOURCEID')
@@ -82,6 +84,7 @@ class RDR_List_Active(APIView):
             target="_blank">More API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=RDRResource_Serializer_Plus)
     def get(self, request, format=None):
         returnformat = request.query_params.get('format', None)
         try:
@@ -113,6 +116,7 @@ class Resource_List_XDCDB_Active(APIView):
             target="_blank">More API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=XSEDEResource_Serializer)
     def get(self, request, format=None):
         active_resourceids = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='ALL', result='RESOURCEID')
         sort_by = request.GET.get('sort', 'ResourceID')
@@ -143,6 +147,7 @@ class Resource_List_CSA_Active(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=RDR_CSA_Serializer)
     def get(self, request, format=None):
         csa_resources = RDR_Active_Resources(affiliation='XSEDE', allocated=False, type='SUB', result='OBJECTS')
         objects = []
@@ -170,6 +175,7 @@ class Resource_List_SGCI_Active_100(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=SGCI_Resource_Serializer_100)
     def get(self, request, format=None):
         objects = RDR_Active_Resources_V2(affiliation='XSEDE', allocated=True, type='SUB', result='OBJECTS')
         serializer = SGCI_Resource_Serializer_100(objects, many=True)
@@ -193,6 +199,7 @@ class RDR_Detail(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=Generic_Resource_Serializer)
     def get(self, request, format=None, **kwargs):
         rdrid = request.GET.get('rdrid', kwargs.get('rdrid', None))
         resourceid = request.GET.get('resourceid', kwargs.get('resourceid', None))
@@ -230,6 +237,7 @@ class Software_Full(APIView):
             target="_blank">More API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Software_Community_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
             try:
@@ -263,6 +271,7 @@ class Software_XUP_v1_List(APIView):
             target="_blank">More API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Software_Full_Serializer)
     def get(self, request, format=None):
         active_resourceids = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='SUB', result='RESOURCEID')
         xsede_contact = 'https://info.xsede.org/wh1/xcsr-db/v1/supportcontacts/globalid/helpdesk.xsede.org/'
@@ -282,6 +291,7 @@ class Community_Software_XUP_v1_List(APIView):
             target="_blank">More API documentation</a>
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Software_Community_Serializer)
     def get(self, request, format=None):
         xsede_contact = 'https://info.xsede.org/wh1/xcsr-db/v1/supportcontacts/globalid/helpdesk.xsede.org/'
         objects = ApplicationHandle.objects.exclude(ApplicationEnvironment__EntityJSON__Extension__SupportContact__exact=xsede_contact)

@@ -1,7 +1,7 @@
 import csv
 from django.http import HttpResponse
-
 from django.utils.encoding import uri_to_iri
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
@@ -22,6 +22,7 @@ from xsede_warehouse.responses import MyAPIResponse
 class ProcessingRecord_DbList(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=ProcessingRecord_DetailURL_DbSerializer)
     def get(self, request, format=None, **kwargs):
         if 'about' in self.kwargs:
             try:
@@ -49,6 +50,7 @@ class ProcessingRecord_DbList(APIView):
 class ProcessingRecord_LatestList(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=ProcessingRecord_DbSerializer)
     def get(self, request, format=None, **kwargs):
         if 'about' in self.kwargs:
             try:
@@ -68,6 +70,7 @@ class ProcessingRecord_LatestList(APIView):
 class ProcessingRecord_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=ProcessingRecord_DbSerializer)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
             try: #uri_to_iri(
@@ -84,6 +87,7 @@ class ProcessingRecord_Detail(APIView):
 class PublisherInfo_DbList(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=PublisherInfo_DetailURL_DbSerializer)
     def get(self, request, format=None, **kwargs):
         if 'resourceid' in self.kwargs:
             try:
@@ -107,6 +111,7 @@ class PublisherInfo_DbList(APIView):
 class PublisherInfo_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=PublisherInfo_DbSerializer)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
             try:

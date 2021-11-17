@@ -3,6 +3,7 @@
 from django.db.models import Q
 from django.shortcuts import render
 from django.utils.encoding import uri_to_iri
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 #from rest_framework.renderers import JSONRenderer
@@ -19,6 +20,7 @@ from xsede_warehouse.responses import MyAPIResponse
 
 class Resource_Status_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Resource_Status_Serializer)
     def get(self, request, format=None, **kwargs):
         returnformat = request.query_params.get('format', 'json')
         #Note:  the query_param 'format' is used for magical things 
@@ -47,6 +49,7 @@ class Resource_Status_Detail(APIView):
 
 class Resource_Ops_Status_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Resource_Ops_Status_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'resourceid' in self.kwargs:
             try:
@@ -60,6 +63,7 @@ class Resource_Ops_Status_Detail(APIView):
 
 class Resource_Batch_Status_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Resource_Batch_Status_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'resourceid' in self.kwargs:
             try:

@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django.shortcuts import render
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.authentication import BasicAuthentication
@@ -18,6 +19,7 @@ from xsede_warehouse.responses import MyAPIResponse
 class XSEDEResource_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=XSEDEResource_DetailURL_Serializer)
     def get(self, request, format=None, **kwargs):
         try:
             sort_by = request.GET.get('sort')
@@ -31,6 +33,7 @@ class XSEDEResource_List(APIView):
 class XSEDEResource_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=XSEDEResource_Serializer)
     def get(self, request, format=None, **kwargs):
         returnformat = request.query_params.get('format', 'json')
         if 'id' in self.kwargs:
@@ -50,6 +53,7 @@ class XSEDEResource_Detail(APIView):
 class XSEDEResourcePublished_Detail(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=XSEDEResourcePublished_Serializer)
     def get (self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
             try:
@@ -72,6 +76,7 @@ class XSEDEPerson_Detail(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (GlobusAuthentication,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=XSEDEPerson_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'id' in self.kwargs:
             try:
@@ -108,6 +113,7 @@ class XSEDEPerson_Search(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (GlobusAuthentication,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=XSEDEPerson_Serializer)
     def get(self, request, format=None, **kwargs):
         search_strings = kwargs.get('search_strings', request.GET.get('search_strings', None))
         if search_strings is None or search_strings == '':
@@ -153,6 +159,7 @@ class XSEDEFos_List(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=XSEDEFos_DetailURL_Serializer)
     def get(self, request, format=None, **kwargs):
         arg_strings = request.GET.get('search_strings', None)
         if arg_strings:
@@ -254,6 +261,7 @@ class XSEDEFos_Detail(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=XSEDEFos_Serializer)
     def get(self, request, format=None, **kwargs):
         returnformat = request.query_params.get('format', 'json')
         if not 'id' in self.kwargs:

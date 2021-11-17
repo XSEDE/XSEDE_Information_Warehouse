@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.renderers import JSONRenderer
 from rest_framework_xml.renderers import XMLRenderer
+from drf_spectacular.utils import extend_schema
 from rdr_db.filters import RDR_Active_Resources
 from rdr_db.serializers import RDRResource_Serializer
 from xsede_warehouse.responses import MyAPIResponse
@@ -14,6 +15,7 @@ class RDRResource_XUP_v3_List(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,XMLRenderer,)
+    @extend_schema(responses=RDRResource_Serializer)
     def get(self, request):
         objects = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='ALL', result='OBJECTS')
         serializer = RDRResource_Serializer(objects, many=True)

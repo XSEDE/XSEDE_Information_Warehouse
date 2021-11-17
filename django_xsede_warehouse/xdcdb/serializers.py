@@ -1,9 +1,11 @@
+from django.utils.encoding import uri_to_iri
+from django.urls import reverse, get_script_prefix
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from xdcdb.models import *
 from glue2_db.models import *
 from glue2_db.serializers import *
-from django.utils.encoding import uri_to_iri
-from django.urls import reverse, get_script_prefix
 import copy
 
 class XSEDEResource_Serializer(serializers.ModelSerializer):
@@ -15,6 +17,7 @@ class XSEDEResource_DetailURL_Serializer(serializers.ModelSerializer):
     Timestamp = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S %Z')
     DetailURL = serializers.SerializerMethodField()
     
+    @extend_schema_field(OpenApiTypes.STR)
     def get_DetailURL(self, TGResource):
         http_request = self.context.get('request')
         if http_request:
@@ -40,6 +43,7 @@ class XSEDEResourcePublished_Serializer(serializers.Serializer):
     ResourceDescription = serializers.CharField()
     Timestamp = serializers.DateTimeField()
     
+    @extend_schema_field(OpenApiTypes.STR)
     def get_resourcename(self, TGResource):
         glue2search = ApplicationEnvironment.objects.filter(ResourceID=TGResource.ResourceID)
         if glue2search:
@@ -47,6 +51,8 @@ class XSEDEResourcePublished_Serializer(serializers.Serializer):
         else:
             return ""
         return glue2info.Name 
+
+    @extend_schema_field(OpenApiTypes.STR)
     def get_resourcekits(self, TGResource):
         glue2search = ApplicationEnvironment.objects.filter(ResourceID=TGResource.ResourceID)
         if glue2search:
@@ -73,6 +79,7 @@ class XSEDEPerson_Serializer(serializers.Serializer):
     addressesJSON = serializers.JSONField()
     DetailURL = serializers.SerializerMethodField()
     
+    @extend_schema_field(OpenApiTypes.STR)
     def get_DetailURL(self, XSEDEPerson):
         http_request = self.context.get('request')
         if http_request:
@@ -93,6 +100,7 @@ class XSEDEFos_Serializer(serializers.ModelSerializer):
 class XSEDEFos_DetailURL_Serializer(serializers.ModelSerializer):
     DetailURL = serializers.SerializerMethodField()
     
+    @extend_schema_field(OpenApiTypes.STR)
     def get_DetailURL(self, XSEDEFos):
         http_request = self.context.get('request')
         if http_request:

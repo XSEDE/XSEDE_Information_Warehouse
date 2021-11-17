@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django.shortcuts import render
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.renderers import JSONRenderer
@@ -20,6 +21,7 @@ class RDRResource_XUP_v2_List(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 #    renderer_classes = (JSONRenderer,XMLRenderer,TemplateHTMLRenderer,)
     renderer_classes = (JSONRenderer,XMLRenderer,)
+    @extend_schema(responses=RDRResource_Serializer)
     def get(self, request, format=None):
         returnformat = request.query_params.get('format', 'json')
         all_resources = RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='ALL', result='OBJECTS')

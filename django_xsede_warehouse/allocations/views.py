@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from drf_spectacular.utils import extend_schema
 
 # Create your views here.
 from rest_framework.views import APIView
@@ -23,6 +23,7 @@ class AllocationResources_List(APIView):
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
     renderer_classes = (JSONRenderer,TemplateHTMLRenderer,XMLRenderer,)
+    @extend_schema(responses=ProjectResource_Serializer)
     def get(self, request, format=None, **kwargs):
         if 'ResourceID' in self.kwargs:
             try:

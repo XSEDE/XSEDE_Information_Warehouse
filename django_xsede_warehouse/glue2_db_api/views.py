@@ -2,6 +2,8 @@ from django.http import *
 from django.shortcuts import render
 from django.utils.encoding import uri_to_iri
 from django.utils.dateparse import parse_datetime
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
 
 # Create your views here.
 from datetime import datetime, timedelta
@@ -29,12 +31,14 @@ class AdminDomain_DbList(APIView):
         GLUE2 Administrative Domain entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=AdminDomain_DbSerializer)
     def get(self, request, format=None):
         objects = AdminDomain.objects.all()
         serializer = AdminDomain_DbSerializer(objects, many=True)
         response_obj = {'results': serializer.data}
         response_obj['total_results'] = len(objects)
         return MyAPIResponse(response_obj)
+    @extend_schema(request=AdminDomain_DbSerializer, responses=AdminDomain_DbSerializer)
     def post(self, request, format=None):
         serializer = AdminDomain_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -53,6 +57,8 @@ class AdminDomain_DbDetail(APIView):
     '''
     # Since Name, AppVersion, and ID may contain a forward slash we use uri_to_iri
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    @extend_schema(responses=AdminDomain_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = AdminDomain.objects.get(pk=uri_to_iri(pk)) # uri_to_iri translates %xx
@@ -60,6 +66,7 @@ class AdminDomain_DbDetail(APIView):
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Not found')
         serializer = AdminDomain_DbSerializer(object)
         return MyAPIResponse({'results': [serializer.data]})
+    @extend_schema(request=AdminDomain_DbSerializer, responses=AdminDomain_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = AdminDomain.objects.get(pk=uri_to_iri(pk))
@@ -74,6 +81,7 @@ class AdminDomain_DbDetail(APIView):
             code = status.HTTP_400_BAD_REQUEST
             data = serializer.errors
         return MyAPIResponse({'results': data}, code=code)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = AdminDomain.objects.get(pk=uri_to_iri(pk))
@@ -87,12 +95,15 @@ class UserDomain_DbList(APIView):
         GLUE2 User Domain entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    @extend_schema(responses=UserDomain_DbSerializer)
     def get(self, request, format=None):
         objects = UserDomain.objects.all()
         serializer = UserDomain_DbSerializer(objects, many=True)
         response_obj = {'results': serializer.data}
         response_obj['total_results'] = len(objects)
         return MyAPIResponse(response_obj)
+    @extend_schema(request=UserDomain_DbSerializer, responses=UserDomain_DbSerializer)
     def post(self, request, format=None):
         serializer = UserDomain_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -110,6 +121,8 @@ class UserDomain_DbDetail(APIView):
     '''
     # Since Name, AppVersion, and ID may contain a forward slash we use uri_to_iri
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    @extend_schema(responses=UserDomain_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = UserDomain.objects.get(pk=uri_to_iri(pk)) # uri_to_iri translates %xx
@@ -117,6 +130,7 @@ class UserDomain_DbDetail(APIView):
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Not found')
         serializer = UserDomain_DbSerializer(object)
         return MyAPIResponse({'results': [serializer.data]})
+    @extend_schema(request=UserDomain_DbSerializer, responses=UserDomain_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = UserDomain.objects.get(pk=uri_to_iri(pk))
@@ -131,6 +145,7 @@ class UserDomain_DbDetail(APIView):
             code = status.HTTP_400_BAD_REQUEST
             data = serializer.errors
         return MyAPIResponse({'results': data}, code=code)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = UserDomain.objects.get(pk=uri_to_iri(pk))
@@ -144,12 +159,15 @@ class AccessPolicy_DbList(APIView):
         GLUE2 Access Policy entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    @extend_schema(responses=AccessPolicy_DbSerializer)
     def get(self, request, format=None):
         objects = AccessPolicy.objects.all()
         serializer = AccessPolicy_DbSerializer(objects, many=True)
         response_obj = {'results': serializer.data}
         response_obj['total_results'] = len(objects)
         return MyAPIResponse(response_obj)
+    @extend_schema(request=AccessPolicy_DbSerializer, responses=AccessPolicy_DbSerializer)
     def post(self, request, format=None):
         serializer = AccessPolicy_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -167,6 +185,8 @@ class AccessPolicy_DbDetail(APIView):
     '''
     # Since Name, AppVersion, and ID may contain a forward slash we use uri_to_iri
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    @extend_schema(responses=AccessPolicy_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = AccessPolicy.objects.get(pk=uri_to_iri(pk)) # uri_to_iri translates %xx
@@ -174,6 +194,7 @@ class AccessPolicy_DbDetail(APIView):
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Not found')
         serializer = AccessPolicy_DbSerializer(object)
         return MyAPIResponse({'results': [serializer.data]})
+    @extend_schema(request=AccessPolicy_DbSerializer, responses=AccessPolicy_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = AccessPolicy.objects.get(pk=uri_to_iri(pk))
@@ -188,6 +209,7 @@ class AccessPolicy_DbDetail(APIView):
             code = status.HTTP_400_BAD_REQUEST
             data = serializer.errors
         return MyAPIResponse({'results': data}, code=code)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = AccessPolicy.objects.get(pk=uri_to_iri(pk))
@@ -201,12 +223,15 @@ class Contact_DbList(APIView):
         GLUE2 Contact entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    @extend_schema(responses=Contact_DbSerializer)
     def get(self, request, format=None):
         objects = Contact.objects.all()
         serializer = Contact_DbSerializer(objects, many=True)
         response_obj = {'results': serializer.data}
         response_obj['total_results'] = len(objects)
         return MyAPIResponse(response_obj)
+    @extend_schema(request=Contact_DbSerializer, responses=Contact_DbSerializer)
     def post(self, request, format=None):
         serializer = Contact_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -224,6 +249,8 @@ class Contact_DbDetail(APIView):
     '''
     # Since Name, AppVersion, and ID may contain a forward slash we use uri_to_iri
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    @extend_schema(responses=Contact_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = Contact.objects.get(pk=uri_to_iri(pk)) # uri_to_iri translates %xx
@@ -231,6 +258,7 @@ class Contact_DbDetail(APIView):
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Not found')
         serializer = Contact_DbSerializer(object)
         return MyAPIResponse({'results': [serializer.data]})
+    @extend_schema(request=Contact_DbSerializer, responses=Contact_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = Contact.objects.get(pk=uri_to_iri(pk))
@@ -245,6 +273,7 @@ class Contact_DbDetail(APIView):
             code = status.HTTP_400_BAD_REQUEST
             data = serializer.errors
         return MyAPIResponse({'results': data}, code=code)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = Contact.objects.get(pk=uri_to_iri(pk))
@@ -258,10 +287,13 @@ class Location_DbList(APIView):
         GLUE2 Location entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    @extend_schema(responses=Location_DbSerializer)
     def get(self, request, format=None):
         objects = Location.objects.all()
         serializer = Location_DbSerializer(objects, many=True)
         return Response(serializer.data)
+    @extend_schema(request=Location_DbSerializer, responses=Location_DbSerializer)
     def post(self, request, format=None):
         serializer = Location_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -274,6 +306,8 @@ class Location_DbDetail(APIView):
         GLUE2 Location entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    @extend_schema(responses=Location_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = Location.objects.get(pk=pk)
@@ -281,6 +315,7 @@ class Location_DbDetail(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = Location_DbSerializer(object)
         return Response(serializer.data)
+    @extend_schema(request=Location_DbSerializer, responses=Location_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = Location.objects.get(pk=pk)
@@ -291,6 +326,7 @@ class Location_DbDetail(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = Location.objects.get(pk=pk)
@@ -305,10 +341,12 @@ class ApplicationEnvironment_DbList(APIView):
         GLUE2 Application Environment entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ApplicationEnvironment_DbSerializer)
     def get(self, request, format=None):
         objects = ApplicationEnvironment.objects.all()
         serializer = ApplicationEnvironment_DbSerializer(objects, many=True)
         return Response(serializer.data)
+    @extend_schema(request=ApplicationEnvironment_DbSerializer, responses=ApplicationEnvironment_DbSerializer)
     def post(self, request, format=None):
         serializer = ApplicationEnvironment_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -322,12 +360,14 @@ class ApplicationEnvironment_DbDetail(APIView):
     '''
     # Since Name, AppVersion, and ID may contain a forward slash we use uri_to_iri
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ApplicationEnvironment_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = ApplicationEnvironment.objects.get(pk=uri_to_iri(pk)) # uri_to_iri translates %xx
         except ApplicationEnvironment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(ApplicationEnvironment_DbSerializer(object).data)
+    @extend_schema(request=ApplicationEnvironment_DbSerializer, responses=ApplicationEnvironment_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = ApplicationEnvironment.objects.get(pk=uri_to_iri(pk))
@@ -338,6 +378,7 @@ class ApplicationEnvironment_DbDetail(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = ApplicationEnvironment.objects.get(pk=uri_to_iri(pk))
@@ -352,11 +393,13 @@ class ApplicationHandle_DbList(APIView):
     '''
     # Since Name, Value, and ID may contain a forward slash we use uri_to_iri
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ApplicationHandle_DbSerializer)
     def get(self, request, format=None):
         objects = ApplicationHandle.objects.all()
 #        serializer = ApplicationHandle_DbSerializer(objects, many=True, context={'request', request})
         serializer = ApplicationHandle_DbSerializer(objects, many=True)
         return Response(serializer.data)
+    @extend_schema(request=ApplicationHandle_DbSerializer, responses=ApplicationHandle_DbSerializer)
     def post(self, request, format=None):
         serializer = ApplicationHandle_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -369,13 +412,14 @@ class ApplicationHandle_DbDetail(APIView):
         GLUE2 Application Handle entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ApplicationHandle_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = ApplicationHandle.objects.get(pk=uri_to_iri(pk))
         except ApplicationHandle.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-#        serializer = ApplicationHandle_DbSerializer(object, context={'request', request})
         return Response(ApplicationHandle_DbSerializer(object).data)
+    @extend_schema(request=ApplicationHandle_DbSerializer, responses=ApplicationHandle_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = ApplicationHandle.objects.get(pk=uri_to_iri(pk))
@@ -386,6 +430,7 @@ class ApplicationHandle_DbDetail(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = ApplicationHandle.objects.get(pk=uri_to_iri(pk))
@@ -399,10 +444,12 @@ class AbstractService_DbList(APIView):
         GLUE2 Abstract Service entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=AbstractService_DbSerializer)
     def get(self, request, format=None):
         objects = AbstractService.objects.all()
         serializer = AbstractService_DbSerializer(objects, many=True)
         return Response(serializer.data)
+    @extend_schema(request=AbstractService_DbSerializer, responses=AbstractService_DbSerializer)
     def post(self, request, format=None):
         serializer = AbstractService_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -415,6 +462,7 @@ class AbstractService_DbDetail(APIView):
         GLUE2 Abstract Service entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=AbstractService_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = AbstractService.objects.get(pk=pk)
@@ -422,6 +470,7 @@ class AbstractService_DbDetail(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = AbstractService_DbSerializer(object)
         return Response(serializer.data)
+    @extend_schema(request=AbstractService_DbSerializer, responses=AbstractService_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = AbstractService.objects.get(pk=pk)
@@ -432,6 +481,7 @@ class AbstractService_DbDetail(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = AbstractService.objects.get(pk=pk)
@@ -445,10 +495,12 @@ class Endpoint_DbList(APIView):
         GLUE2 Endpoint entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Endpoint_DbSerializer)
     def get(self, request, format=None):
         objects = Endpoint.objects.all()
         serializer = Endpoint_DbSerializer(objects, many=True)
         return Response(serializer.data)
+    @extend_schema(request=Endpoint_DbSerializer, responses=Endpoint_DbSerializer)
     def post(self, request, format=None):
         serializer = Endpoint_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -461,6 +513,7 @@ class Endpoint_DbDetail(APIView):
         GLUE2 Endpoint entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=Endpoint_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = Endpoint.objects.get(pk=pk)
@@ -468,6 +521,7 @@ class Endpoint_DbDetail(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = Endpoint_DbSerializer(object)
         return Response(serializer.data)
+    @extend_schema(request=Endpoint_DbSerializer, responses=Endpoint_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = Endpoint.objects.get(pk=pk)
@@ -478,6 +532,7 @@ class Endpoint_DbDetail(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = Endpoint.objects.get(pk=pk)
@@ -491,10 +546,12 @@ class ComputingManager_DbList(APIView):
         GLUE2 Computing Manager entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ComputingManager_DbSerializer)
     def get(self, request, format=None):
         objects = ComputingManager.objects.all()
         serializer = ComputingManager_DbSerializer(objects, many=True)
         return Response(serializer.data)
+    @extend_schema(request=ComputingManager_DbSerializer, responses=ComputingManager_DbSerializer)
     def post(self, request, format=None):
         serializer = ComputingManager_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -507,6 +564,7 @@ class ComputingManager_DbDetail(APIView):
         GLUE2 Computing Manager entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ComputingManager_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = ComputingManager.objects.get(pk=pk)
@@ -514,6 +572,7 @@ class ComputingManager_DbDetail(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = ComputingManager_DbSerializer(object)
         return Response(serializer.data)
+    @extend_schema(request=ComputingManager_DbSerializer, responses=ComputingManager_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = ComputingManager.objects.get(pk=pk)
@@ -524,6 +583,7 @@ class ComputingManager_DbDetail(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = ComputingManager.objects.get(pk=pk)
@@ -537,10 +597,12 @@ class ExecutionEnvironment_DbList(APIView):
         GLUE2 Execution Environment entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ExecutionEnvironment_DbSerializer)
     def get(self, request, format=None):
         objects = ExecutionEnvironment.objects.all()
         serializer = ExecutionEnvironment_DbSerializer(objects, many=True)
         return Response(serializer.data)
+    @extend_schema(request=ExecutionEnvironment_DbSerializer, responses=ExecutionEnvironment_DbSerializer)
     def post(self, request, format=None):
         serializer = ExecutionEnvironment_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -553,6 +615,7 @@ class ExecutionEnvironment_DbDetail(APIView):
         GLUE2 Execution Environment entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ExecutionEnvironment_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = ExecutionEnvironment.objects.get(pk=pk)
@@ -560,6 +623,7 @@ class ExecutionEnvironment_DbDetail(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = ExecutionEnvironment_DbSerializer(object)
         return Response(serializer.data)
+    @extend_schema(request=ExecutionEnvironment_DbSerializer, responses=ExecutionEnvironment_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = ExecutionEnvironment.objects.get(pk=pk)
@@ -570,6 +634,7 @@ class ExecutionEnvironment_DbDetail(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = ExecutionEnvironment.objects.get(pk=pk)
@@ -583,10 +648,12 @@ class ComputingShare_DbList(APIView):
         GLUE2 Computing Share entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ComputingShare_DbSerializer)
     def get(self, request, format=None):
         objects = ComputingShare.objects.all()
         serializer = ComputingShare_DbSerializer(objects, many=True)
         return Response(serializer.data)
+    @extend_schema(request=ComputingShare_DbSerializer, responses=ComputingShare_DbSerializer)
     def post(self, request, format=None):
         serializer = ComputingShare_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -599,6 +666,7 @@ class ComputingShare_DbDetail(APIView):
         GLUE2 Computing Share entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ComputingShare_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = ComputingShare.objects.get(pk=pk)
@@ -606,6 +674,7 @@ class ComputingShare_DbDetail(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = ComputingShare_DbSerializer(object)
         return Response(serializer.data)
+    @extend_schema(request=ComputingShare_DbSerializer, responses=ComputingShare_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = ComputingShare.objects.get(pk=pk)
@@ -616,6 +685,7 @@ class ComputingShare_DbDetail(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = ComputingShare.objects.get(pk=pk)
@@ -630,6 +700,7 @@ class ComputingQueue_DbList(APIView):
     '''
     permission_classes = (IsAuthenticated,)
     authentication_classes = (GlobusAuthentication,)
+    @extend_schema(responses=ComputingQueue_DbSerializer)
     def get(self, request, format=None, **kwargs):
         if 'resourceid' in self.kwargs:
             try:
@@ -643,6 +714,7 @@ class ComputingQueue_DbList(APIView):
                 return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = ComputingQueue_DbSerializer(objects, many=True)
         return Response(serializer.data)
+    @extend_schema(request=ComputingQueue_DbSerializer, responses=ComputingQueue_DbSerializer)
     def post(self, request, format=None):
         serializer = ComputingQueue_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -656,6 +728,7 @@ class ComputingQueue_DbDetail(APIView):
     '''
     permission_classes = (IsAuthenticated,)
     authentication_classes = (GlobusAuthentication,)
+    @extend_schema(responses=ComputingQueue_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = ComputingQueue.objects.get(pk=pk)
@@ -663,6 +736,7 @@ class ComputingQueue_DbDetail(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = ComputingQueue_DbSerializer(object)
         return Response(serializer.data)
+    @extend_schema(request=ComputingQueue_DbSerializer, responses=ComputingQueue_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = ComputingQueue.objects.get(pk=pk)
@@ -673,6 +747,7 @@ class ComputingQueue_DbDetail(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = ComputingQueue.objects.get(pk=pk)
@@ -687,10 +762,12 @@ class ComputingActivity_DbList(APIView):
     '''
     permission_classes = (IsAuthenticated,)
     authentication_classes = (GlobusAuthentication,)
+    @extend_schema(responses=ComputingActivity_DbSerializer)
     def get(self, request, format=None):
         objects = ComputingActivity.objects.all()
         serializer = ComputingActivity_DbSerializer(objects, many=True)
         return Response(serializer.data)
+    @extend_schema(request=ComputingActivity_DbSerializer, responses=ComputingActivity_DbSerializer)
     def post(self, request, format=None):
         serializer = ComputingActivity_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -704,6 +781,7 @@ class ComputingActivity_DbDetail(APIView):
     '''
     permission_classes = (IsAuthenticated,)
     authentication_classes = (GlobusAuthentication,)
+    @extend_schema(responses=ComputingActivity_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = ComputingActivity.objects.get(pk=pk)
@@ -711,6 +789,7 @@ class ComputingActivity_DbDetail(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = ComputingActivity_DbSerializer(object)
         return Response(serializer.data)
+    @extend_schema(request=ComputingActivity_DbSerializer, responses=ComputingActivity_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = ComputingActivity.objects.get(pk=pk)
@@ -721,6 +800,7 @@ class ComputingActivity_DbDetail(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = ComputingActivity.objects.get(pk=pk)
@@ -734,12 +814,14 @@ class ComputingManagerAcceleratorInfo_DbList(APIView):
         GLUE2 Computing Manager Accelerator Information entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ComputingManagerAcceleratorInfo_DbSerializer)
     def get(self, request, format=None):
         objects = ComputingManagerAcceleratorInfo.objects.all()
         serializer = ComputingManagerAcceleratorInfo_DbSerializer(objects, many=True)
         response_obj = {'results': serializer.data}
         response_obj['total_results'] = len(objects)
         return MyAPIResponse(response_obj)
+    @extend_schema(request=ComputingManagerAcceleratorInfo_DbSerializer, responses=ComputingManagerAcceleratorInfo_DbSerializer)
     def post(self, request, format=None):
         serializer = ComputingManagerAcceleratorInfo_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -757,6 +839,7 @@ class ComputingManagerAcceleratorInfo_DbDetail(APIView):
     '''
     # Since Name, AppVersion, and ID may contain a forward slash we use uri_to_iri
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ComputingManagerAcceleratorInfo_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = ComputingManagerAcceleratorInfo.objects.get(pk=uri_to_iri(pk)) # uri_to_iri translates %xx
@@ -764,6 +847,7 @@ class ComputingManagerAcceleratorInfo_DbDetail(APIView):
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Not found')
         serializer = ComputingManagerAcceleratorInfo_DbSerializer(object)
         return MyAPIResponse({'results': [serializer.data]})
+    @extend_schema(request=ComputingManagerAcceleratorInfo_DbSerializer, responses=ComputingManagerAcceleratorInfo_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = ComputingManagerAcceleratorInfo.objects.get(pk=uri_to_iri(pk))
@@ -778,6 +862,7 @@ class ComputingManagerAcceleratorInfo_DbDetail(APIView):
             code = status.HTTP_400_BAD_REQUEST
             data = serializer.errors
         return MyAPIResponse({'results': data}, code=code)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = ComputingManagerAcceleratorInfo.objects.get(pk=uri_to_iri(pk))
@@ -791,12 +876,14 @@ class ComputingShareAcceleratorInfo_DbList(APIView):
         GLUE2 Computing Share Accelerator Information entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ComputingShareAcceleratorInfo_DbSerializer)
     def get(self, request, format=None):
         objects = ComputingShareAcceleratorInfo.objects.all()
         serializer = ComputingShareAcceleratorInfo_DbSerializer(objects, many=True)
         response_obj = {'results': serializer.data}
         response_obj['total_results'] = len(objects)
         return MyAPIResponse(response_obj)
+    @extend_schema(request=ComputingShareAcceleratorInfo_DbSerializer, responses=ComputingShareAcceleratorInfo_DbSerializer)
     def post(self, request, format=None):
         serializer = ComputingShareAcceleratorInfo_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -814,6 +901,7 @@ class ComputingShareAcceleratorInfo_DbDetail(APIView):
     '''
     # Since Name, AppVersion, and ID may contain a forward slash we use uri_to_iri
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=ComputingShareAcceleratorInfo_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = ComputingShareAcceleratorInfo.objects.get(pk=uri_to_iri(pk)) # uri_to_iri translates %xx
@@ -821,6 +909,7 @@ class ComputingShareAcceleratorInfo_DbDetail(APIView):
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Not found')
         serializer = ComputingShareAcceleratorInfo_DbSerializer(object)
         return MyAPIResponse({'results': [serializer.data]})
+    @extend_schema(request=ComputingShareAcceleratorInfo_DbSerializer, responses=ComputingShareAcceleratorInfo_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = ComputingShareAcceleratorInfo.objects.get(pk=uri_to_iri(pk))
@@ -835,6 +924,7 @@ class ComputingShareAcceleratorInfo_DbDetail(APIView):
             code = status.HTTP_400_BAD_REQUEST
             data = serializer.errors
         return MyAPIResponse({'results': data}, code=code)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = ComputingShareAcceleratorInfo.objects.get(pk=uri_to_iri(pk))
@@ -848,12 +938,14 @@ class AcceleratorEnvironment_DbList(APIView):
         GLUE2 Accelerator Environment entity
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=AcceleratorEnvironment_DbSerializer)
     def get(self, request, format=None):
         objects = AcceleratorEnvironment.objects.all()
         serializer = AcceleratorEnvironment_DbSerializer(objects, many=True)
         response_obj = {'results': serializer.data}
         response_obj['total_results'] = len(objects)
         return MyAPIResponse(response_obj)
+    @extend_schema(request=AcceleratorEnvironment_DbSerializer, responses=AcceleratorEnvironment_DbSerializer)
     def post(self, request, format=None):
         serializer = AcceleratorEnvironment_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -871,6 +963,7 @@ class AcceleratorEnvironment_DbDetail(APIView):
     '''
     # Since Name, AppVersion, and ID may contain a forward slash we use uri_to_iri
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=AcceleratorEnvironment_DbSerializer)
     def get(self, request, pk, format=None):
         try:
             object = AcceleratorEnvironment.objects.get(pk=uri_to_iri(pk)) # uri_to_iri translates %xx
@@ -878,6 +971,7 @@ class AcceleratorEnvironment_DbDetail(APIView):
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Not found')
         serializer = AcceleratorEnvironment_DbSerializer(object)
         return MyAPIResponse({'results': [serializer.data]})
+    @extend_schema(request=AcceleratorEnvironment_DbSerializer, responses=AcceleratorEnvironment_DbSerializer)
     def put(self, request, pk, format=None):
         try:
             object = AcceleratorEnvironment.objects.get(pk=uri_to_iri(pk))
@@ -892,6 +986,7 @@ class AcceleratorEnvironment_DbDetail(APIView):
             code = status.HTTP_400_BAD_REQUEST
             data = serializer.errors
         return MyAPIResponse({'results': data}, code=code)
+    @extend_schema(request=None, responses={404: OpenApiTypes.STR, 204: OpenApiTypes.STR})
     def delete(self, request, pk, format=None):
         try:
             object = AcceleratorEnvironment.objects.get(pk=uri_to_iri(pk))
@@ -918,6 +1013,7 @@ class EntityHistory_DbList(APIView):
         .
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=EntityHistory_DbSerializer)
     def get(self, request, format=None, **kwargs):
         if 'doctype' not in self.kwargs:
             raise MyAPIException(code=status.HTTP_404_NOT_FOUND, detail='Missing /doctype/.. argument')
@@ -969,7 +1065,7 @@ class EntityHistory_DbList(APIView):
         response_obj = {'results': serializer.data}
         response_obj['total_results'] = len(objects)
         return MyAPIResponse(response_obj)
-    
+    @extend_schema(request=EntityHistory_DbSerializer, responses=EntityHistory_DbSerializer)
     def post(self, request, format=None):
         serializer = EntityHistory_DbSerializer(data=request.data)
         if serializer.is_valid():
@@ -982,6 +1078,7 @@ class EntityHistory_DbDetail(APIView):
         GLUE2 received entity history
     '''
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    @extend_schema(responses=EntityHistory_DbSerializer)
     def get(self, request, id, format=None):
         try:
             object = EntityHistory.objects.get(pk=id)
