@@ -4,6 +4,7 @@ tag-3.0-20210916
   - Django 3.0 driven declare response serializer field types
   - Switch from url() to path() to <type:parameters>
   - Retire applications: resource_cat and resource_v2
+  - Set settings.py TIME_ZONE to default to Central
 
 tag-2.4-20210912
   - Revert ES Document update_or_create 
