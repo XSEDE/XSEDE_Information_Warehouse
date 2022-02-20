@@ -1,3 +1,6 @@
+tag-2.4-20211116 and tag-2.4-20211116b
+  - Improved Elasticsearch "result window is too large" handling
+
 tag-2.4-20210912
   - Revert ES Document update_or_create 
 

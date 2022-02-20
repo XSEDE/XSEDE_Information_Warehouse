@@ -16,7 +16,7 @@ from .models import *
 from .serializers import *
 from xsede_warehouse.exceptions import MyAPIException
 from xsede_warehouse.responses import MyAPIResponse
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, RequestError
 from elasticsearch_dsl import Search, Q, A
 import datetime
 from datetime import datetime, timedelta
@@ -901,6 +901,18 @@ class Resource_ESearch(APIView):
                                 bucket['Name'] = itemdict['key']
                         buckets.append(bucket)
                     response_obj['aggregations'][aggkey] = buckets
+
+        except RequestError as exc:
+            if exc.error == 'search_phase_execution_exception':
+                try:
+                    reason = exc.info['error']['root_cause'][0]['reason']
+                    if not reason.startswith('Result window is too large'):
+                        pass
+                finally:
+                    logg2.warning(exc)
+                    raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='Unable to page that far into results, narrow your search') from None
+            logg2.info(exc, exc_info=True)
+            raise MyAPIException(code=status.HTTP_400_BAD_REQUEST, detail='{}: {}'.format(type(exc).__name__, exc))
 
         except Exception as exc:
             logg2.info(exc, exc_info=True)
