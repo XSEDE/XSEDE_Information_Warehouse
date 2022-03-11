@@ -865,7 +865,7 @@ class Glue2NewDocument():
                                         'Version': self.new[me][ID].get('Version', 'none'),
                                         'Hostname': self.new[me][ID].get('Hostname', 'none'),
                                         'Location': self.new[me][ID].get('Location', 'none'),
-                                        'CreationTime': self.new[me][ID].get('CreationTime', 'none'),
+                                        'CreationTime': self.new[me][ID].get('CreationTime', None),
                                         'RecentHistory': new_history,
                                         'EntityJSON': other_json
                                     })

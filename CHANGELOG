@@ -1,3 +1,6 @@
+tag-2.4-20220310b
+  - Missing CreationTime should be None and not 'none'
+
 tag-2.4-20220310
   - Expand XSEDELocalUsermap ResourceID field from 32 to 40 as was done everywhere else
   - Processing PublisherInfo handle missing CreationTime gracefully
