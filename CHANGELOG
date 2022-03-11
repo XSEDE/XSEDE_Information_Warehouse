@@ -1,3 +1,10 @@
+tag-2.4-20220310
+  - Expand XSEDELocalUsermap ResourceID field from 32 to 40 as was done everywhere else
+  - Processing PublisherInfo handle missing CreationTime gracefully
+
+tag-2.4-20220220
+  - Expand XSEDELocalUsermap.ResourceID to length 40 like already happened in other models
+
 tag-2.4-20211116 and tag-2.4-20211116b
   - Improved Elasticsearch "result window is too large" handling
 
