@@ -1,3 +1,6 @@
+tag-2.4-20220723
+  - Expand Outages Content from 4000 to 8000 characters needed to merge Outage update text
+
 tag-2.4-20220331
   - Enhance resources-sgci/v1.0.0 API to include TACC resources
 

@@ -12,7 +12,7 @@ class Outages(models.Model):
     ResourceID = models.CharField(max_length=64)
     WebURL = models.CharField(max_length=320)
     Subject = models.CharField(db_index=True, max_length=120)
-    Content = models.CharField(db_index=True, max_length=4000)
+    Content = models.CharField(db_index=True, max_length=8000)
     OutageStart = models.DateTimeField(null=True)
     OutageEnd = models.DateTimeField(null=True)
     SiteID = models.CharField(db_index=True, max_length=40)
