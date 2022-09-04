@@ -115,6 +115,7 @@ def RDR_Active_Resources(affiliation='XSEDE', allocated=True, type='SUB', result
 
 # Introduced 2020-02-23 by JP in support of SGCI resource description view
 # Looks at the latest_status instead of current_statuses which excludes dual decomissioned + other status (likely invalid)
+# Doesn't filter by provider_level
 # This should replace the above filter eventually
 def RDR_Active_Resources_V2(affiliation='XSEDE', allocated=True, type='SUB', result='OBJECTS'):
     # Active base resources
@@ -123,8 +124,8 @@ def RDR_Active_Resources_V2(affiliation='XSEDE', allocated=True, type='SUB', res
                                                 Q(rdr_type='resource') &
                                                 Q(project_affiliation=affiliation) &
                                                 Q(other_attributes__xsede_services_only=False) &
-                                                (Q(provider_level='XSEDE Level 1') |
-                                                 Q(provider_level='XSEDE Level 2')) &
+#                                                (Q(provider_level='XSEDE Level 1') |
+#                                                 Q(provider_level='XSEDE Level 2')) &
                                                 ~Q(info_resourceid='stand-alone.tg.teragrid.org') &
                                                 ~Q(info_resourceid='futuregrid0.futuregrid.xsede.org') &
                                                 ~Q(info_resourceid='Abe-QB-Grid.teragrid.org') &

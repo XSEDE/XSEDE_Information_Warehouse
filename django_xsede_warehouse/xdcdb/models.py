@@ -27,7 +27,7 @@ class XSEDELocalUsermap(models.Model):
     resource_id = models.IntegerField(null=False)
     resource_name = models.CharField(max_length=200, null=False)
     local_username = models.CharField(max_length=30, null=False)
-    ResourceID = models.CharField(max_length=32, null=False)
+    ResourceID = models.CharField(max_length=40, null=False)
     class Meta:
         unique_together = ['resource_id', 'local_username']
         db_name = 'xcsr'
